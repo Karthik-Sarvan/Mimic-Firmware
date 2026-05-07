@@ -1,0 +1,33 @@
+/.DS_Store
+/.idea/
+/.vscode/
+
+# Build artifacts
+/build/
+/dist/
+/out/
+/target/
+/bin/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Node/JS
+node_modules/
+coverage/
+
+# Misc
+*.swp
+*.swo
