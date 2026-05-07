@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: mimic-fw
+Version: 1.1.0
+Summary: Cross-platform Python library for the Mimic STM32 Firmware
+Author: Antigravity
+Requires-Python: >=3.6
+Requires-Dist: pyserial>=3.5
+Dynamic: author
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
