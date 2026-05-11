@@ -6,6 +6,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "pyserial>=3.5",
+        "click",
     ],
     entry_points={
         'console_scripts': [
