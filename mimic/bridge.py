@@ -32,12 +32,11 @@ class MimicBridge:
                 
                 # Send a test character to wake up the buffer
                 self.ser.write(b"\r\n")
-                time.sleep(0.2)
-                self.ser.reset_input_buffer()
+                self.ser.flush()
+                self.read_response() # Clear whatever prompt character gets spit out
                 
                 # Check for Mimic version
                 self.send_command("VERSION")
-                time.sleep(0.5)  # Give the STM32 more time to respond
                 response = self.read_response()
                 
                 if any("MIMIC" in line.upper() for line in response):
@@ -59,17 +58,30 @@ class MimicBridge:
     def send_command(self, cmd: str):
         if self.ser and self.ser.is_open:
             self.ser.write(f"{cmd}\r\n".encode('utf-8'))
+            self.ser.flush()
 
     def read_response(self) -> List[str]:
         lines = []
         if not self.ser or not self.ser.is_open:
             return lines
         
-        time.sleep(0.1)
-        while self.ser.in_waiting:
-            line = self.ser.readline().decode('utf-8', errors='ignore').strip()
-            if line and line != ">":
-                lines.append(line)
+        start_time = time.time()
+        buffer = ""
+        while time.time() - start_time < self.timeout:
+            if self.ser.in_waiting:
+                chunk = self.ser.read(self.ser.in_waiting).decode('utf-8', errors='ignore')
+                buffer += chunk
+                if ">" in buffer:
+                    buffer = buffer.replace(">", "")
+                    break
+            else:
+                time.sleep(0.001)
+                
+        for line in buffer.split('\n'):
+            clean_line = line.strip()
+            if clean_line:
+                lines.append(clean_line)
+                
         return lines
 
     def execute(self, cmd: str) -> List[str]:
