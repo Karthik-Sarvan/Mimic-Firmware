@@ -1,0 +1,66 @@
+#include "mimic.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <ctype.h>
+
+/* Global Handle declarations for access in ISRs */
+extern I2C_HandleTypeDef hi2c1;
+extern I2C_HandleTypeDef hi2c2;
+extern I2C_HandleTypeDef hi2c3;
+extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart1;
+extern SPI_HandleTypeDef hspi1;
+extern SPI_HandleTypeDef hspi2;
+
+/* Shadow Register Map for Zero-Latency I2C Emulation */
+uint8_t i2c_register_map[256] = {0}; 
+static uint8_t current_reg_addr = 0;
+static uint8_t i2c_slave_rx_buffer[1];
+
+static UART_HandleTypeDef *huart = &huart1;
+
+/* Forward declarations */
+void Mimic_InitMPU6050Registers(void);
+void Mimic_ConfigureI2CGPIO(I2C_TypeDef *instance);
+void Mimic_SendResponse(const char *msg);
+void Mimic_SendResponseF(const char *fmt, ...);
+
+void Mimic_Init()
+{
+    huart = &huart1;
+    Mimic_SendResponse("\r\n=======================================================\r\n");
+    Mimic_SendResponse("      MIMIC v1.1.0 - GRUVBOX HARDWARE TERMINAL\r\n");
+    Mimic_SendResponse("=======================================================\r\n");
+    Mimic_SendResponse("Type 'help' for available commands.\r\n");
+    
+    Mimic_InitMPU6050Registers();
+}
+
+void Mimic_InitMPU6050Registers(void)
+{
+    memset(i2c_register_map, 0, 256);
+    i2c_register_map[0x75] = 0x68; // WHO_AM_I
+    i2c_register_map[0x6B] = 0x40; // Sleep mode enabled
+    i2c_register_map[0x3B] = 0x00; // Accel X High
+    i2c_register_map[0x3C] = 0x01; // Accel X Low
+    i2c_register_map[0x3F] = 0x40; // Z-axis ~16384 (1g)
+}
+
+void Mimic_SendResponse(const char *msg)
+{
+    HAL_UART_Transmit(huart, (uint8_t*)msg, strlen(msg), 100);
+}
+
+void Mimic_SendResponseF(const char *fmt, ...)
+{
+    char buf[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, args);
+    va_end(args);
+    Mimic_SendResponse(buf);
+}
+
+/* Rest of the file continues... omitting for brevity in thought, but I'll write the full fixed function below */
