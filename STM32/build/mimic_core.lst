@@ -1,0 +1,2806 @@
+ARM GAS  /tmp/ccisMha2.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"mimic_core.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/mimic_core.c"
+  20              		.section	.text.Mimic_RxAvailable,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	Mimic_RxAvailable:
+  27              	.LFB138:
+   1:Core/Src/mimic_core.c **** #include "mimic.h"
+   2:Core/Src/mimic_core.c **** 
+   3:Core/Src/mimic_core.c **** /**
+   4:Core/Src/mimic_core.c ****   ******************************************************************************
+   5:Core/Src/mimic_core.c ****   * @file    mimic.c
+   6:Core/Src/mimic_core.c ****   * @brief   Mimic Command Interface Implementation
+   7:Core/Src/mimic_core.c ****   * @author  Mimic Project
+   8:Core/Src/mimic_core.c ****   ******************************************************************************
+   9:Core/Src/mimic_core.c ****   */
+  10:Core/Src/mimic_core.c **** 
+  11:Core/Src/mimic_core.c **** /* Includes ------------------------------------------------------------------*/
+  12:Core/Src/mimic_core.c **** #include "mimic.h"
+  13:Core/Src/mimic_core.c **** #include "usart.h"
+  14:Core/Src/mimic_core.c **** #include <stdarg.h>
+  15:Core/Src/mimic_core.c **** 
+  16:Core/Src/mimic_core.c **** /* ========================== PRIVATE VARIABLES ============================= */
+  17:Core/Src/mimic_core.c **** 
+  18:Core/Src/mimic_core.c **** Mimic_CmdState_t mimic_state;
+  19:Core/Src/mimic_core.c **** 
+  20:Core/Src/mimic_core.c **** /* Interrupt-based RX */
+  21:Core/Src/mimic_core.c **** static volatile uint8_t rx_byte;
+  22:Core/Src/mimic_core.c **** static volatile uint8_t rx_ready = 0;
+  23:Core/Src/mimic_core.c **** 
+  24:Core/Src/mimic_core.c **** /* Circular buffer for received data */
+  25:Core/Src/mimic_core.c **** #define RX_BUFFER_SIZE 256
+  26:Core/Src/mimic_core.c **** static volatile uint8_t rx_buffer[RX_BUFFER_SIZE];
+  27:Core/Src/mimic_core.c **** static volatile uint16_t rx_head = 0;
+  28:Core/Src/mimic_core.c **** static volatile uint16_t rx_tail = 0;
+  29:Core/Src/mimic_core.c **** 
+  30:Core/Src/mimic_core.c **** /* Port mapping table */
+  31:Core/Src/mimic_core.c **** 
+ARM GAS  /tmp/ccisMha2.s 			page 2
+
+
+  32:Core/Src/mimic_core.c **** /**
+  33:Core/Src/mimic_core.c ****   * @brief  UART RX Complete Callback (called from interrupt)
+  34:Core/Src/mimic_core.c ****   */
+  35:Core/Src/mimic_core.c **** void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+  36:Core/Src/mimic_core.c **** {
+  37:Core/Src/mimic_core.c ****     if (huart == &MIMIC_HOST_UART)
+  38:Core/Src/mimic_core.c ****     {
+  39:Core/Src/mimic_core.c ****         /* Store in circular buffer */
+  40:Core/Src/mimic_core.c ****         uint16_t next_head = (rx_head + 1) % RX_BUFFER_SIZE;
+  41:Core/Src/mimic_core.c ****         if (next_head != rx_tail)  /* Buffer not full */
+  42:Core/Src/mimic_core.c ****         {
+  43:Core/Src/mimic_core.c ****             rx_buffer[rx_head] = rx_byte;
+  44:Core/Src/mimic_core.c ****             rx_head = next_head;
+  45:Core/Src/mimic_core.c ****         }
+  46:Core/Src/mimic_core.c ****         
+  47:Core/Src/mimic_core.c ****         /* Re-enable interrupt for next byte */
+  48:Core/Src/mimic_core.c ****         HAL_UART_Receive_IT(&MIMIC_HOST_UART, (uint8_t*)&rx_byte, 1);
+  49:Core/Src/mimic_core.c ****     }
+  50:Core/Src/mimic_core.c **** }
+  51:Core/Src/mimic_core.c **** 
+  52:Core/Src/mimic_core.c **** /**
+  53:Core/Src/mimic_core.c ****   * @brief  Check if data available in RX buffer
+  54:Core/Src/mimic_core.c ****   */
+  55:Core/Src/mimic_core.c **** static uint8_t Mimic_RxAvailable(void)
+  56:Core/Src/mimic_core.c **** {
+  28              		.loc 1 56 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  57:Core/Src/mimic_core.c ****     return rx_head != rx_tail;
+  33              		.loc 1 57 5 view .LVU1
+  34              		.loc 1 57 20 is_stmt 0 view .LVU2
+  35 0000 044B     		ldr	r3, .L2
+  36 0002 1888     		ldrh	r0, [r3]
+  37 0004 80B2     		uxth	r0, r0
+  38 0006 044B     		ldr	r3, .L2+4
+  39 0008 1B88     		ldrh	r3, [r3]
+  40 000a 9BB2     		uxth	r3, r3
+  58:Core/Src/mimic_core.c **** }
+  41              		.loc 1 58 1 view .LVU3
+  42 000c C01A     		subs	r0, r0, r3
+  43 000e 18BF     		it	ne
+  44 0010 0120     		movne	r0, #1
+  45 0012 7047     		bx	lr
+  46              	.L3:
+  47              		.align	2
+  48              	.L2:
+  49 0014 00000000 		.word	rx_head
+  50 0018 00000000 		.word	rx_tail
+  51              		.cfi_endproc
+  52              	.LFE138:
+  54              		.section	.text.Mimic_RxGet,"ax",%progbits
+  55              		.align	1
+  56              		.syntax unified
+  57              		.thumb
+  58              		.thumb_func
+ARM GAS  /tmp/ccisMha2.s 			page 3
+
+
+  60              	Mimic_RxGet:
+  61              	.LFB139:
+  59:Core/Src/mimic_core.c **** 
+  60:Core/Src/mimic_core.c **** /**
+  61:Core/Src/mimic_core.c ****   * @brief  Get one byte from RX buffer
+  62:Core/Src/mimic_core.c ****   */
+  63:Core/Src/mimic_core.c **** static uint8_t Mimic_RxGet(void)
+  64:Core/Src/mimic_core.c **** {
+  62              		.loc 1 64 1 is_stmt 1 view -0
+  63              		.cfi_startproc
+  64              		@ args = 0, pretend = 0, frame = 0
+  65              		@ frame_needed = 0, uses_anonymous_args = 0
+  66              		@ link register save eliminated.
+  65:Core/Src/mimic_core.c ****     if (rx_head == rx_tail) return 0;
+  67              		.loc 1 65 5 view .LVU5
+  68              		.loc 1 65 17 is_stmt 0 view .LVU6
+  69 0000 0D4B     		ldr	r3, .L7
+  70 0002 1A88     		ldrh	r2, [r3]
+  71 0004 92B2     		uxth	r2, r2
+  72 0006 0D4B     		ldr	r3, .L7+4
+  73 0008 1B88     		ldrh	r3, [r3]
+  74 000a 9BB2     		uxth	r3, r3
+  75              		.loc 1 65 8 view .LVU7
+  76 000c 9A42     		cmp	r2, r3
+  77 000e 10D0     		beq	.L6
+  66:Core/Src/mimic_core.c ****     uint8_t data = rx_buffer[rx_tail];
+  78              		.loc 1 66 5 is_stmt 1 view .LVU8
+  79              		.loc 1 66 29 is_stmt 0 view .LVU9
+  80 0010 0A4A     		ldr	r2, .L7+4
+  81 0012 1388     		ldrh	r3, [r2]
+  82 0014 9BB2     		uxth	r3, r3
+  83              		.loc 1 66 13 view .LVU10
+  84 0016 0A49     		ldr	r1, .L7+8
+  85 0018 C85C     		ldrb	r0, [r1, r3]	@ zero_extendqisi2
+  86 001a C0B2     		uxtb	r0, r0
+  87              	.LVL0:
+  67:Core/Src/mimic_core.c ****     rx_tail = (rx_tail + 1) % RX_BUFFER_SIZE;
+  88              		.loc 1 67 5 is_stmt 1 view .LVU11
+  89              		.loc 1 67 24 is_stmt 0 view .LVU12
+  90 001c 1388     		ldrh	r3, [r2]
+  91 001e 9BB2     		uxth	r3, r3
+  92 0020 0133     		adds	r3, r3, #1
+  93              		.loc 1 67 29 view .LVU13
+  94 0022 5942     		rsbs	r1, r3, #0
+  95 0024 DBB2     		uxtb	r3, r3
+  96 0026 C9B2     		uxtb	r1, r1
+  97 0028 58BF     		it	pl
+  98 002a 4B42     		rsbpl	r3, r1, #0
+  99              		.loc 1 67 13 view .LVU14
+ 100 002c 9BB2     		uxth	r3, r3
+ 101 002e 1380     		strh	r3, [r2]	@ movhi
+  68:Core/Src/mimic_core.c ****     return data;
+ 102              		.loc 1 68 5 is_stmt 1 view .LVU15
+ 103              		.loc 1 68 12 is_stmt 0 view .LVU16
+ 104 0030 7047     		bx	lr
+ 105              	.LVL1:
+ 106              	.L6:
+ARM GAS  /tmp/ccisMha2.s 			page 4
+
+
+  65:Core/Src/mimic_core.c ****     uint8_t data = rx_buffer[rx_tail];
+ 107              		.loc 1 65 36 discriminator 1 view .LVU17
+ 108 0032 0020     		movs	r0, #0
+  69:Core/Src/mimic_core.c **** }
+ 109              		.loc 1 69 1 view .LVU18
+ 110 0034 7047     		bx	lr
+ 111              	.L8:
+ 112 0036 00BF     		.align	2
+ 113              	.L7:
+ 114 0038 00000000 		.word	rx_head
+ 115 003c 00000000 		.word	rx_tail
+ 116 0040 00000000 		.word	rx_buffer
+ 117              		.cfi_endproc
+ 118              	.LFE139:
+ 120              		.section	.text.HAL_UART_RxCpltCallback,"ax",%progbits
+ 121              		.align	1
+ 122              		.global	HAL_UART_RxCpltCallback
+ 123              		.syntax unified
+ 124              		.thumb
+ 125              		.thumb_func
+ 127              	HAL_UART_RxCpltCallback:
+ 128              	.LVL2:
+ 129              	.LFB137:
+  36:Core/Src/mimic_core.c ****     if (huart == &MIMIC_HOST_UART)
+ 130              		.loc 1 36 1 is_stmt 1 view -0
+ 131              		.cfi_startproc
+ 132              		@ args = 0, pretend = 0, frame = 0
+ 133              		@ frame_needed = 0, uses_anonymous_args = 0
+  36:Core/Src/mimic_core.c ****     if (huart == &MIMIC_HOST_UART)
+ 134              		.loc 1 36 1 is_stmt 0 view .LVU20
+ 135 0000 08B5     		push	{r3, lr}
+ 136              	.LCFI0:
+ 137              		.cfi_def_cfa_offset 8
+ 138              		.cfi_offset 3, -8
+ 139              		.cfi_offset 14, -4
+  37:Core/Src/mimic_core.c ****     {
+ 140              		.loc 1 37 5 is_stmt 1 view .LVU21
+  37:Core/Src/mimic_core.c ****     {
+ 141              		.loc 1 37 8 is_stmt 0 view .LVU22
+ 142 0002 124B     		ldr	r3, .L14
+ 143 0004 9842     		cmp	r0, r3
+ 144 0006 00D0     		beq	.L13
+ 145              	.LVL3:
+ 146              	.L9:
+  50:Core/Src/mimic_core.c **** 
+ 147              		.loc 1 50 1 view .LVU23
+ 148 0008 08BD     		pop	{r3, pc}
+ 149              	.LVL4:
+ 150              	.L13:
+ 151              	.LBB2:
+  40:Core/Src/mimic_core.c ****         if (next_head != rx_tail)  /* Buffer not full */
+ 152              		.loc 1 40 9 is_stmt 1 view .LVU24
+  40:Core/Src/mimic_core.c ****         if (next_head != rx_tail)  /* Buffer not full */
+ 153              		.loc 1 40 39 is_stmt 0 view .LVU25
+ 154 000a 114B     		ldr	r3, .L14+4
+ 155 000c 1B88     		ldrh	r3, [r3]
+ 156 000e 9BB2     		uxth	r3, r3
+ARM GAS  /tmp/ccisMha2.s 			page 5
+
+
+ 157 0010 0133     		adds	r3, r3, #1
+  40:Core/Src/mimic_core.c ****         if (next_head != rx_tail)  /* Buffer not full */
+ 158              		.loc 1 40 44 view .LVU26
+ 159 0012 5A42     		rsbs	r2, r3, #0
+ 160 0014 DBB2     		uxtb	r3, r3
+ 161 0016 D2B2     		uxtb	r2, r2
+ 162 0018 58BF     		it	pl
+ 163 001a 5342     		rsbpl	r3, r2, #0
+  40:Core/Src/mimic_core.c ****         if (next_head != rx_tail)  /* Buffer not full */
+ 164              		.loc 1 40 18 view .LVU27
+ 165 001c 9BB2     		uxth	r3, r3
+ 166              	.LVL5:
+  41:Core/Src/mimic_core.c ****         {
+ 167              		.loc 1 41 9 is_stmt 1 view .LVU28
+  41:Core/Src/mimic_core.c ****         {
+ 168              		.loc 1 41 23 is_stmt 0 view .LVU29
+ 169 001e 0D4A     		ldr	r2, .L14+8
+ 170 0020 1288     		ldrh	r2, [r2]
+ 171 0022 92B2     		uxth	r2, r2
+  41:Core/Src/mimic_core.c ****         {
+ 172              		.loc 1 41 12 view .LVU30
+ 173 0024 9A42     		cmp	r2, r3
+ 174 0026 0AD0     		beq	.L11
+  43:Core/Src/mimic_core.c ****             rx_head = next_head;
+ 175              		.loc 1 43 13 is_stmt 1 view .LVU31
+  43:Core/Src/mimic_core.c ****             rx_head = next_head;
+ 176              		.loc 1 43 22 is_stmt 0 view .LVU32
+ 177 0028 0948     		ldr	r0, .L14+4
+ 178              	.LVL6:
+  43:Core/Src/mimic_core.c ****             rx_head = next_head;
+ 179              		.loc 1 43 22 view .LVU33
+ 180 002a 0288     		ldrh	r2, [r0]
+ 181 002c 92B2     		uxth	r2, r2
+  43:Core/Src/mimic_core.c ****             rx_head = next_head;
+ 182              		.loc 1 43 32 view .LVU34
+ 183 002e 0A49     		ldr	r1, .L14+12
+ 184 0030 0978     		ldrb	r1, [r1]	@ zero_extendqisi2
+ 185 0032 C9B2     		uxtb	r1, r1
+ 186 0034 DFF824C0 		ldr	ip, .L14+16
+ 187 0038 0CF80210 		strb	r1, [ip, r2]
+  44:Core/Src/mimic_core.c ****         }
+ 188              		.loc 1 44 13 is_stmt 1 view .LVU35
+  44:Core/Src/mimic_core.c ****         }
+ 189              		.loc 1 44 21 is_stmt 0 view .LVU36
+ 190 003c 0380     		strh	r3, [r0]	@ movhi
+ 191              	.L11:
+  48:Core/Src/mimic_core.c ****     }
+ 192              		.loc 1 48 9 is_stmt 1 view .LVU37
+ 193 003e 0122     		movs	r2, #1
+ 194 0040 0549     		ldr	r1, .L14+12
+ 195 0042 0248     		ldr	r0, .L14
+ 196 0044 FFF7FEFF 		bl	HAL_UART_Receive_IT
+ 197              	.LVL7:
+  48:Core/Src/mimic_core.c ****     }
+ 198              		.loc 1 48 9 is_stmt 0 view .LVU38
+ 199              	.LBE2:
+  50:Core/Src/mimic_core.c **** 
+ARM GAS  /tmp/ccisMha2.s 			page 6
+
+
+ 200              		.loc 1 50 1 view .LVU39
+ 201 0048 DEE7     		b	.L9
+ 202              	.L15:
+ 203 004a 00BF     		.align	2
+ 204              	.L14:
+ 205 004c 00000000 		.word	huart1
+ 206 0050 00000000 		.word	rx_head
+ 207 0054 00000000 		.word	rx_tail
+ 208 0058 00000000 		.word	rx_byte
+ 209 005c 00000000 		.word	rx_buffer
+ 210              		.cfi_endproc
+ 211              	.LFE137:
+ 213              		.section	.text.Mimic_SendResponse,"ax",%progbits
+ 214              		.align	1
+ 215              		.global	Mimic_SendResponse
+ 216              		.syntax unified
+ 217              		.thumb
+ 218              		.thumb_func
+ 220              	Mimic_SendResponse:
+ 221              	.LVL8:
+ 222              	.LFB142:
+  70:Core/Src/mimic_core.c **** 
+  71:Core/Src/mimic_core.c **** /* ========================== CORE FUNCTIONS ================================ */
+  72:Core/Src/mimic_core.c **** 
+  73:Core/Src/mimic_core.c **** /**
+  74:Core/Src/mimic_core.c ****   * @brief  Initialize Mimic command interface
+  75:Core/Src/mimic_core.c ****   */
+  76:Core/Src/mimic_core.c **** void Mimic_Init(void)
+  77:Core/Src/mimic_core.c **** {
+  78:Core/Src/mimic_core.c ****     // POWER UP ALL PINS IMMEDIATELY
+  79:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+  80:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+  81:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+  82:Core/Src/mimic_core.c ****     
+  83:Core/Src/mimic_core.c ****     // Ensure LED pin is output
+  84:Core/Src/mimic_core.c ****     GPIO_InitTypeDef GPIO_Led = {0};
+  85:Core/Src/mimic_core.c ****     GPIO_Led.Pin = GPIO_PIN_13;
+  86:Core/Src/mimic_core.c ****     GPIO_Led.Mode = GPIO_MODE_OUTPUT_PP;
+  87:Core/Src/mimic_core.c ****     GPIO_Led.Pull = GPIO_NOPULL;
+  88:Core/Src/mimic_core.c ****     GPIO_Led.Speed = GPIO_SPEED_FREQ_LOW;
+  89:Core/Src/mimic_core.c ****     HAL_GPIO_Init(GPIOC, &GPIO_Led);
+  90:Core/Src/mimic_core.c **** 
+  91:Core/Src/mimic_core.c ****     memset(&mimic_state, 0, sizeof(Mimic_CmdState_t));
+  92:Core/Src/mimic_core.c ****     memset(i2c_register_map, 0, 256);
+  93:Core/Src/mimic_core.c ****     
+  94:Core/Src/mimic_core.c ****     // Seed standard sensor IDs for instant hardware handshake
+  95:Core/Src/mimic_core.c ****     i2c_register_map[0x75] = 0x68; // MPU6050 WHO_AM_I
+  96:Core/Src/mimic_core.c ****     i2c_register_map[0xD0] = 0x58; // BMP280 Chip ID
+  97:Core/Src/mimic_core.c ****     
+  98:Core/Src/mimic_core.c ****     /* Manual PC13 (LED) Init to be 100% sure */
+  99:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+ 100:Core/Src/mimic_core.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 101:Core/Src/mimic_core.c ****     GPIO_InitStruct.Pin = GPIO_PIN_13;
+ 102:Core/Src/mimic_core.c ****     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 103:Core/Src/mimic_core.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 104:Core/Src/mimic_core.c ****     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ 105:Core/Src/mimic_core.c ****     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+ARM GAS  /tmp/ccisMha2.s 			page 7
+
+
+ 106:Core/Src/mimic_core.c **** 
+ 107:Core/Src/mimic_core.c ****     /* Start interrupt-based reception */
+ 108:Core/Src/mimic_core.c ****     HAL_UART_Receive_IT(&MIMIC_HOST_UART, (uint8_t*)&rx_byte, 1);
+ 109:Core/Src/mimic_core.c ****     
+ 110:Core/Src/mimic_core.c ****     /* Send welcome message */
+ 111:Core/Src/mimic_core.c ****     Mimic_SendResponse("\r\n");
+ 112:Core/Src/mimic_core.c ****     Mimic_SendResponse("MIMIC FIRMWARE STARTING...\r\n");
+ 113:Core/Src/mimic_core.c **** }
+ 114:Core/Src/mimic_core.c **** 
+ 115:Core/Src/mimic_core.c **** /**
+ 116:Core/Src/mimic_core.c ****   * @brief  Process incoming commands (call in main loop)
+ 117:Core/Src/mimic_core.c ****   */
+ 118:Core/Src/mimic_core.c **** void Mimic_Process(void)
+ 119:Core/Src/mimic_core.c **** {
+ 120:Core/Src/mimic_core.c **** 
+ 121:Core/Src/mimic_core.c **** 
+ 122:Core/Src/mimic_core.c ****     /* Process all available bytes from interrupt buffer */
+ 123:Core/Src/mimic_core.c ****     while (Mimic_RxAvailable())
+ 124:Core/Src/mimic_core.c ****     {
+ 125:Core/Src/mimic_core.c ****         uint8_t rx = Mimic_RxGet();
+ 126:Core/Src/mimic_core.c ****         
+ 127:Core/Src/mimic_core.c ****         /* Handle special characters */
+ 128:Core/Src/mimic_core.c ****         if (rx == '\r' || rx == '\n')
+ 129:Core/Src/mimic_core.c ****         {
+ 130:Core/Src/mimic_core.c ****             if (mimic_state.cmd_index > 0)
+ 131:Core/Src/mimic_core.c ****             {
+ 132:Core/Src/mimic_core.c ****                 Mimic_SendResponse("\r\n");
+ 133:Core/Src/mimic_core.c ****                 mimic_state.cmd_buffer[mimic_state.cmd_index] = '\0';
+ 134:Core/Src/mimic_core.c ****                 Mimic_ProcessCommand(mimic_state.cmd_buffer);
+ 135:Core/Src/mimic_core.c ****                 mimic_state.cmd_index = 0;
+ 136:Core/Src/mimic_core.c ****                 Mimic_SendResponse("> ");
+ 137:Core/Src/mimic_core.c ****             }
+ 138:Core/Src/mimic_core.c ****         }
+ 139:Core/Src/mimic_core.c ****         else if (rx == '\b' || rx == 127)  /* Backspace */
+ 140:Core/Src/mimic_core.c ****         {
+ 141:Core/Src/mimic_core.c ****             if (mimic_state.cmd_index > 0)
+ 142:Core/Src/mimic_core.c ****             {
+ 143:Core/Src/mimic_core.c ****                 mimic_state.cmd_index--;
+ 144:Core/Src/mimic_core.c ****                 Mimic_SendResponse(" \b");  /* Erase character */
+ 145:Core/Src/mimic_core.c ****             }
+ 146:Core/Src/mimic_core.c ****         }
+ 147:Core/Src/mimic_core.c ****         else if (rx >= 32 && rx < 127)  /* Printable */
+ 148:Core/Src/mimic_core.c ****         {
+ 149:Core/Src/mimic_core.c ****             if (mimic_state.cmd_index < MIMIC_MAX_CMD_LEN - 1)
+ 150:Core/Src/mimic_core.c ****             {
+ 151:Core/Src/mimic_core.c ****                 mimic_state.cmd_buffer[mimic_state.cmd_index++] = rx;
+ 152:Core/Src/mimic_core.c ****             }
+ 153:Core/Src/mimic_core.c ****         }
+ 154:Core/Src/mimic_core.c ****     }
+ 155:Core/Src/mimic_core.c ****     
+ 156:Core/Src/mimic_core.c ****     Mimic_SPI_Sync();
+ 157:Core/Src/mimic_core.c **** }
+ 158:Core/Src/mimic_core.c **** 
+ 159:Core/Src/mimic_core.c **** /**
+ 160:Core/Src/mimic_core.c ****   * @brief  Send response string
+ 161:Core/Src/mimic_core.c ****   */
+ 162:Core/Src/mimic_core.c **** void Mimic_SendResponse(const char *response)
+ARM GAS  /tmp/ccisMha2.s 			page 8
+
+
+ 163:Core/Src/mimic_core.c **** {
+ 223              		.loc 1 163 1 is_stmt 1 view -0
+ 224              		.cfi_startproc
+ 225              		@ args = 0, pretend = 0, frame = 0
+ 226              		@ frame_needed = 0, uses_anonymous_args = 0
+ 227              		.loc 1 163 1 is_stmt 0 view .LVU41
+ 228 0000 10B5     		push	{r4, lr}
+ 229              	.LCFI1:
+ 230              		.cfi_def_cfa_offset 8
+ 231              		.cfi_offset 4, -8
+ 232              		.cfi_offset 14, -4
+ 233 0002 0446     		mov	r4, r0
+ 164:Core/Src/mimic_core.c ****     HAL_UART_Transmit(&MIMIC_HOST_UART, (uint8_t*)response, strlen(response), 1);
+ 234              		.loc 1 164 5 is_stmt 1 view .LVU42
+ 235              		.loc 1 164 61 is_stmt 0 view .LVU43
+ 236 0004 FFF7FEFF 		bl	strlen
+ 237              	.LVL9:
+ 238              		.loc 1 164 5 discriminator 1 view .LVU44
+ 239 0008 0123     		movs	r3, #1
+ 240 000a 82B2     		uxth	r2, r0
+ 241 000c 2146     		mov	r1, r4
+ 242 000e 0248     		ldr	r0, .L18
+ 243 0010 FFF7FEFF 		bl	HAL_UART_Transmit
+ 244              	.LVL10:
+ 165:Core/Src/mimic_core.c **** }
+ 245              		.loc 1 165 1 view .LVU45
+ 246 0014 10BD     		pop	{r4, pc}
+ 247              	.LVL11:
+ 248              	.L19:
+ 249              		.loc 1 165 1 view .LVU46
+ 250 0016 00BF     		.align	2
+ 251              	.L18:
+ 252 0018 00000000 		.word	huart1
+ 253              		.cfi_endproc
+ 254              	.LFE142:
+ 256              		.section	.rodata.Mimic_Init.str1.4,"aMS",%progbits,1
+ 257              		.align	2
+ 258              	.LC0:
+ 259 0000 0D0A00   		.ascii	"\015\012\000"
+ 260 0003 00       		.align	2
+ 261              	.LC1:
+ 262 0004 4D494D49 		.ascii	"MIMIC FIRMWARE STARTING...\015\012\000"
+ 262      43204649 
+ 262      524D5741 
+ 262      52452053 
+ 262      54415254 
+ 263              		.section	.text.Mimic_Init,"ax",%progbits
+ 264              		.align	1
+ 265              		.global	Mimic_Init
+ 266              		.syntax unified
+ 267              		.thumb
+ 268              		.thumb_func
+ 270              	Mimic_Init:
+ 271              	.LFB140:
+  77:Core/Src/mimic_core.c ****     // POWER UP ALL PINS IMMEDIATELY
+ 272              		.loc 1 77 1 is_stmt 1 view -0
+ 273              		.cfi_startproc
+ARM GAS  /tmp/ccisMha2.s 			page 9
+
+
+ 274              		@ args = 0, pretend = 0, frame = 56
+ 275              		@ frame_needed = 0, uses_anonymous_args = 0
+ 276 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 277              	.LCFI2:
+ 278              		.cfi_def_cfa_offset 28
+ 279              		.cfi_offset 4, -28
+ 280              		.cfi_offset 5, -24
+ 281              		.cfi_offset 6, -20
+ 282              		.cfi_offset 7, -16
+ 283              		.cfi_offset 8, -12
+ 284              		.cfi_offset 9, -8
+ 285              		.cfi_offset 14, -4
+ 286 0004 8FB0     		sub	sp, sp, #60
+ 287              	.LCFI3:
+ 288              		.cfi_def_cfa_offset 88
+  79:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 289              		.loc 1 79 5 view .LVU48
+ 290              	.LBB3:
+  79:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 291              		.loc 1 79 5 view .LVU49
+ 292 0006 0024     		movs	r4, #0
+ 293 0008 0094     		str	r4, [sp]
+  79:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 294              		.loc 1 79 5 view .LVU50
+ 295 000a 324D     		ldr	r5, .L22
+ 296 000c 2B6B     		ldr	r3, [r5, #48]
+ 297 000e 43F00103 		orr	r3, r3, #1
+ 298 0012 2B63     		str	r3, [r5, #48]
+  79:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 299              		.loc 1 79 5 view .LVU51
+ 300 0014 2B6B     		ldr	r3, [r5, #48]
+ 301 0016 03F00103 		and	r3, r3, #1
+ 302 001a 0093     		str	r3, [sp]
+  79:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 303              		.loc 1 79 5 view .LVU52
+ 304 001c 009B     		ldr	r3, [sp]
+ 305              	.LBE3:
+  79:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 306              		.loc 1 79 5 view .LVU53
+  80:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+ 307              		.loc 1 80 5 view .LVU54
+ 308              	.LBB4:
+  80:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+ 309              		.loc 1 80 5 view .LVU55
+ 310 001e 0194     		str	r4, [sp, #4]
+  80:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+ 311              		.loc 1 80 5 view .LVU56
+ 312 0020 2B6B     		ldr	r3, [r5, #48]
+ 313 0022 43F00203 		orr	r3, r3, #2
+ 314 0026 2B63     		str	r3, [r5, #48]
+  80:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+ 315              		.loc 1 80 5 view .LVU57
+ 316 0028 2B6B     		ldr	r3, [r5, #48]
+ 317 002a 03F00203 		and	r3, r3, #2
+ 318 002e 0193     		str	r3, [sp, #4]
+  80:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+ 319              		.loc 1 80 5 view .LVU58
+ARM GAS  /tmp/ccisMha2.s 			page 10
+
+
+ 320 0030 019B     		ldr	r3, [sp, #4]
+ 321              	.LBE4:
+  80:Core/Src/mimic_core.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+ 322              		.loc 1 80 5 view .LVU59
+  81:Core/Src/mimic_core.c ****     
+ 323              		.loc 1 81 5 view .LVU60
+ 324              	.LBB5:
+  81:Core/Src/mimic_core.c ****     
+ 325              		.loc 1 81 5 view .LVU61
+ 326 0032 0294     		str	r4, [sp, #8]
+  81:Core/Src/mimic_core.c ****     
+ 327              		.loc 1 81 5 view .LVU62
+ 328 0034 2B6B     		ldr	r3, [r5, #48]
+ 329 0036 43F00403 		orr	r3, r3, #4
+ 330 003a 2B63     		str	r3, [r5, #48]
+  81:Core/Src/mimic_core.c ****     
+ 331              		.loc 1 81 5 view .LVU63
+ 332 003c 2B6B     		ldr	r3, [r5, #48]
+ 333 003e 03F00403 		and	r3, r3, #4
+ 334 0042 0293     		str	r3, [sp, #8]
+  81:Core/Src/mimic_core.c ****     
+ 335              		.loc 1 81 5 view .LVU64
+ 336 0044 029B     		ldr	r3, [sp, #8]
+ 337              	.LBE5:
+  81:Core/Src/mimic_core.c ****     
+ 338              		.loc 1 81 5 view .LVU65
+  84:Core/Src/mimic_core.c ****     GPIO_Led.Pin = GPIO_PIN_13;
+ 339              		.loc 1 84 5 view .LVU66
+  84:Core/Src/mimic_core.c ****     GPIO_Led.Pin = GPIO_PIN_13;
+ 340              		.loc 1 84 22 is_stmt 0 view .LVU67
+ 341 0046 09A9     		add	r1, sp, #36
+ 342 0048 0994     		str	r4, [sp, #36]
+ 343 004a 4C60     		str	r4, [r1, #4]
+ 344 004c 8C60     		str	r4, [r1, #8]
+ 345 004e CC60     		str	r4, [r1, #12]
+ 346 0050 0C61     		str	r4, [r1, #16]
+  85:Core/Src/mimic_core.c ****     GPIO_Led.Mode = GPIO_MODE_OUTPUT_PP;
+ 347              		.loc 1 85 5 is_stmt 1 view .LVU68
+  85:Core/Src/mimic_core.c ****     GPIO_Led.Mode = GPIO_MODE_OUTPUT_PP;
+ 348              		.loc 1 85 18 is_stmt 0 view .LVU69
+ 349 0052 4FF40058 		mov	r8, #8192
+ 350 0056 CDF82480 		str	r8, [sp, #36]
+  86:Core/Src/mimic_core.c ****     GPIO_Led.Pull = GPIO_NOPULL;
+ 351              		.loc 1 86 5 is_stmt 1 view .LVU70
+  86:Core/Src/mimic_core.c ****     GPIO_Led.Pull = GPIO_NOPULL;
+ 352              		.loc 1 86 19 is_stmt 0 view .LVU71
+ 353 005a 0126     		movs	r6, #1
+ 354 005c 0A96     		str	r6, [sp, #40]
+  87:Core/Src/mimic_core.c ****     GPIO_Led.Speed = GPIO_SPEED_FREQ_LOW;
+ 355              		.loc 1 87 5 is_stmt 1 view .LVU72
+  88:Core/Src/mimic_core.c ****     HAL_GPIO_Init(GPIOC, &GPIO_Led);
+ 356              		.loc 1 88 5 view .LVU73
+  89:Core/Src/mimic_core.c **** 
+ 357              		.loc 1 89 5 view .LVU74
+ 358 005e 1E4F     		ldr	r7, .L22+4
+ 359 0060 3846     		mov	r0, r7
+ 360 0062 FFF7FEFF 		bl	HAL_GPIO_Init
+ARM GAS  /tmp/ccisMha2.s 			page 11
+
+
+ 361              	.LVL12:
+  91:Core/Src/mimic_core.c ****     memset(i2c_register_map, 0, 256);
+ 362              		.loc 1 91 5 view .LVU75
+ 363 0066 8222     		movs	r2, #130
+ 364 0068 2146     		mov	r1, r4
+ 365 006a 1C48     		ldr	r0, .L22+8
+ 366 006c FFF7FEFF 		bl	memset
+ 367              	.LVL13:
+  92:Core/Src/mimic_core.c ****     
+ 368              		.loc 1 92 5 view .LVU76
+ 369 0070 DFF87C90 		ldr	r9, .L22+28
+ 370 0074 4FF48072 		mov	r2, #256
+ 371 0078 2146     		mov	r1, r4
+ 372 007a 4846     		mov	r0, r9
+ 373 007c FFF7FEFF 		bl	memset
+ 374              	.LVL14:
+  95:Core/Src/mimic_core.c ****     i2c_register_map[0xD0] = 0x58; // BMP280 Chip ID
+ 375              		.loc 1 95 5 view .LVU77
+  95:Core/Src/mimic_core.c ****     i2c_register_map[0xD0] = 0x58; // BMP280 Chip ID
+ 376              		.loc 1 95 28 is_stmt 0 view .LVU78
+ 377 0080 6823     		movs	r3, #104
+ 378 0082 89F87530 		strb	r3, [r9, #117]
+  96:Core/Src/mimic_core.c ****     
+ 379              		.loc 1 96 5 is_stmt 1 view .LVU79
+  96:Core/Src/mimic_core.c ****     
+ 380              		.loc 1 96 28 is_stmt 0 view .LVU80
+ 381 0086 5823     		movs	r3, #88
+ 382 0088 89F8D030 		strb	r3, [r9, #208]
+  99:Core/Src/mimic_core.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 383              		.loc 1 99 5 is_stmt 1 view .LVU81
+ 384              	.LBB6:
+  99:Core/Src/mimic_core.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 385              		.loc 1 99 5 view .LVU82
+ 386 008c 0394     		str	r4, [sp, #12]
+  99:Core/Src/mimic_core.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 387              		.loc 1 99 5 view .LVU83
+ 388 008e 2B6B     		ldr	r3, [r5, #48]
+ 389 0090 43F00403 		orr	r3, r3, #4
+ 390 0094 2B63     		str	r3, [r5, #48]
+  99:Core/Src/mimic_core.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 391              		.loc 1 99 5 view .LVU84
+ 392 0096 2B6B     		ldr	r3, [r5, #48]
+ 393 0098 03F00403 		and	r3, r3, #4
+ 394 009c 0393     		str	r3, [sp, #12]
+  99:Core/Src/mimic_core.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 395              		.loc 1 99 5 view .LVU85
+ 396 009e 039B     		ldr	r3, [sp, #12]
+ 397              	.LBE6:
+  99:Core/Src/mimic_core.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 398              		.loc 1 99 5 view .LVU86
+ 100:Core/Src/mimic_core.c ****     GPIO_InitStruct.Pin = GPIO_PIN_13;
+ 399              		.loc 1 100 5 view .LVU87
+ 100:Core/Src/mimic_core.c ****     GPIO_InitStruct.Pin = GPIO_PIN_13;
+ 400              		.loc 1 100 22 is_stmt 0 view .LVU88
+ 401 00a0 04A9     		add	r1, sp, #16
+ 402 00a2 0494     		str	r4, [sp, #16]
+ 403 00a4 4C60     		str	r4, [r1, #4]
+ARM GAS  /tmp/ccisMha2.s 			page 12
+
+
+ 404 00a6 8C60     		str	r4, [r1, #8]
+ 405 00a8 CC60     		str	r4, [r1, #12]
+ 406 00aa 0C61     		str	r4, [r1, #16]
+ 101:Core/Src/mimic_core.c ****     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 407              		.loc 1 101 5 is_stmt 1 view .LVU89
+ 101:Core/Src/mimic_core.c ****     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 408              		.loc 1 101 25 is_stmt 0 view .LVU90
+ 409 00ac CDF81080 		str	r8, [sp, #16]
+ 102:Core/Src/mimic_core.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 410              		.loc 1 102 5 is_stmt 1 view .LVU91
+ 102:Core/Src/mimic_core.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 411              		.loc 1 102 26 is_stmt 0 view .LVU92
+ 412 00b0 0596     		str	r6, [sp, #20]
+ 103:Core/Src/mimic_core.c ****     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ 413              		.loc 1 103 5 is_stmt 1 view .LVU93
+ 104:Core/Src/mimic_core.c ****     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+ 414              		.loc 1 104 5 view .LVU94
+ 105:Core/Src/mimic_core.c **** 
+ 415              		.loc 1 105 5 view .LVU95
+ 416 00b2 3846     		mov	r0, r7
+ 417 00b4 FFF7FEFF 		bl	HAL_GPIO_Init
+ 418              	.LVL15:
+ 108:Core/Src/mimic_core.c ****     
+ 419              		.loc 1 108 5 view .LVU96
+ 420 00b8 3246     		mov	r2, r6
+ 421 00ba 0949     		ldr	r1, .L22+12
+ 422 00bc 0948     		ldr	r0, .L22+16
+ 423 00be FFF7FEFF 		bl	HAL_UART_Receive_IT
+ 424              	.LVL16:
+ 111:Core/Src/mimic_core.c ****     Mimic_SendResponse("MIMIC FIRMWARE STARTING...\r\n");
+ 425              		.loc 1 111 5 view .LVU97
+ 426 00c2 0948     		ldr	r0, .L22+20
+ 427 00c4 FFF7FEFF 		bl	Mimic_SendResponse
+ 428              	.LVL17:
+ 112:Core/Src/mimic_core.c **** }
+ 429              		.loc 1 112 5 view .LVU98
+ 430 00c8 0848     		ldr	r0, .L22+24
+ 431 00ca FFF7FEFF 		bl	Mimic_SendResponse
+ 432              	.LVL18:
+ 113:Core/Src/mimic_core.c **** 
+ 433              		.loc 1 113 1 is_stmt 0 view .LVU99
+ 434 00ce 0FB0     		add	sp, sp, #60
+ 435              	.LCFI4:
+ 436              		.cfi_def_cfa_offset 28
+ 437              		@ sp needed
+ 438 00d0 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 439              	.L23:
+ 440              		.align	2
+ 441              	.L22:
+ 442 00d4 00380240 		.word	1073887232
+ 443 00d8 00080240 		.word	1073874944
+ 444 00dc 00000000 		.word	mimic_state
+ 445 00e0 00000000 		.word	rx_byte
+ 446 00e4 00000000 		.word	huart1
+ 447 00e8 00000000 		.word	.LC0
+ 448 00ec 04000000 		.word	.LC1
+ 449 00f0 00000000 		.word	i2c_register_map
+ARM GAS  /tmp/ccisMha2.s 			page 13
+
+
+ 450              		.cfi_endproc
+ 451              	.LFE140:
+ 453              		.section	.text.Mimic_SendResponseF,"ax",%progbits
+ 454              		.align	1
+ 455              		.global	Mimic_SendResponseF
+ 456              		.syntax unified
+ 457              		.thumb
+ 458              		.thumb_func
+ 460              	Mimic_SendResponseF:
+ 461              	.LVL19:
+ 462              	.LFB143:
+ 166:Core/Src/mimic_core.c **** 
+ 167:Core/Src/mimic_core.c **** /**
+ 168:Core/Src/mimic_core.c ****   * @brief  Send formatted response
+ 169:Core/Src/mimic_core.c ****   */
+ 170:Core/Src/mimic_core.c **** void Mimic_SendResponseF(const char *format, ...)
+ 171:Core/Src/mimic_core.c **** {
+ 463              		.loc 1 171 1 is_stmt 1 view -0
+ 464              		.cfi_startproc
+ 465              		@ args = 4, pretend = 16, frame = 136
+ 466              		@ frame_needed = 0, uses_anonymous_args = 1
+ 467              		.loc 1 171 1 is_stmt 0 view .LVU101
+ 468 0000 0FB4     		push	{r0, r1, r2, r3}
+ 469              	.LCFI5:
+ 470              		.cfi_def_cfa_offset 16
+ 471              		.cfi_offset 0, -16
+ 472              		.cfi_offset 1, -12
+ 473              		.cfi_offset 2, -8
+ 474              		.cfi_offset 3, -4
+ 475 0002 10B5     		push	{r4, lr}
+ 476              	.LCFI6:
+ 477              		.cfi_def_cfa_offset 24
+ 478              		.cfi_offset 4, -24
+ 479              		.cfi_offset 14, -20
+ 480 0004 A2B0     		sub	sp, sp, #136
+ 481              	.LCFI7:
+ 482              		.cfi_def_cfa_offset 160
+ 483 0006 24AB     		add	r3, sp, #144
+ 484 0008 53F8042B 		ldr	r2, [r3], #4
+ 172:Core/Src/mimic_core.c ****     char buffer[MIMIC_MAX_CMD_LEN];
+ 485              		.loc 1 172 5 is_stmt 1 view .LVU102
+ 173:Core/Src/mimic_core.c ****     va_list args;
+ 486              		.loc 1 173 5 view .LVU103
+ 174:Core/Src/mimic_core.c ****     va_start(args, format);
+ 487              		.loc 1 174 5 view .LVU104
+ 488 000c 0193     		str	r3, [sp, #4]
+ 175:Core/Src/mimic_core.c ****     vsnprintf(buffer, sizeof(buffer), format, args);
+ 489              		.loc 1 175 5 view .LVU105
+ 490 000e 02AC     		add	r4, sp, #8
+ 491 0010 8021     		movs	r1, #128
+ 492 0012 2046     		mov	r0, r4
+ 493 0014 FFF7FEFF 		bl	vsnprintf
+ 494              	.LVL20:
+ 176:Core/Src/mimic_core.c ****     va_end(args);
+ 495              		.loc 1 176 5 view .LVU106
+ 177:Core/Src/mimic_core.c ****     Mimic_SendResponse(buffer);
+ 496              		.loc 1 177 5 view .LVU107
+ARM GAS  /tmp/ccisMha2.s 			page 14
+
+
+ 497 0018 2046     		mov	r0, r4
+ 498 001a FFF7FEFF 		bl	Mimic_SendResponse
+ 499              	.LVL21:
+ 178:Core/Src/mimic_core.c **** }
+ 500              		.loc 1 178 1 is_stmt 0 view .LVU108
+ 501 001e 22B0     		add	sp, sp, #136
+ 502              	.LCFI8:
+ 503              		.cfi_def_cfa_offset 24
+ 504              		@ sp needed
+ 505 0020 BDE81040 		pop	{r4, lr}
+ 506              	.LCFI9:
+ 507              		.cfi_restore 14
+ 508              		.cfi_restore 4
+ 509              		.cfi_def_cfa_offset 16
+ 510 0024 04B0     		add	sp, sp, #16
+ 511              	.LCFI10:
+ 512              		.cfi_restore 3
+ 513              		.cfi_restore 2
+ 514              		.cfi_restore 1
+ 515              		.cfi_restore 0
+ 516              		.cfi_def_cfa_offset 0
+ 517 0026 7047     		bx	lr
+ 518              		.cfi_endproc
+ 519              	.LFE143:
+ 521              		.section	.rodata.Mimic_ParseCommand.str1.4,"aMS",%progbits,1
+ 522              		.align	2
+ 523              	.LC2:
+ 524 0000 200900   		.ascii	" \011\000"
+ 525              		.section	.text.Mimic_ParseCommand,"ax",%progbits
+ 526              		.align	1
+ 527              		.global	Mimic_ParseCommand
+ 528              		.syntax unified
+ 529              		.thumb
+ 530              		.thumb_func
+ 532              	Mimic_ParseCommand:
+ 533              	.LVL22:
+ 534              	.LFB144:
+ 179:Core/Src/mimic_core.c **** 
+ 180:Core/Src/mimic_core.c **** /* ========================== COMMAND PROCESSING ============================ */
+ 181:Core/Src/mimic_core.c **** 
+ 182:Core/Src/mimic_core.c **** /**
+ 183:Core/Src/mimic_core.c ****   * @brief  Parse command line into command structure
+ 184:Core/Src/mimic_core.c ****   */
+ 185:Core/Src/mimic_core.c **** uint8_t Mimic_ParseCommand(const char *cmd_line, Mimic_Command_t *cmd)
+ 186:Core/Src/mimic_core.c **** {
+ 535              		.loc 1 186 1 is_stmt 1 view -0
+ 536              		.cfi_startproc
+ 537              		@ args = 0, pretend = 0, frame = 128
+ 538              		@ frame_needed = 0, uses_anonymous_args = 0
+ 539              		.loc 1 186 1 is_stmt 0 view .LVU110
+ 540 0000 70B5     		push	{r4, r5, r6, lr}
+ 541              	.LCFI11:
+ 542              		.cfi_def_cfa_offset 16
+ 543              		.cfi_offset 4, -16
+ 544              		.cfi_offset 5, -12
+ 545              		.cfi_offset 6, -8
+ 546              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccisMha2.s 			page 15
+
+
+ 547 0002 A0B0     		sub	sp, sp, #128
+ 548              	.LCFI12:
+ 549              		.cfi_def_cfa_offset 144
+ 550 0004 0446     		mov	r4, r0
+ 551 0006 0D46     		mov	r5, r1
+ 187:Core/Src/mimic_core.c ****     char buffer[MIMIC_MAX_CMD_LEN];
+ 552              		.loc 1 187 5 is_stmt 1 view .LVU111
+ 188:Core/Src/mimic_core.c ****     char *token;
+ 553              		.loc 1 188 5 view .LVU112
+ 189:Core/Src/mimic_core.c ****     uint8_t idx = 0;
+ 554              		.loc 1 189 5 view .LVU113
+ 555              	.LVL23:
+ 190:Core/Src/mimic_core.c ****     
+ 191:Core/Src/mimic_core.c ****     memset(cmd, 0, sizeof(Mimic_Command_t));
+ 556              		.loc 1 191 5 view .LVU114
+ 557 0008 40F22112 		movw	r2, #289
+ 558 000c 0021     		movs	r1, #0
+ 559              	.LVL24:
+ 560              		.loc 1 191 5 is_stmt 0 view .LVU115
+ 561 000e 2846     		mov	r0, r5
+ 562              	.LVL25:
+ 563              		.loc 1 191 5 view .LVU116
+ 564 0010 FFF7FEFF 		bl	memset
+ 565              	.LVL26:
+ 192:Core/Src/mimic_core.c ****     strncpy(buffer, cmd_line, MIMIC_MAX_CMD_LEN - 1);
+ 566              		.loc 1 192 5 is_stmt 1 view .LVU117
+ 567 0014 7F22     		movs	r2, #127
+ 568 0016 2146     		mov	r1, r4
+ 569 0018 6846     		mov	r0, sp
+ 570 001a FFF7FEFF 		bl	strncpy
+ 571              	.LVL27:
+ 193:Core/Src/mimic_core.c ****     
+ 194:Core/Src/mimic_core.c ****     /* Get command */
+ 195:Core/Src/mimic_core.c ****     token = strtok(buffer, " \t");
+ 572              		.loc 1 195 5 view .LVU118
+ 573              		.loc 1 195 13 is_stmt 0 view .LVU119
+ 574 001e 1449     		ldr	r1, .L36
+ 575 0020 6846     		mov	r0, sp
+ 576 0022 FFF7FEFF 		bl	strtok
+ 577              	.LVL28:
+ 196:Core/Src/mimic_core.c ****     if (token == NULL) return 0;
+ 578              		.loc 1 196 5 is_stmt 1 view .LVU120
+ 579              		.loc 1 196 8 is_stmt 0 view .LVU121
+ 580 0026 00B3     		cbz	r0, .L27
+ 581 0028 0146     		mov	r1, r0
+ 582              	.LBB7:
+ 197:Core/Src/mimic_core.c ****     
+ 198:Core/Src/mimic_core.c ****     /* Convert to uppercase */
+ 199:Core/Src/mimic_core.c ****     for (int i = 0; token[i]; i++) {
+ 583              		.loc 1 199 14 view .LVU122
+ 584 002a 0023     		movs	r3, #0
+ 585 002c 01E0     		b	.L28
+ 586              	.LVL29:
+ 587              	.L29:
+ 200:Core/Src/mimic_core.c ****         cmd->command[i] = (token[i] >= 'a' && token[i] <= 'z') ? token[i] - 32 : token[i];
+ 588              		.loc 1 200 25 discriminator 4 view .LVU123
+ 589 002e EC54     		strb	r4, [r5, r3]
+ARM GAS  /tmp/ccisMha2.s 			page 16
+
+
+ 199:Core/Src/mimic_core.c ****         cmd->command[i] = (token[i] >= 'a' && token[i] <= 'z') ? token[i] - 32 : token[i];
+ 590              		.loc 1 199 32 is_stmt 1 discriminator 2 view .LVU124
+ 591 0030 0133     		adds	r3, r3, #1
+ 592              	.LVL30:
+ 593              	.L28:
+ 199:Core/Src/mimic_core.c ****         cmd->command[i] = (token[i] >= 'a' && token[i] <= 'z') ? token[i] - 32 : token[i];
+ 594              		.loc 1 199 21 discriminator 1 view .LVU125
+ 199:Core/Src/mimic_core.c ****         cmd->command[i] = (token[i] >= 'a' && token[i] <= 'z') ? token[i] - 32 : token[i];
+ 595              		.loc 1 199 26 is_stmt 0 discriminator 1 view .LVU126
+ 596 0032 CC5C     		ldrb	r4, [r1, r3]	@ zero_extendqisi2
+ 199:Core/Src/mimic_core.c ****         cmd->command[i] = (token[i] >= 'a' && token[i] <= 'z') ? token[i] - 32 : token[i];
+ 597              		.loc 1 199 21 discriminator 1 view .LVU127
+ 598 0034 74B1     		cbz	r4, .L31
+ 599              		.loc 1 200 9 is_stmt 1 view .LVU128
+ 600              		.loc 1 200 44 is_stmt 0 view .LVU129
+ 601 0036 A4F16102 		sub	r2, r4, #97
+ 602 003a D2B2     		uxtb	r2, r2
+ 603              		.loc 1 200 25 view .LVU130
+ 604 003c 192A     		cmp	r2, #25
+ 605 003e F6D8     		bhi	.L29
+ 606              		.loc 1 200 25 discriminator 1 view .LVU131
+ 607 0040 203C     		subs	r4, r4, #32
+ 608 0042 E4B2     		uxtb	r4, r4
+ 609 0044 F3E7     		b	.L29
+ 610              	.LVL31:
+ 611              	.L33:
+ 612              		.loc 1 200 25 discriminator 1 view .LVU132
+ 613              	.LBE7:
+ 201:Core/Src/mimic_core.c ****     }
+ 202:Core/Src/mimic_core.c ****     
+ 203:Core/Src/mimic_core.c ****     /* Get arguments */
+ 204:Core/Src/mimic_core.c ****     while ((token = strtok(NULL, " \t")) != NULL && idx < MIMIC_MAX_ARGS)
+ 205:Core/Src/mimic_core.c ****     {
+ 206:Core/Src/mimic_core.c ****         strncpy(cmd->args[idx], token, MIMIC_MAX_ARG_LEN - 1);
+ 614              		.loc 1 206 9 is_stmt 1 view .LVU133
+ 615              		.loc 1 206 26 is_stmt 0 view .LVU134
+ 616 0046 0134     		adds	r4, r4, #1
+ 617              	.LVL32:
+ 618              		.loc 1 206 9 view .LVU135
+ 619 0048 1F22     		movs	r2, #31
+ 620 004a 05EB4410 		add	r0, r5, r4, lsl #5
+ 621              	.LVL33:
+ 622              		.loc 1 206 9 view .LVU136
+ 623 004e FFF7FEFF 		bl	strncpy
+ 624              	.LVL34:
+ 207:Core/Src/mimic_core.c ****         idx++;
+ 625              		.loc 1 207 9 is_stmt 1 view .LVU137
+ 626              		.loc 1 207 12 is_stmt 0 view .LVU138
+ 627 0052 E4B2     		uxtb	r4, r4
+ 628              	.LVL35:
+ 629              	.L31:
+ 204:Core/Src/mimic_core.c ****     {
+ 630              		.loc 1 204 50 is_stmt 1 view .LVU139
+ 204:Core/Src/mimic_core.c ****     {
+ 631              		.loc 1 204 21 is_stmt 0 view .LVU140
+ 632 0054 0649     		ldr	r1, .L36
+ 633 0056 0020     		movs	r0, #0
+ARM GAS  /tmp/ccisMha2.s 			page 17
+
+
+ 634 0058 FFF7FEFF 		bl	strtok
+ 635              	.LVL36:
+ 204:Core/Src/mimic_core.c ****     {
+ 636              		.loc 1 204 50 discriminator 1 view .LVU141
+ 637 005c 0146     		mov	r1, r0
+ 638 005e 08B1     		cbz	r0, .L32
+ 204:Core/Src/mimic_core.c ****     {
+ 639              		.loc 1 204 50 discriminator 2 view .LVU142
+ 640 0060 072C     		cmp	r4, #7
+ 641 0062 F0D9     		bls	.L33
+ 642              	.L32:
+ 208:Core/Src/mimic_core.c ****     }
+ 209:Core/Src/mimic_core.c ****     cmd->argc = idx;
+ 643              		.loc 1 209 5 is_stmt 1 view .LVU143
+ 644              		.loc 1 209 15 is_stmt 0 view .LVU144
+ 645 0064 85F82041 		strb	r4, [r5, #288]
+ 210:Core/Src/mimic_core.c ****     
+ 211:Core/Src/mimic_core.c ****     return 1;
+ 646              		.loc 1 211 5 is_stmt 1 view .LVU145
+ 647              		.loc 1 211 12 is_stmt 0 view .LVU146
+ 648 0068 0120     		movs	r0, #1
+ 649              	.LVL37:
+ 650              	.L27:
+ 212:Core/Src/mimic_core.c **** }
+ 651              		.loc 1 212 1 view .LVU147
+ 652 006a 20B0     		add	sp, sp, #128
+ 653              	.LCFI13:
+ 654              		.cfi_def_cfa_offset 16
+ 655              		@ sp needed
+ 656 006c 70BD     		pop	{r4, r5, r6, pc}
+ 657              	.LVL38:
+ 658              	.L37:
+ 659              		.loc 1 212 1 view .LVU148
+ 660 006e 00BF     		.align	2
+ 661              	.L36:
+ 662 0070 00000000 		.word	.LC2
+ 663              		.cfi_endproc
+ 664              	.LFE144:
+ 666              		.section	.rodata.Mimic_ProcessCommand.str1.4,"aMS",%progbits,1
+ 667              		.align	2
+ 668              	.LC3:
+ 669 0000 50494E5F 		.ascii	"PIN_STATUS\000"
+ 669      53544154 
+ 669      555300
+ 670 000b 00       		.align	2
+ 671              	.LC4:
+ 672 000c 505300   		.ascii	"PS\000"
+ 673 000f 00       		.align	2
+ 674              	.LC5:
+ 675 0010 50494E5F 		.ascii	"PIN_SET_OUT\000"
+ 675      5345545F 
+ 675      4F555400 
+ 676              		.align	2
+ 677              	.LC6:
+ 678 001c 50534F00 		.ascii	"PSO\000"
+ 679              		.align	2
+ 680              	.LC7:
+ARM GAS  /tmp/ccisMha2.s 			page 18
+
+
+ 681 0020 50494E5F 		.ascii	"PIN_SET_IN\000"
+ 681      5345545F 
+ 681      494E00
+ 682 002b 00       		.align	2
+ 683              	.LC8:
+ 684 002c 50534900 		.ascii	"PSI\000"
+ 685              		.align	2
+ 686              	.LC9:
+ 687 0030 50494E5F 		.ascii	"PIN_HIGH\000"
+ 687      48494748 
+ 687      00
+ 688 0039 000000   		.align	2
+ 689              	.LC10:
+ 690 003c 504800   		.ascii	"PH\000"
+ 691 003f 00       		.align	2
+ 692              	.LC11:
+ 693 0040 50494E5F 		.ascii	"PIN_LOW\000"
+ 693      4C4F5700 
+ 694              		.align	2
+ 695              	.LC12:
+ 696 0048 504C00   		.ascii	"PL\000"
+ 697 004b 00       		.align	2
+ 698              	.LC13:
+ 699 004c 50494E5F 		.ascii	"PIN_READ\000"
+ 699      52454144 
+ 699      00
+ 700 0055 000000   		.align	2
+ 701              	.LC14:
+ 702 0058 505200   		.ascii	"PR\000"
+ 703 005b 00       		.align	2
+ 704              	.LC15:
+ 705 005c 50494E5F 		.ascii	"PIN_TOGGLE\000"
+ 705      544F4747 
+ 705      4C4500
+ 706 0067 00       		.align	2
+ 707              	.LC16:
+ 708 0068 505400   		.ascii	"PT\000"
+ 709 006b 00       		.align	2
+ 710              	.LC17:
+ 711 006c 50494E5F 		.ascii	"PIN_MODE\000"
+ 711      4D4F4445 
+ 711      00
+ 712 0075 000000   		.align	2
+ 713              	.LC18:
+ 714 0078 504D00   		.ascii	"PM\000"
+ 715 007b 00       		.align	2
+ 716              	.LC19:
+ 717 007c 55415254 		.ascii	"UART_INIT\000"
+ 717      5F494E49 
+ 717      5400
+ 718 0086 0000     		.align	2
+ 719              	.LC20:
+ 720 0088 554900   		.ascii	"UI\000"
+ 721 008b 00       		.align	2
+ 722              	.LC21:
+ 723 008c 55415254 		.ascii	"UART_SEND\000"
+ 723      5F53454E 
+ARM GAS  /tmp/ccisMha2.s 			page 19
+
+
+ 723      4400
+ 724 0096 0000     		.align	2
+ 725              	.LC22:
+ 726 0098 555300   		.ascii	"US\000"
+ 727 009b 00       		.align	2
+ 728              	.LC23:
+ 729 009c 55415254 		.ascii	"UART_RECV\000"
+ 729      5F524543 
+ 729      5600
+ 730 00a6 0000     		.align	2
+ 731              	.LC24:
+ 732 00a8 555200   		.ascii	"UR\000"
+ 733 00ab 00       		.align	2
+ 734              	.LC25:
+ 735 00ac 55415254 		.ascii	"UART_STATUS\000"
+ 735      5F535441 
+ 735      54555300 
+ 736              		.align	2
+ 737              	.LC26:
+ 738 00b8 55415254 		.ascii	"UART_TEST\000"
+ 738      5F544553 
+ 738      5400
+ 739 00c2 0000     		.align	2
+ 740              	.LC27:
+ 741 00c4 55415254 		.ascii	"UART_RS485\000"
+ 741      5F525334 
+ 741      383500
+ 742 00cf 00       		.align	2
+ 743              	.LC28:
+ 744 00d0 55415254 		.ascii	"UART_POLL\000"
+ 744      5F504F4C 
+ 744      4C00
+ 745 00da 0000     		.align	2
+ 746              	.LC29:
+ 747 00dc 555000   		.ascii	"UP\000"
+ 748 00df 00       		.align	2
+ 749              	.LC30:
+ 750 00e0 5350495F 		.ascii	"SPI_INIT\000"
+ 750      494E4954 
+ 750      00
+ 751 00e9 000000   		.align	2
+ 752              	.LC31:
+ 753 00ec 534900   		.ascii	"SI\000"
+ 754 00ef 00       		.align	2
+ 755              	.LC32:
+ 756 00f0 5350495F 		.ascii	"SPI_SEND\000"
+ 756      53454E44 
+ 756      00
+ 757 00f9 000000   		.align	2
+ 758              	.LC33:
+ 759 00fc 535300   		.ascii	"SS\000"
+ 760 00ff 00       		.align	2
+ 761              	.LC34:
+ 762 0100 5350495F 		.ascii	"SPI_RECV\000"
+ 762      52454356 
+ 762      00
+ 763 0109 000000   		.align	2
+ARM GAS  /tmp/ccisMha2.s 			page 20
+
+
+ 764              	.LC35:
+ 765 010c 535200   		.ascii	"SR\000"
+ 766 010f 00       		.align	2
+ 767              	.LC36:
+ 768 0110 5350495F 		.ascii	"SPI_TRANSFER\000"
+ 768      5452414E 
+ 768      53464552 
+ 768      00
+ 769 011d 000000   		.align	2
+ 770              	.LC37:
+ 771 0120 535400   		.ascii	"ST\000"
+ 772 0123 00       		.align	2
+ 773              	.LC38:
+ 774 0124 5350495F 		.ascii	"SPI_CS\000"
+ 774      435300
+ 775 012b 00       		.align	2
+ 776              	.LC39:
+ 777 012c 53435300 		.ascii	"SCS\000"
+ 778              		.align	2
+ 779              	.LC40:
+ 780 0130 5350495F 		.ascii	"SPI_STATUS\000"
+ 780      53544154 
+ 780      555300
+ 781 013b 00       		.align	2
+ 782              	.LC41:
+ 783 013c 4932435F 		.ascii	"I2C_INIT\000"
+ 783      494E4954 
+ 783      00
+ 784 0145 000000   		.align	2
+ 785              	.LC42:
+ 786 0148 494900   		.ascii	"II\000"
+ 787 014b 00       		.align	2
+ 788              	.LC43:
+ 789 014c 4932435F 		.ascii	"I2C_SCAN\000"
+ 789      5343414E 
+ 789      00
+ 790 0155 000000   		.align	2
+ 791              	.LC44:
+ 792 0158 495300   		.ascii	"IS\000"
+ 793 015b 00       		.align	2
+ 794              	.LC45:
+ 795 015c 4932435F 		.ascii	"I2C_WRITE\000"
+ 795      57524954 
+ 795      4500
+ 796 0166 0000     		.align	2
+ 797              	.LC46:
+ 798 0168 495700   		.ascii	"IW\000"
+ 799 016b 00       		.align	2
+ 800              	.LC47:
+ 801 016c 4932435F 		.ascii	"I2C_READ\000"
+ 801      52454144 
+ 801      00
+ 802 0175 000000   		.align	2
+ 803              	.LC48:
+ 804 0178 495200   		.ascii	"IR\000"
+ 805 017b 00       		.align	2
+ 806              	.LC49:
+ARM GAS  /tmp/ccisMha2.s 			page 21
+
+
+ 807 017c 4932435F 		.ascii	"I2C_WRITE_READ\000"
+ 807      57524954 
+ 807      455F5245 
+ 807      414400
+ 808 018b 00       		.align	2
+ 809              	.LC50:
+ 810 018c 49575200 		.ascii	"IWR\000"
+ 811              		.align	2
+ 812              	.LC51:
+ 813 0190 4932435F 		.ascii	"I2C_REG_SET\000"
+ 813      5245475F 
+ 813      53455400 
+ 814              		.align	2
+ 815              	.LC52:
+ 816 019c 49525300 		.ascii	"IRS\000"
+ 817              		.align	2
+ 818              	.LC53:
+ 819 01a0 4932435F 		.ascii	"I2C_REG_DATA\000"
+ 819      5245475F 
+ 819      44415441 
+ 819      00
+ 820 01ad 000000   		.align	2
+ 821              	.LC54:
+ 822 01b0 49524400 		.ascii	"IRD\000"
+ 823              		.align	2
+ 824              	.LC55:
+ 825 01b4 4932435F 		.ascii	"I2C_STATUS\000"
+ 825      53544154 
+ 825      555300
+ 826 01bf 00       		.align	2
+ 827              	.LC56:
+ 828 01c0 48454C50 		.ascii	"HELP\000"
+ 828      00
+ 829 01c5 000000   		.align	2
+ 830              	.LC57:
+ 831 01c8 3F00     		.ascii	"?\000"
+ 832 01ca 0000     		.align	2
+ 833              	.LC58:
+ 834 01cc 56455253 		.ascii	"VERSION\000"
+ 834      494F4E00 
+ 835              		.align	2
+ 836              	.LC59:
+ 837 01d4 56455200 		.ascii	"VER\000"
+ 838              		.align	2
+ 839              	.LC60:
+ 840 01d8 53544154 		.ascii	"STATUS\000"
+ 840      555300
+ 841 01df 00       		.align	2
+ 842              	.LC61:
+ 843 01e0 52455345 		.ascii	"RESET\000"
+ 843      5400
+ 844 01e6 0000     		.align	2
+ 845              	.LC62:
+ 846 01e8 4552524F 		.ascii	"ERROR: Unknown command '%s'\015\012\000"
+ 846      523A2055 
+ 846      6E6B6E6F 
+ 846      776E2063 
+ARM GAS  /tmp/ccisMha2.s 			page 22
+
+
+ 846      6F6D6D61 
+ 847              		.section	.text.Mimic_ProcessCommand,"ax",%progbits
+ 848              		.align	1
+ 849              		.global	Mimic_ProcessCommand
+ 850              		.syntax unified
+ 851              		.thumb
+ 852              		.thumb_func
+ 854              	Mimic_ProcessCommand:
+ 855              	.LVL39:
+ 856              	.LFB145:
+ 213:Core/Src/mimic_core.c **** 
+ 214:Core/Src/mimic_core.c **** /* Forward declarations for command handlers */
+ 215:Core/Src/mimic_core.c **** void Mimic_CMD_UART_POLL(Mimic_Command_t *cmd);
+ 216:Core/Src/mimic_core.c **** void Mimic_CMD_I2C_REG_SET(Mimic_Command_t *cmd);
+ 217:Core/Src/mimic_core.c **** void Mimic_CMD_I2C_REG_DATA(Mimic_Command_t *cmd);
+ 218:Core/Src/mimic_core.c **** 
+ 219:Core/Src/mimic_core.c **** /**
+ 220:Core/Src/mimic_core.c ****   * @brief  Process a command line
+ 221:Core/Src/mimic_core.c ****   */
+ 222:Core/Src/mimic_core.c **** void Mimic_ProcessCommand(const char *cmd_line)
+ 223:Core/Src/mimic_core.c **** {
+ 857              		.loc 1 223 1 is_stmt 1 view -0
+ 858              		.cfi_startproc
+ 859              		@ args = 0, pretend = 0, frame = 296
+ 860              		@ frame_needed = 0, uses_anonymous_args = 0
+ 861              		.loc 1 223 1 is_stmt 0 view .LVU150
+ 862 0000 00B5     		push	{lr}
+ 863              	.LCFI14:
+ 864              		.cfi_def_cfa_offset 4
+ 865              		.cfi_offset 14, -4
+ 866 0002 CBB0     		sub	sp, sp, #300
+ 867              	.LCFI15:
+ 868              		.cfi_def_cfa_offset 304
+ 224:Core/Src/mimic_core.c ****     Mimic_Command_t cmd;
+ 869              		.loc 1 224 5 is_stmt 1 view .LVU151
+ 225:Core/Src/mimic_core.c ****     
+ 226:Core/Src/mimic_core.c ****     if (!Mimic_ParseCommand(cmd_line, &cmd) || strlen(cmd.command) == 0)
+ 870              		.loc 1 226 5 view .LVU152
+ 871              		.loc 1 226 10 is_stmt 0 view .LVU153
+ 872 0004 01A9     		add	r1, sp, #4
+ 873 0006 FFF7FEFF 		bl	Mimic_ParseCommand
+ 874              	.LVL40:
+ 875              		.loc 1 226 8 discriminator 1 view .LVU154
+ 876 000a 78B1     		cbz	r0, .L38
+ 877              		.loc 1 226 68 discriminator 2 view .LVU155
+ 878 000c 9DF80430 		ldrb	r3, [sp, #4]	@ zero_extendqisi2
+ 879              		.loc 1 226 45 discriminator 2 view .LVU156
+ 880 0010 63B1     		cbz	r3, .L38
+ 227:Core/Src/mimic_core.c ****     {
+ 228:Core/Src/mimic_core.c ****         return;
+ 229:Core/Src/mimic_core.c ****     }
+ 230:Core/Src/mimic_core.c ****     
+ 231:Core/Src/mimic_core.c ****     /* ===== GPIO Commands ===== */
+ 232:Core/Src/mimic_core.c ****     if (strcmp(cmd.command, "PIN_STATUS") == 0 || strcmp(cmd.command, "PS") == 0)
+ 881              		.loc 1 232 5 is_stmt 1 view .LVU157
+ 882              		.loc 1 232 9 is_stmt 0 view .LVU158
+ 883 0012 8549     		ldr	r1, .L107
+ARM GAS  /tmp/ccisMha2.s 			page 23
+
+
+ 884 0014 01A8     		add	r0, sp, #4
+ 885 0016 FFF7FEFF 		bl	strcmp
+ 886              	.LVL41:
+ 887              		.loc 1 232 8 discriminator 1 view .LVU159
+ 888 001a 20B1     		cbz	r0, .L42
+ 889              		.loc 1 232 51 discriminator 2 view .LVU160
+ 890 001c 8349     		ldr	r1, .L107+4
+ 891 001e 01A8     		add	r0, sp, #4
+ 892 0020 FFF7FEFF 		bl	strcmp
+ 893              	.LVL42:
+ 894              		.loc 1 232 48 discriminator 3 view .LVU161
+ 895 0024 20B9     		cbnz	r0, .L43
+ 896              	.L42:
+ 233:Core/Src/mimic_core.c ****     {
+ 234:Core/Src/mimic_core.c ****         Mimic_CMD_PIN_STATUS(&cmd);
+ 897              		.loc 1 234 9 is_stmt 1 view .LVU162
+ 898 0026 01A8     		add	r0, sp, #4
+ 899 0028 FFF7FEFF 		bl	Mimic_CMD_PIN_STATUS
+ 900              	.LVL43:
+ 901              	.L38:
+ 235:Core/Src/mimic_core.c ****     }
+ 236:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "PIN_SET_OUT") == 0 || strcmp(cmd.command, "PSO") == 0)
+ 237:Core/Src/mimic_core.c ****     {
+ 238:Core/Src/mimic_core.c ****         Mimic_CMD_PIN_SET_OUT(&cmd);
+ 239:Core/Src/mimic_core.c ****     }
+ 240:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "PIN_SET_IN") == 0 || strcmp(cmd.command, "PSI") == 0)
+ 241:Core/Src/mimic_core.c ****     {
+ 242:Core/Src/mimic_core.c ****         Mimic_CMD_PIN_SET_IN(&cmd);
+ 243:Core/Src/mimic_core.c ****     }
+ 244:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "PIN_HIGH") == 0 || strcmp(cmd.command, "PH") == 0)
+ 245:Core/Src/mimic_core.c ****     {
+ 246:Core/Src/mimic_core.c ****         Mimic_CMD_PIN_HIGH(&cmd);
+ 247:Core/Src/mimic_core.c ****     }
+ 248:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "PIN_LOW") == 0 || strcmp(cmd.command, "PL") == 0)
+ 249:Core/Src/mimic_core.c ****     {
+ 250:Core/Src/mimic_core.c ****         Mimic_CMD_PIN_LOW(&cmd);
+ 251:Core/Src/mimic_core.c ****     }
+ 252:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "PIN_READ") == 0 || strcmp(cmd.command, "PR") == 0)
+ 253:Core/Src/mimic_core.c ****     {
+ 254:Core/Src/mimic_core.c ****         Mimic_CMD_PIN_READ(&cmd);
+ 255:Core/Src/mimic_core.c ****     }
+ 256:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "PIN_TOGGLE") == 0 || strcmp(cmd.command, "PT") == 0)
+ 257:Core/Src/mimic_core.c ****     {
+ 258:Core/Src/mimic_core.c ****         Mimic_CMD_PIN_TOGGLE(&cmd);
+ 259:Core/Src/mimic_core.c ****     }
+ 260:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "PIN_MODE") == 0 || strcmp(cmd.command, "PM") == 0)
+ 261:Core/Src/mimic_core.c ****     {
+ 262:Core/Src/mimic_core.c ****         Mimic_CMD_PIN_MODE(&cmd);
+ 263:Core/Src/mimic_core.c ****     }
+ 264:Core/Src/mimic_core.c ****     /* ===== UART Commands ===== */
+ 265:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "UART_INIT") == 0 || strcmp(cmd.command, "UI") == 0)
+ 266:Core/Src/mimic_core.c ****     {
+ 267:Core/Src/mimic_core.c ****         Mimic_CMD_UART_INIT(&cmd);
+ 268:Core/Src/mimic_core.c ****     }
+ 269:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "UART_SEND") == 0 || strcmp(cmd.command, "US") == 0)
+ 270:Core/Src/mimic_core.c ****     {
+ 271:Core/Src/mimic_core.c ****         Mimic_CMD_UART_SEND(&cmd);
+ARM GAS  /tmp/ccisMha2.s 			page 24
+
+
+ 272:Core/Src/mimic_core.c ****     }
+ 273:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "UART_RECV") == 0 || strcmp(cmd.command, "UR") == 0)
+ 274:Core/Src/mimic_core.c ****     {
+ 275:Core/Src/mimic_core.c ****         Mimic_CMD_UART_RECV(&cmd);
+ 276:Core/Src/mimic_core.c ****     }
+ 277:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "UART_STATUS") == 0)
+ 278:Core/Src/mimic_core.c ****     {
+ 279:Core/Src/mimic_core.c ****         Mimic_CMD_UART_STATUS(&cmd);
+ 280:Core/Src/mimic_core.c ****     }
+ 281:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "UART_TEST") == 0)
+ 282:Core/Src/mimic_core.c ****     {
+ 283:Core/Src/mimic_core.c ****         Mimic_CMD_UART_TEST(&cmd);
+ 284:Core/Src/mimic_core.c ****     }
+ 285:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "UART_RS485") == 0)
+ 286:Core/Src/mimic_core.c ****     {
+ 287:Core/Src/mimic_core.c ****         Mimic_CMD_UART_RS485(&cmd);
+ 288:Core/Src/mimic_core.c ****     }
+ 289:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "UART_POLL") == 0 || strcmp(cmd.command, "UP") == 0)
+ 290:Core/Src/mimic_core.c ****     {
+ 291:Core/Src/mimic_core.c ****         Mimic_CMD_UART_POLL(&cmd);
+ 292:Core/Src/mimic_core.c ****     }
+ 293:Core/Src/mimic_core.c ****     /* ===== SPI Commands ===== */
+ 294:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "SPI_INIT") == 0 || strcmp(cmd.command, "SI") == 0)
+ 295:Core/Src/mimic_core.c ****     {
+ 296:Core/Src/mimic_core.c ****         Mimic_CMD_SPI_INIT(&cmd);
+ 297:Core/Src/mimic_core.c ****     }
+ 298:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "SPI_SEND") == 0 || strcmp(cmd.command, "SS") == 0)
+ 299:Core/Src/mimic_core.c ****     {
+ 300:Core/Src/mimic_core.c ****         Mimic_CMD_SPI_SEND(&cmd);
+ 301:Core/Src/mimic_core.c ****     }
+ 302:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "SPI_RECV") == 0 || strcmp(cmd.command, "SR") == 0)
+ 303:Core/Src/mimic_core.c ****     {
+ 304:Core/Src/mimic_core.c ****         Mimic_CMD_SPI_RECV(&cmd);
+ 305:Core/Src/mimic_core.c ****     }
+ 306:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "SPI_TRANSFER") == 0 || strcmp(cmd.command, "ST") == 0)
+ 307:Core/Src/mimic_core.c ****     {
+ 308:Core/Src/mimic_core.c ****         Mimic_CMD_SPI_TRANSFER(&cmd);
+ 309:Core/Src/mimic_core.c ****     }
+ 310:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "SPI_CS") == 0 || strcmp(cmd.command, "SCS") == 0)
+ 311:Core/Src/mimic_core.c ****     {
+ 312:Core/Src/mimic_core.c ****         Mimic_CMD_SPI_CS(&cmd);
+ 313:Core/Src/mimic_core.c ****     }
+ 314:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "SPI_STATUS") == 0)
+ 315:Core/Src/mimic_core.c ****     {
+ 316:Core/Src/mimic_core.c ****         Mimic_CMD_SPI_STATUS(&cmd);
+ 317:Core/Src/mimic_core.c ****     }
+ 318:Core/Src/mimic_core.c ****     /* ===== I2C Commands ===== */
+ 319:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "I2C_INIT") == 0 || strcmp(cmd.command, "II") == 0)
+ 320:Core/Src/mimic_core.c ****     {
+ 321:Core/Src/mimic_core.c ****         Mimic_CMD_I2C_INIT(&cmd);
+ 322:Core/Src/mimic_core.c ****     }
+ 323:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "I2C_SCAN") == 0 || strcmp(cmd.command, "IS") == 0)
+ 324:Core/Src/mimic_core.c ****     {
+ 325:Core/Src/mimic_core.c ****         Mimic_CMD_I2C_SCAN(&cmd);
+ 326:Core/Src/mimic_core.c ****     }
+ 327:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "I2C_WRITE") == 0 || strcmp(cmd.command, "IW") == 0)
+ 328:Core/Src/mimic_core.c ****     {
+ARM GAS  /tmp/ccisMha2.s 			page 25
+
+
+ 329:Core/Src/mimic_core.c ****         Mimic_CMD_I2C_WRITE(&cmd);
+ 330:Core/Src/mimic_core.c ****     }
+ 331:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "I2C_READ") == 0 || strcmp(cmd.command, "IR") == 0)
+ 332:Core/Src/mimic_core.c ****     {
+ 333:Core/Src/mimic_core.c ****         Mimic_CMD_I2C_READ(&cmd);
+ 334:Core/Src/mimic_core.c ****     }
+ 335:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "I2C_WRITE_READ") == 0 || strcmp(cmd.command, "IWR") == 0)
+ 336:Core/Src/mimic_core.c ****     {
+ 337:Core/Src/mimic_core.c ****         Mimic_CMD_I2C_WRITE_READ(&cmd);
+ 338:Core/Src/mimic_core.c ****     }
+ 339:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "I2C_REG_SET") == 0 || strcmp(cmd.command, "IRS") == 0)
+ 340:Core/Src/mimic_core.c ****     {
+ 341:Core/Src/mimic_core.c ****         Mimic_CMD_I2C_REG_SET(&cmd);
+ 342:Core/Src/mimic_core.c ****     }
+ 343:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "I2C_REG_DATA") == 0 || strcmp(cmd.command, "IRD") == 0)
+ 344:Core/Src/mimic_core.c ****     {
+ 345:Core/Src/mimic_core.c ****         Mimic_CMD_I2C_REG_DATA(&cmd);
+ 346:Core/Src/mimic_core.c ****     }
+ 347:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "I2C_STATUS") == 0)
+ 348:Core/Src/mimic_core.c ****     {
+ 349:Core/Src/mimic_core.c ****         Mimic_CMD_I2C_STATUS(&cmd);
+ 350:Core/Src/mimic_core.c ****     }
+ 351:Core/Src/mimic_core.c ****     /* ===== System Commands ===== */
+ 352:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "HELP") == 0 || strcmp(cmd.command, "?") == 0)
+ 353:Core/Src/mimic_core.c ****     {
+ 354:Core/Src/mimic_core.c ****         Mimic_CMD_HELP(&cmd);
+ 355:Core/Src/mimic_core.c ****     }
+ 356:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "VERSION") == 0 || strcmp(cmd.command, "VER") == 0)
+ 357:Core/Src/mimic_core.c ****     {
+ 358:Core/Src/mimic_core.c ****         Mimic_CMD_VERSION(&cmd);
+ 359:Core/Src/mimic_core.c ****     }
+ 360:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "STATUS") == 0)
+ 361:Core/Src/mimic_core.c ****     {
+ 362:Core/Src/mimic_core.c ****         Mimic_CMD_STATUS(&cmd);
+ 363:Core/Src/mimic_core.c ****     }
+ 364:Core/Src/mimic_core.c ****     else if (strcmp(cmd.command, "RESET") == 0)
+ 365:Core/Src/mimic_core.c ****     {
+ 366:Core/Src/mimic_core.c ****         Mimic_CMD_RESET(&cmd);
+ 367:Core/Src/mimic_core.c ****     }
+ 368:Core/Src/mimic_core.c ****     else
+ 369:Core/Src/mimic_core.c ****     {
+ 370:Core/Src/mimic_core.c ****         Mimic_SendResponseF("ERROR: Unknown command '%s'\r\n", cmd.command);
+ 371:Core/Src/mimic_core.c ****     }
+ 372:Core/Src/mimic_core.c **** }
+ 902              		.loc 1 372 1 is_stmt 0 view .LVU163
+ 903 002c 4BB0     		add	sp, sp, #300
+ 904              	.LCFI16:
+ 905              		.cfi_remember_state
+ 906              		.cfi_def_cfa_offset 4
+ 907              		@ sp needed
+ 908 002e 00BD     		pop	{pc}
+ 909              	.L43:
+ 910              	.LCFI17:
+ 911              		.cfi_restore_state
+ 236:Core/Src/mimic_core.c ****     {
+ 912              		.loc 1 236 10 is_stmt 1 view .LVU164
+ 236:Core/Src/mimic_core.c ****     {
+ARM GAS  /tmp/ccisMha2.s 			page 26
+
+
+ 913              		.loc 1 236 14 is_stmt 0 view .LVU165
+ 914 0030 7F49     		ldr	r1, .L107+8
+ 915 0032 01A8     		add	r0, sp, #4
+ 916 0034 FFF7FEFF 		bl	strcmp
+ 917              	.LVL44:
+ 236:Core/Src/mimic_core.c ****     {
+ 918              		.loc 1 236 13 discriminator 1 view .LVU166
+ 919 0038 20B1     		cbz	r0, .L45
+ 236:Core/Src/mimic_core.c ****     {
+ 920              		.loc 1 236 57 discriminator 2 view .LVU167
+ 921 003a 7E49     		ldr	r1, .L107+12
+ 922 003c 01A8     		add	r0, sp, #4
+ 923 003e FFF7FEFF 		bl	strcmp
+ 924              	.LVL45:
+ 236:Core/Src/mimic_core.c ****     {
+ 925              		.loc 1 236 54 discriminator 3 view .LVU168
+ 926 0042 18B9     		cbnz	r0, .L46
+ 927              	.L45:
+ 238:Core/Src/mimic_core.c ****     }
+ 928              		.loc 1 238 9 is_stmt 1 view .LVU169
+ 929 0044 01A8     		add	r0, sp, #4
+ 930 0046 FFF7FEFF 		bl	Mimic_CMD_PIN_SET_OUT
+ 931              	.LVL46:
+ 932 004a EFE7     		b	.L38
+ 933              	.L46:
+ 240:Core/Src/mimic_core.c ****     {
+ 934              		.loc 1 240 10 view .LVU170
+ 240:Core/Src/mimic_core.c ****     {
+ 935              		.loc 1 240 14 is_stmt 0 view .LVU171
+ 936 004c 7A49     		ldr	r1, .L107+16
+ 937 004e 01A8     		add	r0, sp, #4
+ 938 0050 FFF7FEFF 		bl	strcmp
+ 939              	.LVL47:
+ 240:Core/Src/mimic_core.c ****     {
+ 940              		.loc 1 240 13 discriminator 1 view .LVU172
+ 941 0054 20B1     		cbz	r0, .L47
+ 240:Core/Src/mimic_core.c ****     {
+ 942              		.loc 1 240 56 discriminator 2 view .LVU173
+ 943 0056 7949     		ldr	r1, .L107+20
+ 944 0058 01A8     		add	r0, sp, #4
+ 945 005a FFF7FEFF 		bl	strcmp
+ 946              	.LVL48:
+ 240:Core/Src/mimic_core.c ****     {
+ 947              		.loc 1 240 53 discriminator 3 view .LVU174
+ 948 005e 18B9     		cbnz	r0, .L48
+ 949              	.L47:
+ 242:Core/Src/mimic_core.c ****     }
+ 950              		.loc 1 242 9 is_stmt 1 view .LVU175
+ 951 0060 01A8     		add	r0, sp, #4
+ 952 0062 FFF7FEFF 		bl	Mimic_CMD_PIN_SET_IN
+ 953              	.LVL49:
+ 954 0066 E1E7     		b	.L38
+ 955              	.L48:
+ 244:Core/Src/mimic_core.c ****     {
+ 956              		.loc 1 244 10 view .LVU176
+ 244:Core/Src/mimic_core.c ****     {
+ 957              		.loc 1 244 14 is_stmt 0 view .LVU177
+ARM GAS  /tmp/ccisMha2.s 			page 27
+
+
+ 958 0068 7549     		ldr	r1, .L107+24
+ 959 006a 01A8     		add	r0, sp, #4
+ 960 006c FFF7FEFF 		bl	strcmp
+ 961              	.LVL50:
+ 244:Core/Src/mimic_core.c ****     {
+ 962              		.loc 1 244 13 discriminator 1 view .LVU178
+ 963 0070 20B1     		cbz	r0, .L49
+ 244:Core/Src/mimic_core.c ****     {
+ 964              		.loc 1 244 54 discriminator 2 view .LVU179
+ 965 0072 7449     		ldr	r1, .L107+28
+ 966 0074 01A8     		add	r0, sp, #4
+ 967 0076 FFF7FEFF 		bl	strcmp
+ 968              	.LVL51:
+ 244:Core/Src/mimic_core.c ****     {
+ 969              		.loc 1 244 51 discriminator 3 view .LVU180
+ 970 007a 18B9     		cbnz	r0, .L50
+ 971              	.L49:
+ 246:Core/Src/mimic_core.c ****     }
+ 972              		.loc 1 246 9 is_stmt 1 view .LVU181
+ 973 007c 01A8     		add	r0, sp, #4
+ 974 007e FFF7FEFF 		bl	Mimic_CMD_PIN_HIGH
+ 975              	.LVL52:
+ 976 0082 D3E7     		b	.L38
+ 977              	.L50:
+ 248:Core/Src/mimic_core.c ****     {
+ 978              		.loc 1 248 10 view .LVU182
+ 248:Core/Src/mimic_core.c ****     {
+ 979              		.loc 1 248 14 is_stmt 0 view .LVU183
+ 980 0084 7049     		ldr	r1, .L107+32
+ 981 0086 01A8     		add	r0, sp, #4
+ 982 0088 FFF7FEFF 		bl	strcmp
+ 983              	.LVL53:
+ 248:Core/Src/mimic_core.c ****     {
+ 984              		.loc 1 248 13 discriminator 1 view .LVU184
+ 985 008c 20B1     		cbz	r0, .L51
+ 248:Core/Src/mimic_core.c ****     {
+ 986              		.loc 1 248 53 discriminator 2 view .LVU185
+ 987 008e 6F49     		ldr	r1, .L107+36
+ 988 0090 01A8     		add	r0, sp, #4
+ 989 0092 FFF7FEFF 		bl	strcmp
+ 990              	.LVL54:
+ 248:Core/Src/mimic_core.c ****     {
+ 991              		.loc 1 248 50 discriminator 3 view .LVU186
+ 992 0096 18B9     		cbnz	r0, .L52
+ 993              	.L51:
+ 250:Core/Src/mimic_core.c ****     }
+ 994              		.loc 1 250 9 is_stmt 1 view .LVU187
+ 995 0098 01A8     		add	r0, sp, #4
+ 996 009a FFF7FEFF 		bl	Mimic_CMD_PIN_LOW
+ 997              	.LVL55:
+ 998 009e C5E7     		b	.L38
+ 999              	.L52:
+ 252:Core/Src/mimic_core.c ****     {
+ 1000              		.loc 1 252 10 view .LVU188
+ 252:Core/Src/mimic_core.c ****     {
+ 1001              		.loc 1 252 14 is_stmt 0 view .LVU189
+ 1002 00a0 6B49     		ldr	r1, .L107+40
+ARM GAS  /tmp/ccisMha2.s 			page 28
+
+
+ 1003 00a2 01A8     		add	r0, sp, #4
+ 1004 00a4 FFF7FEFF 		bl	strcmp
+ 1005              	.LVL56:
+ 252:Core/Src/mimic_core.c ****     {
+ 1006              		.loc 1 252 13 discriminator 1 view .LVU190
+ 1007 00a8 20B1     		cbz	r0, .L53
+ 252:Core/Src/mimic_core.c ****     {
+ 1008              		.loc 1 252 54 discriminator 2 view .LVU191
+ 1009 00aa 6A49     		ldr	r1, .L107+44
+ 1010 00ac 01A8     		add	r0, sp, #4
+ 1011 00ae FFF7FEFF 		bl	strcmp
+ 1012              	.LVL57:
+ 252:Core/Src/mimic_core.c ****     {
+ 1013              		.loc 1 252 51 discriminator 3 view .LVU192
+ 1014 00b2 18B9     		cbnz	r0, .L54
+ 1015              	.L53:
+ 254:Core/Src/mimic_core.c ****     }
+ 1016              		.loc 1 254 9 is_stmt 1 view .LVU193
+ 1017 00b4 01A8     		add	r0, sp, #4
+ 1018 00b6 FFF7FEFF 		bl	Mimic_CMD_PIN_READ
+ 1019              	.LVL58:
+ 1020 00ba B7E7     		b	.L38
+ 1021              	.L54:
+ 256:Core/Src/mimic_core.c ****     {
+ 1022              		.loc 1 256 10 view .LVU194
+ 256:Core/Src/mimic_core.c ****     {
+ 1023              		.loc 1 256 14 is_stmt 0 view .LVU195
+ 1024 00bc 6649     		ldr	r1, .L107+48
+ 1025 00be 01A8     		add	r0, sp, #4
+ 1026 00c0 FFF7FEFF 		bl	strcmp
+ 1027              	.LVL59:
+ 256:Core/Src/mimic_core.c ****     {
+ 1028              		.loc 1 256 13 discriminator 1 view .LVU196
+ 1029 00c4 20B1     		cbz	r0, .L55
+ 256:Core/Src/mimic_core.c ****     {
+ 1030              		.loc 1 256 56 discriminator 2 view .LVU197
+ 1031 00c6 6549     		ldr	r1, .L107+52
+ 1032 00c8 01A8     		add	r0, sp, #4
+ 1033 00ca FFF7FEFF 		bl	strcmp
+ 1034              	.LVL60:
+ 256:Core/Src/mimic_core.c ****     {
+ 1035              		.loc 1 256 53 discriminator 3 view .LVU198
+ 1036 00ce 18B9     		cbnz	r0, .L56
+ 1037              	.L55:
+ 258:Core/Src/mimic_core.c ****     }
+ 1038              		.loc 1 258 9 is_stmt 1 view .LVU199
+ 1039 00d0 01A8     		add	r0, sp, #4
+ 1040 00d2 FFF7FEFF 		bl	Mimic_CMD_PIN_TOGGLE
+ 1041              	.LVL61:
+ 1042 00d6 A9E7     		b	.L38
+ 1043              	.L56:
+ 260:Core/Src/mimic_core.c ****     {
+ 1044              		.loc 1 260 10 view .LVU200
+ 260:Core/Src/mimic_core.c ****     {
+ 1045              		.loc 1 260 14 is_stmt 0 view .LVU201
+ 1046 00d8 6149     		ldr	r1, .L107+56
+ 1047 00da 01A8     		add	r0, sp, #4
+ARM GAS  /tmp/ccisMha2.s 			page 29
+
+
+ 1048 00dc FFF7FEFF 		bl	strcmp
+ 1049              	.LVL62:
+ 260:Core/Src/mimic_core.c ****     {
+ 1050              		.loc 1 260 13 discriminator 1 view .LVU202
+ 1051 00e0 20B1     		cbz	r0, .L57
+ 260:Core/Src/mimic_core.c ****     {
+ 1052              		.loc 1 260 54 discriminator 2 view .LVU203
+ 1053 00e2 6049     		ldr	r1, .L107+60
+ 1054 00e4 01A8     		add	r0, sp, #4
+ 1055 00e6 FFF7FEFF 		bl	strcmp
+ 1056              	.LVL63:
+ 260:Core/Src/mimic_core.c ****     {
+ 1057              		.loc 1 260 51 discriminator 3 view .LVU204
+ 1058 00ea 18B9     		cbnz	r0, .L58
+ 1059              	.L57:
+ 262:Core/Src/mimic_core.c ****     }
+ 1060              		.loc 1 262 9 is_stmt 1 view .LVU205
+ 1061 00ec 01A8     		add	r0, sp, #4
+ 1062 00ee FFF7FEFF 		bl	Mimic_CMD_PIN_MODE
+ 1063              	.LVL64:
+ 1064 00f2 9BE7     		b	.L38
+ 1065              	.L58:
+ 265:Core/Src/mimic_core.c ****     {
+ 1066              		.loc 1 265 10 view .LVU206
+ 265:Core/Src/mimic_core.c ****     {
+ 1067              		.loc 1 265 14 is_stmt 0 view .LVU207
+ 1068 00f4 5C49     		ldr	r1, .L107+64
+ 1069 00f6 01A8     		add	r0, sp, #4
+ 1070 00f8 FFF7FEFF 		bl	strcmp
+ 1071              	.LVL65:
+ 265:Core/Src/mimic_core.c ****     {
+ 1072              		.loc 1 265 13 discriminator 1 view .LVU208
+ 1073 00fc 20B1     		cbz	r0, .L59
+ 265:Core/Src/mimic_core.c ****     {
+ 1074              		.loc 1 265 55 discriminator 2 view .LVU209
+ 1075 00fe 5B49     		ldr	r1, .L107+68
+ 1076 0100 01A8     		add	r0, sp, #4
+ 1077 0102 FFF7FEFF 		bl	strcmp
+ 1078              	.LVL66:
+ 265:Core/Src/mimic_core.c ****     {
+ 1079              		.loc 1 265 52 discriminator 3 view .LVU210
+ 1080 0106 18B9     		cbnz	r0, .L60
+ 1081              	.L59:
+ 267:Core/Src/mimic_core.c ****     }
+ 1082              		.loc 1 267 9 is_stmt 1 view .LVU211
+ 1083 0108 01A8     		add	r0, sp, #4
+ 1084 010a FFF7FEFF 		bl	Mimic_CMD_UART_INIT
+ 1085              	.LVL67:
+ 1086 010e 8DE7     		b	.L38
+ 1087              	.L60:
+ 269:Core/Src/mimic_core.c ****     {
+ 1088              		.loc 1 269 10 view .LVU212
+ 269:Core/Src/mimic_core.c ****     {
+ 1089              		.loc 1 269 14 is_stmt 0 view .LVU213
+ 1090 0110 5749     		ldr	r1, .L107+72
+ 1091 0112 01A8     		add	r0, sp, #4
+ 1092 0114 FFF7FEFF 		bl	strcmp
+ARM GAS  /tmp/ccisMha2.s 			page 30
+
+
+ 1093              	.LVL68:
+ 269:Core/Src/mimic_core.c ****     {
+ 1094              		.loc 1 269 13 discriminator 1 view .LVU214
+ 1095 0118 20B1     		cbz	r0, .L61
+ 269:Core/Src/mimic_core.c ****     {
+ 1096              		.loc 1 269 55 discriminator 2 view .LVU215
+ 1097 011a 5649     		ldr	r1, .L107+76
+ 1098 011c 01A8     		add	r0, sp, #4
+ 1099 011e FFF7FEFF 		bl	strcmp
+ 1100              	.LVL69:
+ 269:Core/Src/mimic_core.c ****     {
+ 1101              		.loc 1 269 52 discriminator 3 view .LVU216
+ 1102 0122 18B9     		cbnz	r0, .L62
+ 1103              	.L61:
+ 271:Core/Src/mimic_core.c ****     }
+ 1104              		.loc 1 271 9 is_stmt 1 view .LVU217
+ 1105 0124 01A8     		add	r0, sp, #4
+ 1106 0126 FFF7FEFF 		bl	Mimic_CMD_UART_SEND
+ 1107              	.LVL70:
+ 1108 012a 7FE7     		b	.L38
+ 1109              	.L62:
+ 273:Core/Src/mimic_core.c ****     {
+ 1110              		.loc 1 273 10 view .LVU218
+ 273:Core/Src/mimic_core.c ****     {
+ 1111              		.loc 1 273 14 is_stmt 0 view .LVU219
+ 1112 012c 5249     		ldr	r1, .L107+80
+ 1113 012e 01A8     		add	r0, sp, #4
+ 1114 0130 FFF7FEFF 		bl	strcmp
+ 1115              	.LVL71:
+ 273:Core/Src/mimic_core.c ****     {
+ 1116              		.loc 1 273 13 discriminator 1 view .LVU220
+ 1117 0134 20B1     		cbz	r0, .L63
+ 273:Core/Src/mimic_core.c ****     {
+ 1118              		.loc 1 273 55 discriminator 2 view .LVU221
+ 1119 0136 5149     		ldr	r1, .L107+84
+ 1120 0138 01A8     		add	r0, sp, #4
+ 1121 013a FFF7FEFF 		bl	strcmp
+ 1122              	.LVL72:
+ 273:Core/Src/mimic_core.c ****     {
+ 1123              		.loc 1 273 52 discriminator 3 view .LVU222
+ 1124 013e 18B9     		cbnz	r0, .L64
+ 1125              	.L63:
+ 275:Core/Src/mimic_core.c ****     }
+ 1126              		.loc 1 275 9 is_stmt 1 view .LVU223
+ 1127 0140 01A8     		add	r0, sp, #4
+ 1128 0142 FFF7FEFF 		bl	Mimic_CMD_UART_RECV
+ 1129              	.LVL73:
+ 1130 0146 71E7     		b	.L38
+ 1131              	.L64:
+ 277:Core/Src/mimic_core.c ****     {
+ 1132              		.loc 1 277 10 view .LVU224
+ 277:Core/Src/mimic_core.c ****     {
+ 1133              		.loc 1 277 14 is_stmt 0 view .LVU225
+ 1134 0148 4D49     		ldr	r1, .L107+88
+ 1135 014a 01A8     		add	r0, sp, #4
+ 1136 014c FFF7FEFF 		bl	strcmp
+ 1137              	.LVL74:
+ARM GAS  /tmp/ccisMha2.s 			page 31
+
+
+ 277:Core/Src/mimic_core.c ****     {
+ 1138              		.loc 1 277 13 discriminator 1 view .LVU226
+ 1139 0150 B8B1     		cbz	r0, .L103
+ 281:Core/Src/mimic_core.c ****     {
+ 1140              		.loc 1 281 10 is_stmt 1 view .LVU227
+ 281:Core/Src/mimic_core.c ****     {
+ 1141              		.loc 1 281 14 is_stmt 0 view .LVU228
+ 1142 0152 4C49     		ldr	r1, .L107+92
+ 1143 0154 01A8     		add	r0, sp, #4
+ 1144 0156 FFF7FEFF 		bl	strcmp
+ 1145              	.LVL75:
+ 281:Core/Src/mimic_core.c ****     {
+ 1146              		.loc 1 281 13 discriminator 1 view .LVU229
+ 1147 015a B0B1     		cbz	r0, .L104
+ 285:Core/Src/mimic_core.c ****     {
+ 1148              		.loc 1 285 10 is_stmt 1 view .LVU230
+ 285:Core/Src/mimic_core.c ****     {
+ 1149              		.loc 1 285 14 is_stmt 0 view .LVU231
+ 1150 015c 4A49     		ldr	r1, .L107+96
+ 1151 015e 01A8     		add	r0, sp, #4
+ 1152 0160 FFF7FEFF 		bl	strcmp
+ 1153              	.LVL76:
+ 285:Core/Src/mimic_core.c ****     {
+ 1154              		.loc 1 285 13 discriminator 1 view .LVU232
+ 1155 0164 A8B1     		cbz	r0, .L105
+ 289:Core/Src/mimic_core.c ****     {
+ 1156              		.loc 1 289 10 is_stmt 1 view .LVU233
+ 289:Core/Src/mimic_core.c ****     {
+ 1157              		.loc 1 289 14 is_stmt 0 view .LVU234
+ 1158 0166 4949     		ldr	r1, .L107+100
+ 1159 0168 01A8     		add	r0, sp, #4
+ 1160 016a FFF7FEFF 		bl	strcmp
+ 1161              	.LVL77:
+ 289:Core/Src/mimic_core.c ****     {
+ 1162              		.loc 1 289 13 discriminator 1 view .LVU235
+ 1163 016e 20B1     		cbz	r0, .L68
+ 289:Core/Src/mimic_core.c ****     {
+ 1164              		.loc 1 289 55 discriminator 2 view .LVU236
+ 1165 0170 4749     		ldr	r1, .L107+104
+ 1166 0172 01A8     		add	r0, sp, #4
+ 1167 0174 FFF7FEFF 		bl	strcmp
+ 1168              	.LVL78:
+ 289:Core/Src/mimic_core.c ****     {
+ 1169              		.loc 1 289 52 discriminator 3 view .LVU237
+ 1170 0178 78B9     		cbnz	r0, .L69
+ 1171              	.L68:
+ 291:Core/Src/mimic_core.c ****     }
+ 1172              		.loc 1 291 9 is_stmt 1 view .LVU238
+ 1173 017a 01A8     		add	r0, sp, #4
+ 1174 017c FFF7FEFF 		bl	Mimic_CMD_UART_POLL
+ 1175              	.LVL79:
+ 1176 0180 54E7     		b	.L38
+ 1177              	.L103:
+ 279:Core/Src/mimic_core.c ****     }
+ 1178              		.loc 1 279 9 view .LVU239
+ 1179 0182 01A8     		add	r0, sp, #4
+ 1180 0184 FFF7FEFF 		bl	Mimic_CMD_UART_STATUS
+ARM GAS  /tmp/ccisMha2.s 			page 32
+
+
+ 1181              	.LVL80:
+ 1182 0188 50E7     		b	.L38
+ 1183              	.L104:
+ 283:Core/Src/mimic_core.c ****     }
+ 1184              		.loc 1 283 9 view .LVU240
+ 1185 018a 01A8     		add	r0, sp, #4
+ 1186 018c FFF7FEFF 		bl	Mimic_CMD_UART_TEST
+ 1187              	.LVL81:
+ 1188 0190 4CE7     		b	.L38
+ 1189              	.L105:
+ 287:Core/Src/mimic_core.c ****     }
+ 1190              		.loc 1 287 9 view .LVU241
+ 1191 0192 01A8     		add	r0, sp, #4
+ 1192 0194 FFF7FEFF 		bl	Mimic_CMD_UART_RS485
+ 1193              	.LVL82:
+ 1194 0198 48E7     		b	.L38
+ 1195              	.L69:
+ 294:Core/Src/mimic_core.c ****     {
+ 1196              		.loc 1 294 10 view .LVU242
+ 294:Core/Src/mimic_core.c ****     {
+ 1197              		.loc 1 294 14 is_stmt 0 view .LVU243
+ 1198 019a 3E49     		ldr	r1, .L107+108
+ 1199 019c 01A8     		add	r0, sp, #4
+ 1200 019e FFF7FEFF 		bl	strcmp
+ 1201              	.LVL83:
+ 294:Core/Src/mimic_core.c ****     {
+ 1202              		.loc 1 294 13 discriminator 1 view .LVU244
+ 1203 01a2 20B1     		cbz	r0, .L70
+ 294:Core/Src/mimic_core.c ****     {
+ 1204              		.loc 1 294 54 discriminator 2 view .LVU245
+ 1205 01a4 3C49     		ldr	r1, .L107+112
+ 1206 01a6 01A8     		add	r0, sp, #4
+ 1207 01a8 FFF7FEFF 		bl	strcmp
+ 1208              	.LVL84:
+ 294:Core/Src/mimic_core.c ****     {
+ 1209              		.loc 1 294 51 discriminator 3 view .LVU246
+ 1210 01ac 18B9     		cbnz	r0, .L71
+ 1211              	.L70:
+ 296:Core/Src/mimic_core.c ****     }
+ 1212              		.loc 1 296 9 is_stmt 1 view .LVU247
+ 1213 01ae 01A8     		add	r0, sp, #4
+ 1214 01b0 FFF7FEFF 		bl	Mimic_CMD_SPI_INIT
+ 1215              	.LVL85:
+ 1216 01b4 3AE7     		b	.L38
+ 1217              	.L71:
+ 298:Core/Src/mimic_core.c ****     {
+ 1218              		.loc 1 298 10 view .LVU248
+ 298:Core/Src/mimic_core.c ****     {
+ 1219              		.loc 1 298 14 is_stmt 0 view .LVU249
+ 1220 01b6 3949     		ldr	r1, .L107+116
+ 1221 01b8 01A8     		add	r0, sp, #4
+ 1222 01ba FFF7FEFF 		bl	strcmp
+ 1223              	.LVL86:
+ 298:Core/Src/mimic_core.c ****     {
+ 1224              		.loc 1 298 13 discriminator 1 view .LVU250
+ 1225 01be 20B1     		cbz	r0, .L72
+ 298:Core/Src/mimic_core.c ****     {
+ARM GAS  /tmp/ccisMha2.s 			page 33
+
+
+ 1226              		.loc 1 298 54 discriminator 2 view .LVU251
+ 1227 01c0 3749     		ldr	r1, .L107+120
+ 1228 01c2 01A8     		add	r0, sp, #4
+ 1229 01c4 FFF7FEFF 		bl	strcmp
+ 1230              	.LVL87:
+ 298:Core/Src/mimic_core.c ****     {
+ 1231              		.loc 1 298 51 discriminator 3 view .LVU252
+ 1232 01c8 18B9     		cbnz	r0, .L73
+ 1233              	.L72:
+ 300:Core/Src/mimic_core.c ****     }
+ 1234              		.loc 1 300 9 is_stmt 1 view .LVU253
+ 1235 01ca 01A8     		add	r0, sp, #4
+ 1236 01cc FFF7FEFF 		bl	Mimic_CMD_SPI_SEND
+ 1237              	.LVL88:
+ 1238 01d0 2CE7     		b	.L38
+ 1239              	.L73:
+ 302:Core/Src/mimic_core.c ****     {
+ 1240              		.loc 1 302 10 view .LVU254
+ 302:Core/Src/mimic_core.c ****     {
+ 1241              		.loc 1 302 14 is_stmt 0 view .LVU255
+ 1242 01d2 3449     		ldr	r1, .L107+124
+ 1243 01d4 01A8     		add	r0, sp, #4
+ 1244 01d6 FFF7FEFF 		bl	strcmp
+ 1245              	.LVL89:
+ 302:Core/Src/mimic_core.c ****     {
+ 1246              		.loc 1 302 13 discriminator 1 view .LVU256
+ 1247 01da 20B1     		cbz	r0, .L74
+ 302:Core/Src/mimic_core.c ****     {
+ 1248              		.loc 1 302 54 discriminator 2 view .LVU257
+ 1249 01dc 3249     		ldr	r1, .L107+128
+ 1250 01de 01A8     		add	r0, sp, #4
+ 1251 01e0 FFF7FEFF 		bl	strcmp
+ 1252              	.LVL90:
+ 302:Core/Src/mimic_core.c ****     {
+ 1253              		.loc 1 302 51 discriminator 3 view .LVU258
+ 1254 01e4 18B9     		cbnz	r0, .L75
+ 1255              	.L74:
+ 304:Core/Src/mimic_core.c ****     }
+ 1256              		.loc 1 304 9 is_stmt 1 view .LVU259
+ 1257 01e6 01A8     		add	r0, sp, #4
+ 1258 01e8 FFF7FEFF 		bl	Mimic_CMD_SPI_RECV
+ 1259              	.LVL91:
+ 1260 01ec 1EE7     		b	.L38
+ 1261              	.L75:
+ 306:Core/Src/mimic_core.c ****     {
+ 1262              		.loc 1 306 10 view .LVU260
+ 306:Core/Src/mimic_core.c ****     {
+ 1263              		.loc 1 306 14 is_stmt 0 view .LVU261
+ 1264 01ee 2F49     		ldr	r1, .L107+132
+ 1265 01f0 01A8     		add	r0, sp, #4
+ 1266 01f2 FFF7FEFF 		bl	strcmp
+ 1267              	.LVL92:
+ 306:Core/Src/mimic_core.c ****     {
+ 1268              		.loc 1 306 13 discriminator 1 view .LVU262
+ 1269 01f6 20B1     		cbz	r0, .L76
+ 306:Core/Src/mimic_core.c ****     {
+ 1270              		.loc 1 306 58 discriminator 2 view .LVU263
+ARM GAS  /tmp/ccisMha2.s 			page 34
+
+
+ 1271 01f8 2D49     		ldr	r1, .L107+136
+ 1272 01fa 01A8     		add	r0, sp, #4
+ 1273 01fc FFF7FEFF 		bl	strcmp
+ 1274              	.LVL93:
+ 306:Core/Src/mimic_core.c ****     {
+ 1275              		.loc 1 306 55 discriminator 3 view .LVU264
+ 1276 0200 18B9     		cbnz	r0, .L77
+ 1277              	.L76:
+ 308:Core/Src/mimic_core.c ****     }
+ 1278              		.loc 1 308 9 is_stmt 1 view .LVU265
+ 1279 0202 01A8     		add	r0, sp, #4
+ 1280 0204 FFF7FEFF 		bl	Mimic_CMD_SPI_TRANSFER
+ 1281              	.LVL94:
+ 1282 0208 10E7     		b	.L38
+ 1283              	.L77:
+ 310:Core/Src/mimic_core.c ****     {
+ 1284              		.loc 1 310 10 view .LVU266
+ 310:Core/Src/mimic_core.c ****     {
+ 1285              		.loc 1 310 14 is_stmt 0 view .LVU267
+ 1286 020a 2A49     		ldr	r1, .L107+140
+ 1287 020c 01A8     		add	r0, sp, #4
+ 1288 020e FFF7FEFF 		bl	strcmp
+ 1289              	.LVL95:
+ 310:Core/Src/mimic_core.c ****     {
+ 1290              		.loc 1 310 13 discriminator 1 view .LVU268
+ 1291 0212 28B1     		cbz	r0, .L78
+ 310:Core/Src/mimic_core.c ****     {
+ 1292              		.loc 1 310 52 discriminator 2 view .LVU269
+ 1293 0214 2849     		ldr	r1, .L107+144
+ 1294 0216 01A8     		add	r0, sp, #4
+ 1295 0218 FFF7FEFF 		bl	strcmp
+ 1296              	.LVL96:
+ 310:Core/Src/mimic_core.c ****     {
+ 1297              		.loc 1 310 49 discriminator 3 view .LVU270
+ 1298 021c 0028     		cmp	r0, #0
+ 1299 021e 4DD1     		bne	.L79
+ 1300              	.L78:
+ 312:Core/Src/mimic_core.c ****     }
+ 1301              		.loc 1 312 9 is_stmt 1 view .LVU271
+ 1302 0220 01A8     		add	r0, sp, #4
+ 1303 0222 FFF7FEFF 		bl	Mimic_CMD_SPI_CS
+ 1304              	.LVL97:
+ 1305 0226 01E7     		b	.L38
+ 1306              	.L108:
+ 1307              		.align	2
+ 1308              	.L107:
+ 1309 0228 00000000 		.word	.LC3
+ 1310 022c 0C000000 		.word	.LC4
+ 1311 0230 10000000 		.word	.LC5
+ 1312 0234 1C000000 		.word	.LC6
+ 1313 0238 20000000 		.word	.LC7
+ 1314 023c 2C000000 		.word	.LC8
+ 1315 0240 30000000 		.word	.LC9
+ 1316 0244 3C000000 		.word	.LC10
+ 1317 0248 40000000 		.word	.LC11
+ 1318 024c 48000000 		.word	.LC12
+ 1319 0250 4C000000 		.word	.LC13
+ARM GAS  /tmp/ccisMha2.s 			page 35
+
+
+ 1320 0254 58000000 		.word	.LC14
+ 1321 0258 5C000000 		.word	.LC15
+ 1322 025c 68000000 		.word	.LC16
+ 1323 0260 6C000000 		.word	.LC17
+ 1324 0264 78000000 		.word	.LC18
+ 1325 0268 7C000000 		.word	.LC19
+ 1326 026c 88000000 		.word	.LC20
+ 1327 0270 8C000000 		.word	.LC21
+ 1328 0274 98000000 		.word	.LC22
+ 1329 0278 9C000000 		.word	.LC23
+ 1330 027c A8000000 		.word	.LC24
+ 1331 0280 AC000000 		.word	.LC25
+ 1332 0284 B8000000 		.word	.LC26
+ 1333 0288 C4000000 		.word	.LC27
+ 1334 028c D0000000 		.word	.LC28
+ 1335 0290 DC000000 		.word	.LC29
+ 1336 0294 E0000000 		.word	.LC30
+ 1337 0298 EC000000 		.word	.LC31
+ 1338 029c F0000000 		.word	.LC32
+ 1339 02a0 FC000000 		.word	.LC33
+ 1340 02a4 00010000 		.word	.LC34
+ 1341 02a8 0C010000 		.word	.LC35
+ 1342 02ac 10010000 		.word	.LC36
+ 1343 02b0 20010000 		.word	.LC37
+ 1344 02b4 24010000 		.word	.LC38
+ 1345 02b8 2C010000 		.word	.LC39
+ 1346              	.L79:
+ 314:Core/Src/mimic_core.c ****     {
+ 1347              		.loc 1 314 10 view .LVU272
+ 314:Core/Src/mimic_core.c ****     {
+ 1348              		.loc 1 314 14 is_stmt 0 view .LVU273
+ 1349 02bc 5349     		ldr	r1, .L109
+ 1350 02be 01A8     		add	r0, sp, #4
+ 1351 02c0 FFF7FEFF 		bl	strcmp
+ 1352              	.LVL98:
+ 314:Core/Src/mimic_core.c ****     {
+ 1353              		.loc 1 314 13 discriminator 1 view .LVU274
+ 1354 02c4 68B1     		cbz	r0, .L106
+ 319:Core/Src/mimic_core.c ****     {
+ 1355              		.loc 1 319 10 is_stmt 1 view .LVU275
+ 319:Core/Src/mimic_core.c ****     {
+ 1356              		.loc 1 319 14 is_stmt 0 view .LVU276
+ 1357 02c6 5249     		ldr	r1, .L109+4
+ 1358 02c8 01A8     		add	r0, sp, #4
+ 1359 02ca FFF7FEFF 		bl	strcmp
+ 1360              	.LVL99:
+ 319:Core/Src/mimic_core.c ****     {
+ 1361              		.loc 1 319 13 discriminator 1 view .LVU277
+ 1362 02ce 20B1     		cbz	r0, .L81
+ 319:Core/Src/mimic_core.c ****     {
+ 1363              		.loc 1 319 54 discriminator 2 view .LVU278
+ 1364 02d0 5049     		ldr	r1, .L109+8
+ 1365 02d2 01A8     		add	r0, sp, #4
+ 1366 02d4 FFF7FEFF 		bl	strcmp
+ 1367              	.LVL100:
+ 319:Core/Src/mimic_core.c ****     {
+ 1368              		.loc 1 319 51 discriminator 3 view .LVU279
+ARM GAS  /tmp/ccisMha2.s 			page 36
+
+
+ 1369 02d8 38B9     		cbnz	r0, .L82
+ 1370              	.L81:
+ 321:Core/Src/mimic_core.c ****     }
+ 1371              		.loc 1 321 9 is_stmt 1 view .LVU280
+ 1372 02da 01A8     		add	r0, sp, #4
+ 1373 02dc FFF7FEFF 		bl	Mimic_CMD_I2C_INIT
+ 1374              	.LVL101:
+ 1375 02e0 A4E6     		b	.L38
+ 1376              	.L106:
+ 316:Core/Src/mimic_core.c ****     }
+ 1377              		.loc 1 316 9 view .LVU281
+ 1378 02e2 01A8     		add	r0, sp, #4
+ 1379 02e4 FFF7FEFF 		bl	Mimic_CMD_SPI_STATUS
+ 1380              	.LVL102:
+ 1381 02e8 A0E6     		b	.L38
+ 1382              	.L82:
+ 323:Core/Src/mimic_core.c ****     {
+ 1383              		.loc 1 323 10 view .LVU282
+ 323:Core/Src/mimic_core.c ****     {
+ 1384              		.loc 1 323 14 is_stmt 0 view .LVU283
+ 1385 02ea 4B49     		ldr	r1, .L109+12
+ 1386 02ec 01A8     		add	r0, sp, #4
+ 1387 02ee FFF7FEFF 		bl	strcmp
+ 1388              	.LVL103:
+ 323:Core/Src/mimic_core.c ****     {
+ 1389              		.loc 1 323 13 discriminator 1 view .LVU284
+ 1390 02f2 20B1     		cbz	r0, .L83
+ 323:Core/Src/mimic_core.c ****     {
+ 1391              		.loc 1 323 54 discriminator 2 view .LVU285
+ 1392 02f4 4949     		ldr	r1, .L109+16
+ 1393 02f6 01A8     		add	r0, sp, #4
+ 1394 02f8 FFF7FEFF 		bl	strcmp
+ 1395              	.LVL104:
+ 323:Core/Src/mimic_core.c ****     {
+ 1396              		.loc 1 323 51 discriminator 3 view .LVU286
+ 1397 02fc 18B9     		cbnz	r0, .L84
+ 1398              	.L83:
+ 325:Core/Src/mimic_core.c ****     }
+ 1399              		.loc 1 325 9 is_stmt 1 view .LVU287
+ 1400 02fe 01A8     		add	r0, sp, #4
+ 1401 0300 FFF7FEFF 		bl	Mimic_CMD_I2C_SCAN
+ 1402              	.LVL105:
+ 1403 0304 92E6     		b	.L38
+ 1404              	.L84:
+ 327:Core/Src/mimic_core.c ****     {
+ 1405              		.loc 1 327 10 view .LVU288
+ 327:Core/Src/mimic_core.c ****     {
+ 1406              		.loc 1 327 14 is_stmt 0 view .LVU289
+ 1407 0306 4649     		ldr	r1, .L109+20
+ 1408 0308 01A8     		add	r0, sp, #4
+ 1409 030a FFF7FEFF 		bl	strcmp
+ 1410              	.LVL106:
+ 327:Core/Src/mimic_core.c ****     {
+ 1411              		.loc 1 327 13 discriminator 1 view .LVU290
+ 1412 030e 20B1     		cbz	r0, .L85
+ 327:Core/Src/mimic_core.c ****     {
+ 1413              		.loc 1 327 55 discriminator 2 view .LVU291
+ARM GAS  /tmp/ccisMha2.s 			page 37
+
+
+ 1414 0310 4449     		ldr	r1, .L109+24
+ 1415 0312 01A8     		add	r0, sp, #4
+ 1416 0314 FFF7FEFF 		bl	strcmp
+ 1417              	.LVL107:
+ 327:Core/Src/mimic_core.c ****     {
+ 1418              		.loc 1 327 52 discriminator 3 view .LVU292
+ 1419 0318 18B9     		cbnz	r0, .L86
+ 1420              	.L85:
+ 329:Core/Src/mimic_core.c ****     }
+ 1421              		.loc 1 329 9 is_stmt 1 view .LVU293
+ 1422 031a 01A8     		add	r0, sp, #4
+ 1423 031c FFF7FEFF 		bl	Mimic_CMD_I2C_WRITE
+ 1424              	.LVL108:
+ 1425 0320 84E6     		b	.L38
+ 1426              	.L86:
+ 331:Core/Src/mimic_core.c ****     {
+ 1427              		.loc 1 331 10 view .LVU294
+ 331:Core/Src/mimic_core.c ****     {
+ 1428              		.loc 1 331 14 is_stmt 0 view .LVU295
+ 1429 0322 4149     		ldr	r1, .L109+28
+ 1430 0324 01A8     		add	r0, sp, #4
+ 1431 0326 FFF7FEFF 		bl	strcmp
+ 1432              	.LVL109:
+ 331:Core/Src/mimic_core.c ****     {
+ 1433              		.loc 1 331 13 discriminator 1 view .LVU296
+ 1434 032a 20B1     		cbz	r0, .L87
+ 331:Core/Src/mimic_core.c ****     {
+ 1435              		.loc 1 331 54 discriminator 2 view .LVU297
+ 1436 032c 3F49     		ldr	r1, .L109+32
+ 1437 032e 01A8     		add	r0, sp, #4
+ 1438 0330 FFF7FEFF 		bl	strcmp
+ 1439              	.LVL110:
+ 331:Core/Src/mimic_core.c ****     {
+ 1440              		.loc 1 331 51 discriminator 3 view .LVU298
+ 1441 0334 18B9     		cbnz	r0, .L88
+ 1442              	.L87:
+ 333:Core/Src/mimic_core.c ****     }
+ 1443              		.loc 1 333 9 is_stmt 1 view .LVU299
+ 1444 0336 01A8     		add	r0, sp, #4
+ 1445 0338 FFF7FEFF 		bl	Mimic_CMD_I2C_READ
+ 1446              	.LVL111:
+ 1447 033c 76E6     		b	.L38
+ 1448              	.L88:
+ 335:Core/Src/mimic_core.c ****     {
+ 1449              		.loc 1 335 10 view .LVU300
+ 335:Core/Src/mimic_core.c ****     {
+ 1450              		.loc 1 335 14 is_stmt 0 view .LVU301
+ 1451 033e 3C49     		ldr	r1, .L109+36
+ 1452 0340 01A8     		add	r0, sp, #4
+ 1453 0342 FFF7FEFF 		bl	strcmp
+ 1454              	.LVL112:
+ 335:Core/Src/mimic_core.c ****     {
+ 1455              		.loc 1 335 13 discriminator 1 view .LVU302
+ 1456 0346 20B1     		cbz	r0, .L89
+ 335:Core/Src/mimic_core.c ****     {
+ 1457              		.loc 1 335 60 discriminator 2 view .LVU303
+ 1458 0348 3A49     		ldr	r1, .L109+40
+ARM GAS  /tmp/ccisMha2.s 			page 38
+
+
+ 1459 034a 01A8     		add	r0, sp, #4
+ 1460 034c FFF7FEFF 		bl	strcmp
+ 1461              	.LVL113:
+ 335:Core/Src/mimic_core.c ****     {
+ 1462              		.loc 1 335 57 discriminator 3 view .LVU304
+ 1463 0350 18B9     		cbnz	r0, .L90
+ 1464              	.L89:
+ 337:Core/Src/mimic_core.c ****     }
+ 1465              		.loc 1 337 9 is_stmt 1 view .LVU305
+ 1466 0352 01A8     		add	r0, sp, #4
+ 1467 0354 FFF7FEFF 		bl	Mimic_CMD_I2C_WRITE_READ
+ 1468              	.LVL114:
+ 1469 0358 68E6     		b	.L38
+ 1470              	.L90:
+ 339:Core/Src/mimic_core.c ****     {
+ 1471              		.loc 1 339 10 view .LVU306
+ 339:Core/Src/mimic_core.c ****     {
+ 1472              		.loc 1 339 14 is_stmt 0 view .LVU307
+ 1473 035a 3749     		ldr	r1, .L109+44
+ 1474 035c 01A8     		add	r0, sp, #4
+ 1475 035e FFF7FEFF 		bl	strcmp
+ 1476              	.LVL115:
+ 339:Core/Src/mimic_core.c ****     {
+ 1477              		.loc 1 339 13 discriminator 1 view .LVU308
+ 1478 0362 20B1     		cbz	r0, .L91
+ 339:Core/Src/mimic_core.c ****     {
+ 1479              		.loc 1 339 57 discriminator 2 view .LVU309
+ 1480 0364 3549     		ldr	r1, .L109+48
+ 1481 0366 01A8     		add	r0, sp, #4
+ 1482 0368 FFF7FEFF 		bl	strcmp
+ 1483              	.LVL116:
+ 339:Core/Src/mimic_core.c ****     {
+ 1484              		.loc 1 339 54 discriminator 3 view .LVU310
+ 1485 036c 18B9     		cbnz	r0, .L92
+ 1486              	.L91:
+ 341:Core/Src/mimic_core.c ****     }
+ 1487              		.loc 1 341 9 is_stmt 1 view .LVU311
+ 1488 036e 01A8     		add	r0, sp, #4
+ 1489 0370 FFF7FEFF 		bl	Mimic_CMD_I2C_REG_SET
+ 1490              	.LVL117:
+ 1491 0374 5AE6     		b	.L38
+ 1492              	.L92:
+ 343:Core/Src/mimic_core.c ****     {
+ 1493              		.loc 1 343 10 view .LVU312
+ 343:Core/Src/mimic_core.c ****     {
+ 1494              		.loc 1 343 14 is_stmt 0 view .LVU313
+ 1495 0376 3249     		ldr	r1, .L109+52
+ 1496 0378 01A8     		add	r0, sp, #4
+ 1497 037a FFF7FEFF 		bl	strcmp
+ 1498              	.LVL118:
+ 343:Core/Src/mimic_core.c ****     {
+ 1499              		.loc 1 343 13 discriminator 1 view .LVU314
+ 1500 037e 20B1     		cbz	r0, .L93
+ 343:Core/Src/mimic_core.c ****     {
+ 1501              		.loc 1 343 58 discriminator 2 view .LVU315
+ 1502 0380 3049     		ldr	r1, .L109+56
+ 1503 0382 01A8     		add	r0, sp, #4
+ARM GAS  /tmp/ccisMha2.s 			page 39
+
+
+ 1504 0384 FFF7FEFF 		bl	strcmp
+ 1505              	.LVL119:
+ 343:Core/Src/mimic_core.c ****     {
+ 1506              		.loc 1 343 55 discriminator 3 view .LVU316
+ 1507 0388 18B9     		cbnz	r0, .L94
+ 1508              	.L93:
+ 345:Core/Src/mimic_core.c ****     }
+ 1509              		.loc 1 345 9 is_stmt 1 view .LVU317
+ 1510 038a 01A8     		add	r0, sp, #4
+ 1511 038c FFF7FEFF 		bl	Mimic_CMD_I2C_REG_DATA
+ 1512              	.LVL120:
+ 1513 0390 4CE6     		b	.L38
+ 1514              	.L94:
+ 347:Core/Src/mimic_core.c ****     {
+ 1515              		.loc 1 347 10 view .LVU318
+ 347:Core/Src/mimic_core.c ****     {
+ 1516              		.loc 1 347 14 is_stmt 0 view .LVU319
+ 1517 0392 2D49     		ldr	r1, .L109+60
+ 1518 0394 01A8     		add	r0, sp, #4
+ 1519 0396 FFF7FEFF 		bl	strcmp
+ 1520              	.LVL121:
+ 347:Core/Src/mimic_core.c ****     {
+ 1521              		.loc 1 347 13 discriminator 1 view .LVU320
+ 1522 039a 18B9     		cbnz	r0, .L95
+ 349:Core/Src/mimic_core.c ****     }
+ 1523              		.loc 1 349 9 is_stmt 1 view .LVU321
+ 1524 039c 01A8     		add	r0, sp, #4
+ 1525 039e FFF7FEFF 		bl	Mimic_CMD_I2C_STATUS
+ 1526              	.LVL122:
+ 1527 03a2 43E6     		b	.L38
+ 1528              	.L95:
+ 352:Core/Src/mimic_core.c ****     {
+ 1529              		.loc 1 352 10 view .LVU322
+ 352:Core/Src/mimic_core.c ****     {
+ 1530              		.loc 1 352 14 is_stmt 0 view .LVU323
+ 1531 03a4 2949     		ldr	r1, .L109+64
+ 1532 03a6 01A8     		add	r0, sp, #4
+ 1533 03a8 FFF7FEFF 		bl	strcmp
+ 1534              	.LVL123:
+ 352:Core/Src/mimic_core.c ****     {
+ 1535              		.loc 1 352 13 discriminator 1 view .LVU324
+ 1536 03ac 20B1     		cbz	r0, .L96
+ 352:Core/Src/mimic_core.c ****     {
+ 1537              		.loc 1 352 50 discriminator 2 view .LVU325
+ 1538 03ae 2849     		ldr	r1, .L109+68
+ 1539 03b0 01A8     		add	r0, sp, #4
+ 1540 03b2 FFF7FEFF 		bl	strcmp
+ 1541              	.LVL124:
+ 352:Core/Src/mimic_core.c ****     {
+ 1542              		.loc 1 352 47 discriminator 3 view .LVU326
+ 1543 03b6 18B9     		cbnz	r0, .L97
+ 1544              	.L96:
+ 354:Core/Src/mimic_core.c ****     }
+ 1545              		.loc 1 354 9 is_stmt 1 view .LVU327
+ 1546 03b8 01A8     		add	r0, sp, #4
+ 1547 03ba FFF7FEFF 		bl	Mimic_CMD_HELP
+ 1548              	.LVL125:
+ARM GAS  /tmp/ccisMha2.s 			page 40
+
+
+ 1549 03be 35E6     		b	.L38
+ 1550              	.L97:
+ 356:Core/Src/mimic_core.c ****     {
+ 1551              		.loc 1 356 10 view .LVU328
+ 356:Core/Src/mimic_core.c ****     {
+ 1552              		.loc 1 356 14 is_stmt 0 view .LVU329
+ 1553 03c0 2449     		ldr	r1, .L109+72
+ 1554 03c2 01A8     		add	r0, sp, #4
+ 1555 03c4 FFF7FEFF 		bl	strcmp
+ 1556              	.LVL126:
+ 356:Core/Src/mimic_core.c ****     {
+ 1557              		.loc 1 356 13 discriminator 1 view .LVU330
+ 1558 03c8 20B1     		cbz	r0, .L98
+ 356:Core/Src/mimic_core.c ****     {
+ 1559              		.loc 1 356 53 discriminator 2 view .LVU331
+ 1560 03ca 2349     		ldr	r1, .L109+76
+ 1561 03cc 01A8     		add	r0, sp, #4
+ 1562 03ce FFF7FEFF 		bl	strcmp
+ 1563              	.LVL127:
+ 356:Core/Src/mimic_core.c ****     {
+ 1564              		.loc 1 356 50 discriminator 3 view .LVU332
+ 1565 03d2 18B9     		cbnz	r0, .L99
+ 1566              	.L98:
+ 358:Core/Src/mimic_core.c ****     }
+ 1567              		.loc 1 358 9 is_stmt 1 view .LVU333
+ 1568 03d4 01A8     		add	r0, sp, #4
+ 1569 03d6 FFF7FEFF 		bl	Mimic_CMD_VERSION
+ 1570              	.LVL128:
+ 1571 03da 27E6     		b	.L38
+ 1572              	.L99:
+ 360:Core/Src/mimic_core.c ****     {
+ 1573              		.loc 1 360 10 view .LVU334
+ 360:Core/Src/mimic_core.c ****     {
+ 1574              		.loc 1 360 14 is_stmt 0 view .LVU335
+ 1575 03dc 1F49     		ldr	r1, .L109+80
+ 1576 03de 01A8     		add	r0, sp, #4
+ 1577 03e0 FFF7FEFF 		bl	strcmp
+ 1578              	.LVL129:
+ 360:Core/Src/mimic_core.c ****     {
+ 1579              		.loc 1 360 13 discriminator 1 view .LVU336
+ 1580 03e4 18B9     		cbnz	r0, .L100
+ 362:Core/Src/mimic_core.c ****     }
+ 1581              		.loc 1 362 9 is_stmt 1 view .LVU337
+ 1582 03e6 01A8     		add	r0, sp, #4
+ 1583 03e8 FFF7FEFF 		bl	Mimic_CMD_STATUS
+ 1584              	.LVL130:
+ 1585 03ec 1EE6     		b	.L38
+ 1586              	.L100:
+ 364:Core/Src/mimic_core.c ****     {
+ 1587              		.loc 1 364 10 view .LVU338
+ 364:Core/Src/mimic_core.c ****     {
+ 1588              		.loc 1 364 14 is_stmt 0 view .LVU339
+ 1589 03ee 1C49     		ldr	r1, .L109+84
+ 1590 03f0 01A8     		add	r0, sp, #4
+ 1591 03f2 FFF7FEFF 		bl	strcmp
+ 1592              	.LVL131:
+ 364:Core/Src/mimic_core.c ****     {
+ARM GAS  /tmp/ccisMha2.s 			page 41
+
+
+ 1593              		.loc 1 364 13 discriminator 1 view .LVU340
+ 1594 03f6 18B9     		cbnz	r0, .L101
+ 366:Core/Src/mimic_core.c ****     }
+ 1595              		.loc 1 366 9 is_stmt 1 view .LVU341
+ 1596 03f8 01A8     		add	r0, sp, #4
+ 1597 03fa FFF7FEFF 		bl	Mimic_CMD_RESET
+ 1598              	.LVL132:
+ 1599 03fe 15E6     		b	.L38
+ 1600              	.L101:
+ 370:Core/Src/mimic_core.c ****     }
+ 1601              		.loc 1 370 9 view .LVU342
+ 1602 0400 01A9     		add	r1, sp, #4
+ 1603 0402 1848     		ldr	r0, .L109+88
+ 1604 0404 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1605              	.LVL133:
+ 1606 0408 10E6     		b	.L38
+ 1607              	.L110:
+ 1608 040a 00BF     		.align	2
+ 1609              	.L109:
+ 1610 040c 30010000 		.word	.LC40
+ 1611 0410 3C010000 		.word	.LC41
+ 1612 0414 48010000 		.word	.LC42
+ 1613 0418 4C010000 		.word	.LC43
+ 1614 041c 58010000 		.word	.LC44
+ 1615 0420 5C010000 		.word	.LC45
+ 1616 0424 68010000 		.word	.LC46
+ 1617 0428 6C010000 		.word	.LC47
+ 1618 042c 78010000 		.word	.LC48
+ 1619 0430 7C010000 		.word	.LC49
+ 1620 0434 8C010000 		.word	.LC50
+ 1621 0438 90010000 		.word	.LC51
+ 1622 043c 9C010000 		.word	.LC52
+ 1623 0440 A0010000 		.word	.LC53
+ 1624 0444 B0010000 		.word	.LC54
+ 1625 0448 B4010000 		.word	.LC55
+ 1626 044c C0010000 		.word	.LC56
+ 1627 0450 C8010000 		.word	.LC57
+ 1628 0454 CC010000 		.word	.LC58
+ 1629 0458 D4010000 		.word	.LC59
+ 1630 045c D8010000 		.word	.LC60
+ 1631 0460 E0010000 		.word	.LC61
+ 1632 0464 E8010000 		.word	.LC62
+ 1633              		.cfi_endproc
+ 1634              	.LFE145:
+ 1636              		.section	.rodata.Mimic_Process.str1.4,"aMS",%progbits,1
+ 1637              		.align	2
+ 1638              	.LC63:
+ 1639 0000 3E2000   		.ascii	"> \000"
+ 1640 0003 00       		.align	2
+ 1641              	.LC64:
+ 1642 0004 200800   		.ascii	" \010\000"
+ 1643              		.section	.text.Mimic_Process,"ax",%progbits
+ 1644              		.align	1
+ 1645              		.global	Mimic_Process
+ 1646              		.syntax unified
+ 1647              		.thumb
+ 1648              		.thumb_func
+ARM GAS  /tmp/ccisMha2.s 			page 42
+
+
+ 1650              	Mimic_Process:
+ 1651              	.LFB141:
+ 119:Core/Src/mimic_core.c **** 
+ 1652              		.loc 1 119 1 view -0
+ 1653              		.cfi_startproc
+ 1654              		@ args = 0, pretend = 0, frame = 0
+ 1655              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1656 0000 38B5     		push	{r3, r4, r5, lr}
+ 1657              	.LCFI18:
+ 1658              		.cfi_def_cfa_offset 16
+ 1659              		.cfi_offset 3, -16
+ 1660              		.cfi_offset 4, -12
+ 1661              		.cfi_offset 5, -8
+ 1662              		.cfi_offset 14, -4
+ 123:Core/Src/mimic_core.c ****     {
+ 1663              		.loc 1 123 5 view .LVU344
+ 123:Core/Src/mimic_core.c ****     {
+ 1664              		.loc 1 123 11 is_stmt 0 view .LVU345
+ 1665 0002 03E0     		b	.L112
+ 1666              	.LVL134:
+ 1667              	.L113:
+ 1668              	.LBB8:
+ 130:Core/Src/mimic_core.c ****             {
+ 1669              		.loc 1 130 13 is_stmt 1 view .LVU346
+ 130:Core/Src/mimic_core.c ****             {
+ 1670              		.loc 1 130 28 is_stmt 0 view .LVU347
+ 1671 0004 214B     		ldr	r3, .L122
+ 1672 0006 93F88030 		ldrb	r3, [r3, #128]	@ zero_extendqisi2
+ 130:Core/Src/mimic_core.c ****             {
+ 1673              		.loc 1 130 16 view .LVU348
+ 1674 000a EBB9     		cbnz	r3, .L120
+ 1675              	.LVL135:
+ 1676              	.L112:
+ 130:Core/Src/mimic_core.c ****             {
+ 1677              		.loc 1 130 16 view .LVU349
+ 1678              	.LBE8:
+ 123:Core/Src/mimic_core.c ****     {
+ 1679              		.loc 1 123 12 is_stmt 1 view .LVU350
+ 1680 000c FFF7FEFF 		bl	Mimic_RxAvailable
+ 1681              	.LVL136:
+ 123:Core/Src/mimic_core.c ****     {
+ 1682              		.loc 1 123 12 is_stmt 0 discriminator 1 view .LVU351
+ 1683 0010 0028     		cmp	r0, #0
+ 1684 0012 37D0     		beq	.L121
+ 1685              	.LBB9:
+ 125:Core/Src/mimic_core.c ****         
+ 1686              		.loc 1 125 9 is_stmt 1 view .LVU352
+ 125:Core/Src/mimic_core.c ****         
+ 1687              		.loc 1 125 22 is_stmt 0 view .LVU353
+ 1688 0014 FFF7FEFF 		bl	Mimic_RxGet
+ 1689              	.LVL137:
+ 128:Core/Src/mimic_core.c ****         {
+ 1690              		.loc 1 128 9 is_stmt 1 view .LVU354
+ 128:Core/Src/mimic_core.c ****         {
+ 1691              		.loc 1 128 12 is_stmt 0 view .LVU355
+ 1692 0018 0D28     		cmp	r0, #13
+ 1693 001a F3D0     		beq	.L113
+ARM GAS  /tmp/ccisMha2.s 			page 43
+
+
+ 128:Core/Src/mimic_core.c ****         {
+ 1694              		.loc 1 128 24 discriminator 1 view .LVU356
+ 1695 001c 0A28     		cmp	r0, #10
+ 1696 001e F1D0     		beq	.L113
+ 139:Core/Src/mimic_core.c ****         {
+ 1697              		.loc 1 139 14 is_stmt 1 view .LVU357
+ 139:Core/Src/mimic_core.c ****         {
+ 1698              		.loc 1 139 17 is_stmt 0 view .LVU358
+ 1699 0020 0828     		cmp	r0, #8
+ 1700 0022 22D0     		beq	.L116
+ 139:Core/Src/mimic_core.c ****         {
+ 1701              		.loc 1 139 29 discriminator 1 view .LVU359
+ 1702 0024 7F28     		cmp	r0, #127
+ 1703 0026 20D0     		beq	.L116
+ 147:Core/Src/mimic_core.c ****         {
+ 1704              		.loc 1 147 14 is_stmt 1 view .LVU360
+ 147:Core/Src/mimic_core.c ****         {
+ 1705              		.loc 1 147 27 is_stmt 0 view .LVU361
+ 1706 0028 A0F12003 		sub	r3, r0, #32
+ 1707 002c DBB2     		uxtb	r3, r3
+ 147:Core/Src/mimic_core.c ****         {
+ 1708              		.loc 1 147 17 view .LVU362
+ 1709 002e 5E2B     		cmp	r3, #94
+ 1710 0030 ECD8     		bhi	.L112
+ 149:Core/Src/mimic_core.c ****             {
+ 1711              		.loc 1 149 13 is_stmt 1 view .LVU363
+ 149:Core/Src/mimic_core.c ****             {
+ 1712              		.loc 1 149 28 is_stmt 0 view .LVU364
+ 1713 0032 164B     		ldr	r3, .L122
+ 1714 0034 93F88030 		ldrb	r3, [r3, #128]	@ zero_extendqisi2
+ 149:Core/Src/mimic_core.c ****             {
+ 1715              		.loc 1 149 16 view .LVU365
+ 1716 0038 7E2B     		cmp	r3, #126
+ 1717 003a E7D8     		bhi	.L112
+ 151:Core/Src/mimic_core.c ****             }
+ 1718              		.loc 1 151 17 is_stmt 1 view .LVU366
+ 151:Core/Src/mimic_core.c ****             }
+ 1719              		.loc 1 151 61 is_stmt 0 view .LVU367
+ 1720 003c 134A     		ldr	r2, .L122
+ 1721 003e 591C     		adds	r1, r3, #1
+ 1722 0040 82F88010 		strb	r1, [r2, #128]
+ 151:Core/Src/mimic_core.c ****             }
+ 1723              		.loc 1 151 65 view .LVU368
+ 1724 0044 D054     		strb	r0, [r2, r3]
+ 1725 0046 E1E7     		b	.L112
+ 1726              	.L120:
+ 132:Core/Src/mimic_core.c ****                 mimic_state.cmd_buffer[mimic_state.cmd_index] = '\0';
+ 1727              		.loc 1 132 17 is_stmt 1 view .LVU369
+ 1728 0048 1148     		ldr	r0, .L122+4
+ 1729              	.LVL138:
+ 132:Core/Src/mimic_core.c ****                 mimic_state.cmd_buffer[mimic_state.cmd_index] = '\0';
+ 1730              		.loc 1 132 17 is_stmt 0 view .LVU370
+ 1731 004a FFF7FEFF 		bl	Mimic_SendResponse
+ 1732              	.LVL139:
+ 133:Core/Src/mimic_core.c ****                 Mimic_ProcessCommand(mimic_state.cmd_buffer);
+ 1733              		.loc 1 133 17 is_stmt 1 view .LVU371
+ 133:Core/Src/mimic_core.c ****                 Mimic_ProcessCommand(mimic_state.cmd_buffer);
+ARM GAS  /tmp/ccisMha2.s 			page 44
+
+
+ 1734              		.loc 1 133 51 is_stmt 0 view .LVU372
+ 1735 004e 0F4C     		ldr	r4, .L122
+ 1736 0050 94F88030 		ldrb	r3, [r4, #128]	@ zero_extendqisi2
+ 133:Core/Src/mimic_core.c ****                 Mimic_ProcessCommand(mimic_state.cmd_buffer);
+ 1737              		.loc 1 133 63 view .LVU373
+ 1738 0054 0025     		movs	r5, #0
+ 1739 0056 E554     		strb	r5, [r4, r3]
+ 134:Core/Src/mimic_core.c ****                 mimic_state.cmd_index = 0;
+ 1740              		.loc 1 134 17 is_stmt 1 view .LVU374
+ 1741 0058 2046     		mov	r0, r4
+ 1742 005a FFF7FEFF 		bl	Mimic_ProcessCommand
+ 1743              	.LVL140:
+ 135:Core/Src/mimic_core.c ****                 Mimic_SendResponse("> ");
+ 1744              		.loc 1 135 17 view .LVU375
+ 135:Core/Src/mimic_core.c ****                 Mimic_SendResponse("> ");
+ 1745              		.loc 1 135 39 is_stmt 0 view .LVU376
+ 1746 005e 84F88050 		strb	r5, [r4, #128]
+ 136:Core/Src/mimic_core.c ****             }
+ 1747              		.loc 1 136 17 is_stmt 1 view .LVU377
+ 1748 0062 0C48     		ldr	r0, .L122+8
+ 1749 0064 FFF7FEFF 		bl	Mimic_SendResponse
+ 1750              	.LVL141:
+ 1751 0068 D0E7     		b	.L112
+ 1752              	.LVL142:
+ 1753              	.L116:
+ 141:Core/Src/mimic_core.c ****             {
+ 1754              		.loc 1 141 13 view .LVU378
+ 141:Core/Src/mimic_core.c ****             {
+ 1755              		.loc 1 141 28 is_stmt 0 view .LVU379
+ 1756 006a 084B     		ldr	r3, .L122
+ 1757 006c 93F88030 		ldrb	r3, [r3, #128]	@ zero_extendqisi2
+ 141:Core/Src/mimic_core.c ****             {
+ 1758              		.loc 1 141 16 view .LVU380
+ 1759 0070 002B     		cmp	r3, #0
+ 1760 0072 CBD0     		beq	.L112
+ 143:Core/Src/mimic_core.c ****                 Mimic_SendResponse(" \b");  /* Erase character */
+ 1761              		.loc 1 143 17 is_stmt 1 view .LVU381
+ 143:Core/Src/mimic_core.c ****                 Mimic_SendResponse(" \b");  /* Erase character */
+ 1762              		.loc 1 143 38 is_stmt 0 view .LVU382
+ 1763 0074 013B     		subs	r3, r3, #1
+ 1764 0076 054A     		ldr	r2, .L122
+ 1765 0078 82F88030 		strb	r3, [r2, #128]
+ 144:Core/Src/mimic_core.c ****             }
+ 1766              		.loc 1 144 17 is_stmt 1 view .LVU383
+ 1767 007c 0648     		ldr	r0, .L122+12
+ 1768              	.LVL143:
+ 144:Core/Src/mimic_core.c ****             }
+ 1769              		.loc 1 144 17 is_stmt 0 view .LVU384
+ 1770 007e FFF7FEFF 		bl	Mimic_SendResponse
+ 1771              	.LVL144:
+ 1772 0082 C3E7     		b	.L112
+ 1773              	.LVL145:
+ 1774              	.L121:
+ 144:Core/Src/mimic_core.c ****             }
+ 1775              		.loc 1 144 17 view .LVU385
+ 1776              	.LBE9:
+ 156:Core/Src/mimic_core.c **** }
+ARM GAS  /tmp/ccisMha2.s 			page 45
+
+
+ 1777              		.loc 1 156 5 is_stmt 1 view .LVU386
+ 1778 0084 FFF7FEFF 		bl	Mimic_SPI_Sync
+ 1779              	.LVL146:
+ 157:Core/Src/mimic_core.c **** 
+ 1780              		.loc 1 157 1 is_stmt 0 view .LVU387
+ 1781 0088 38BD     		pop	{r3, r4, r5, pc}
+ 1782              	.L123:
+ 1783 008a 00BF     		.align	2
+ 1784              	.L122:
+ 1785 008c 00000000 		.word	mimic_state
+ 1786 0090 00000000 		.word	.LC0
+ 1787 0094 00000000 		.word	.LC63
+ 1788 0098 04000000 		.word	.LC64
+ 1789              		.cfi_endproc
+ 1790              	.LFE141:
+ 1792              		.section	.bss.rx_tail,"aw",%nobits
+ 1793              		.align	1
+ 1796              	rx_tail:
+ 1797 0000 0000     		.space	2
+ 1798              		.section	.bss.rx_head,"aw",%nobits
+ 1799              		.align	1
+ 1802              	rx_head:
+ 1803 0000 0000     		.space	2
+ 1804              		.section	.bss.rx_buffer,"aw",%nobits
+ 1805              		.align	2
+ 1808              	rx_buffer:
+ 1809 0000 00000000 		.space	256
+ 1809      00000000 
+ 1809      00000000 
+ 1809      00000000 
+ 1809      00000000 
+ 1810              		.section	.bss.rx_ready,"aw",%nobits
+ 1813              	rx_ready:
+ 1814 0000 00       		.space	1
+ 1815              		.section	.bss.rx_byte,"aw",%nobits
+ 1818              	rx_byte:
+ 1819 0000 00       		.space	1
+ 1820              		.global	mimic_state
+ 1821              		.section	.bss.mimic_state,"aw",%nobits
+ 1822              		.align	2
+ 1825              	mimic_state:
+ 1826 0000 00000000 		.space	130
+ 1826      00000000 
+ 1826      00000000 
+ 1826      00000000 
+ 1826      00000000 
+ 1827              		.text
+ 1828              	.Letext0:
+ 1829              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 1830              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 1831              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+ 1832              		.file 5 "/usr/lib/gcc/arm-none-eabi/15.2.0/include/stddef.h"
+ 1833              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 1834              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 1835              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 1836              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 1837              		.file 10 "/usr/lib/gcc/arm-none-eabi/15.2.0/include/stdarg.h"
+ARM GAS  /tmp/ccisMha2.s 			page 46
+
+
+ 1838              		.file 11 "/usr/arm-none-eabi/include/stdio.h"
+ 1839              		.file 12 "Core/Inc/mimic.h"
+ 1840              		.file 13 "/usr/arm-none-eabi/include/string.h"
+ 1841              		.file 14 "<built-in>"
+ARM GAS  /tmp/ccisMha2.s 			page 47
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 mimic_core.c
+     /tmp/ccisMha2.s:21     .text.Mimic_RxAvailable:00000000 $t
+     /tmp/ccisMha2.s:26     .text.Mimic_RxAvailable:00000000 Mimic_RxAvailable
+     /tmp/ccisMha2.s:49     .text.Mimic_RxAvailable:00000014 $d
+     /tmp/ccisMha2.s:1802   .bss.rx_head:00000000 rx_head
+     /tmp/ccisMha2.s:1796   .bss.rx_tail:00000000 rx_tail
+     /tmp/ccisMha2.s:55     .text.Mimic_RxGet:00000000 $t
+     /tmp/ccisMha2.s:60     .text.Mimic_RxGet:00000000 Mimic_RxGet
+     /tmp/ccisMha2.s:114    .text.Mimic_RxGet:00000038 $d
+     /tmp/ccisMha2.s:1808   .bss.rx_buffer:00000000 rx_buffer
+     /tmp/ccisMha2.s:121    .text.HAL_UART_RxCpltCallback:00000000 $t
+     /tmp/ccisMha2.s:127    .text.HAL_UART_RxCpltCallback:00000000 HAL_UART_RxCpltCallback
+     /tmp/ccisMha2.s:205    .text.HAL_UART_RxCpltCallback:0000004c $d
+     /tmp/ccisMha2.s:1818   .bss.rx_byte:00000000 rx_byte
+     /tmp/ccisMha2.s:214    .text.Mimic_SendResponse:00000000 $t
+     /tmp/ccisMha2.s:220    .text.Mimic_SendResponse:00000000 Mimic_SendResponse
+     /tmp/ccisMha2.s:252    .text.Mimic_SendResponse:00000018 $d
+     /tmp/ccisMha2.s:257    .rodata.Mimic_Init.str1.4:00000000 $d
+     /tmp/ccisMha2.s:264    .text.Mimic_Init:00000000 $t
+     /tmp/ccisMha2.s:270    .text.Mimic_Init:00000000 Mimic_Init
+     /tmp/ccisMha2.s:442    .text.Mimic_Init:000000d4 $d
+     /tmp/ccisMha2.s:1825   .bss.mimic_state:00000000 mimic_state
+     /tmp/ccisMha2.s:454    .text.Mimic_SendResponseF:00000000 $t
+     /tmp/ccisMha2.s:460    .text.Mimic_SendResponseF:00000000 Mimic_SendResponseF
+     /tmp/ccisMha2.s:522    .rodata.Mimic_ParseCommand.str1.4:00000000 $d
+     /tmp/ccisMha2.s:526    .text.Mimic_ParseCommand:00000000 $t
+     /tmp/ccisMha2.s:532    .text.Mimic_ParseCommand:00000000 Mimic_ParseCommand
+     /tmp/ccisMha2.s:662    .text.Mimic_ParseCommand:00000070 $d
+     /tmp/ccisMha2.s:667    .rodata.Mimic_ProcessCommand.str1.4:00000000 $d
+     /tmp/ccisMha2.s:848    .text.Mimic_ProcessCommand:00000000 $t
+     /tmp/ccisMha2.s:854    .text.Mimic_ProcessCommand:00000000 Mimic_ProcessCommand
+     /tmp/ccisMha2.s:1309   .text.Mimic_ProcessCommand:00000228 $d
+     /tmp/ccisMha2.s:1349   .text.Mimic_ProcessCommand:000002bc $t
+     /tmp/ccisMha2.s:1610   .text.Mimic_ProcessCommand:0000040c $d
+     /tmp/ccisMha2.s:1637   .rodata.Mimic_Process.str1.4:00000000 $d
+     /tmp/ccisMha2.s:1644   .text.Mimic_Process:00000000 $t
+     /tmp/ccisMha2.s:1650   .text.Mimic_Process:00000000 Mimic_Process
+     /tmp/ccisMha2.s:1785   .text.Mimic_Process:0000008c $d
+     /tmp/ccisMha2.s:1793   .bss.rx_tail:00000000 $d
+     /tmp/ccisMha2.s:1799   .bss.rx_head:00000000 $d
+     /tmp/ccisMha2.s:1805   .bss.rx_buffer:00000000 $d
+     /tmp/ccisMha2.s:1813   .bss.rx_ready:00000000 rx_ready
+     /tmp/ccisMha2.s:1814   .bss.rx_ready:00000000 $d
+     /tmp/ccisMha2.s:1819   .bss.rx_byte:00000000 $d
+     /tmp/ccisMha2.s:1822   .bss.mimic_state:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_UART_Receive_IT
+huart1
+strlen
+HAL_UART_Transmit
+HAL_GPIO_Init
+memset
+i2c_register_map
+vsnprintf
+strncpy
+ARM GAS  /tmp/ccisMha2.s 			page 48
+
+
+strtok
+strcmp
+Mimic_CMD_PIN_STATUS
+Mimic_CMD_PIN_SET_OUT
+Mimic_CMD_PIN_SET_IN
+Mimic_CMD_PIN_HIGH
+Mimic_CMD_PIN_LOW
+Mimic_CMD_PIN_READ
+Mimic_CMD_PIN_TOGGLE
+Mimic_CMD_PIN_MODE
+Mimic_CMD_UART_INIT
+Mimic_CMD_UART_SEND
+Mimic_CMD_UART_RECV
+Mimic_CMD_UART_POLL
+Mimic_CMD_UART_STATUS
+Mimic_CMD_UART_TEST
+Mimic_CMD_UART_RS485
+Mimic_CMD_SPI_INIT
+Mimic_CMD_SPI_SEND
+Mimic_CMD_SPI_RECV
+Mimic_CMD_SPI_TRANSFER
+Mimic_CMD_SPI_CS
+Mimic_CMD_I2C_INIT
+Mimic_CMD_SPI_STATUS
+Mimic_CMD_I2C_SCAN
+Mimic_CMD_I2C_WRITE
+Mimic_CMD_I2C_READ
+Mimic_CMD_I2C_WRITE_READ
+Mimic_CMD_I2C_REG_SET
+Mimic_CMD_I2C_REG_DATA
+Mimic_CMD_I2C_STATUS
+Mimic_CMD_HELP
+Mimic_CMD_VERSION
+Mimic_CMD_STATUS
+Mimic_CMD_RESET
+Mimic_SPI_Sync

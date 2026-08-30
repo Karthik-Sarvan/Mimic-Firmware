@@ -94,11 +94,14 @@ extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c2;
 extern I2C_HandleTypeDef hi2c3;
 
+extern uint8_t i2c_register_map[256];
+extern uint8_t current_reg_addr;
 extern Mimic_CmdState_t mimic_state;
 
 /* ========================== FUNCTION PROTOTYPES =========================== */
 
 /* Core Functions */
+void Mimic_SPI_Sync(void);
 void Mimic_Init(void);
 void Mimic_Process(void);
 void Mimic_SendResponse(const char *response);
@@ -151,6 +154,7 @@ void Mimic_CMD_RESET(Mimic_Command_t *cmd);
 /* Helper Functions */
 GPIO_TypeDef* Mimic_GetPort(char port_char);
 uint16_t Mimic_GetPin(uint8_t pin_num);
+uint16_t Mimic_ParseHexData(const char *hex_str, uint8_t *data, uint16_t max_len);
 uint8_t Mimic_ParsePin(const char *pin_str, GPIO_TypeDef **port, uint16_t *pin);
 
 #ifdef __cplusplus

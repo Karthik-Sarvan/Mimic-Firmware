@@ -1,0 +1,2442 @@
+ARM GAS  /tmp/ccU8KOoq.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"mimic_gpio.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/mimic_gpio.c"
+  20              		.section	.rodata.Mimic_CMD_PIN_STATUS.str1.4,"aMS",%progbits,1
+  21              		.align	2
+  22              	.LC10:
+  23 0000 48494748 		.ascii	"HIGH\000"
+  23      00
+  24 0005 000000   		.align	2
+  25              	.LC8:
+  26 0008 4C4F5700 		.ascii	"LOW\000"
+  27              		.align	2
+  28              	.LC18:
+  29 000c 55736167 		.ascii	"Usage: PIN_STATUS <PIN> (e.g., PIN_STATUS A5)\015\012"
+  29      653A2050 
+  29      494E5F53 
+  29      54415455 
+  29      53203C50 
+  30 003b 00       		.ascii	"\000"
+  31              		.align	2
+  32              	.LC19:
+  33 003c 4552524F 		.ascii	"ERROR: Invalid pin '%s'\015\012\000"
+  33      523A2049 
+  33      6E76616C 
+  33      69642070 
+  33      696E2027 
+  34 0056 0000     		.align	2
+  35              	.LC24:
+  36 0058 50494E20 		.ascii	"PIN %s:\015\012\000"
+  36      25733A0D 
+  36      0A00
+  37 0062 0000     		.align	2
+  38              	.LC25:
+  39 0064 20204D6F 		.ascii	"  Mode:   %s\015\012\000"
+  39      64653A20 
+  39      20202573 
+  39      0D0A00
+  40 0073 00       		.align	2
+  41              	.LC26:
+  42 0074 20205479 		.ascii	"  Type:   %s\015\012\000"
+  42      70653A20 
+ARM GAS  /tmp/ccU8KOoq.s 			page 2
+
+
+  42      20202573 
+  42      0D0A00
+  43 0083 00       		.align	2
+  44              	.LC27:
+  45 0084 20205370 		.ascii	"  Speed:  %s\015\012\000"
+  45      6565643A 
+  45      20202573 
+  45      0D0A00
+  46 0093 00       		.align	2
+  47              	.LC28:
+  48 0094 20205075 		.ascii	"  Pull:   %s\015\012\000"
+  48      6C6C3A20 
+  48      20202573 
+  48      0D0A00
+  49 00a3 00       		.align	2
+  50              	.LC29:
+  51 00a4 20205374 		.ascii	"  State:  %s\015\012\000"
+  51      6174653A 
+  51      20202573 
+  51      0D0A00
+  52              		.section	.text.Mimic_CMD_PIN_STATUS,"ax",%progbits
+  53              		.align	1
+  54              		.global	Mimic_CMD_PIN_STATUS
+  55              		.syntax unified
+  56              		.thumb
+  57              		.thumb_func
+  59              	Mimic_CMD_PIN_STATUS:
+  60              	.LVL0:
+  61              	.LFB137:
+   1:Core/Src/mimic_gpio.c **** #include "mimic.h"
+   2:Core/Src/mimic_gpio.c **** 
+   3:Core/Src/mimic_gpio.c **** /* ========================== GPIO COMMANDS ================================= */
+   4:Core/Src/mimic_gpio.c **** 
+   5:Core/Src/mimic_gpio.c **** /**
+   6:Core/Src/mimic_gpio.c ****   * @brief  PIN_STATUS <PIN> - Show pin configuration
+   7:Core/Src/mimic_gpio.c ****   */
+   8:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_STATUS(Mimic_Command_t *cmd)
+   9:Core/Src/mimic_gpio.c **** {
+  62              		.loc 1 9 1 view -0
+  63              		.cfi_startproc
+  64              		@ args = 0, pretend = 0, frame = 72
+  65              		@ frame_needed = 0, uses_anonymous_args = 0
+  66              		.loc 1 9 1 is_stmt 0 view .LVU1
+  67 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+  68              	.LCFI0:
+  69              		.cfi_def_cfa_offset 24
+  70              		.cfi_offset 4, -24
+  71              		.cfi_offset 5, -20
+  72              		.cfi_offset 6, -16
+  73              		.cfi_offset 7, -12
+  74              		.cfi_offset 8, -8
+  75              		.cfi_offset 14, -4
+  76 0004 92B0     		sub	sp, sp, #72
+  77              	.LCFI1:
+  78              		.cfi_def_cfa_offset 96
+  10:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
+  79              		.loc 1 10 5 is_stmt 1 view .LVU2
+ARM GAS  /tmp/ccU8KOoq.s 			page 3
+
+
+  11:Core/Src/mimic_gpio.c ****     uint16_t pin;
+  80              		.loc 1 11 5 view .LVU3
+  12:Core/Src/mimic_gpio.c ****     
+  13:Core/Src/mimic_gpio.c ****     if (cmd->argc < 1)
+  81              		.loc 1 13 5 view .LVU4
+  82              		.loc 1 13 12 is_stmt 0 view .LVU5
+  83 0006 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+  84              		.loc 1 13 8 view .LVU6
+  85 000a 5BB1     		cbz	r3, .L13
+  14:Core/Src/mimic_gpio.c ****     {
+  15:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("Usage: PIN_STATUS <PIN> (e.g., PIN_STATUS A5)\r\n");
+  16:Core/Src/mimic_gpio.c ****         return;
+  17:Core/Src/mimic_gpio.c ****     }
+  18:Core/Src/mimic_gpio.c ****     
+  19:Core/Src/mimic_gpio.c ****     if (!Mimic_ParsePin(cmd->args[0], &port, &pin))
+  86              		.loc 1 19 5 is_stmt 1 view .LVU7
+  87              		.loc 1 19 34 is_stmt 0 view .LVU8
+  88 000c 00F12003 		add	r3, r0, #32
+  89 0010 9846     		mov	r8, r3
+  90              		.loc 1 19 10 view .LVU9
+  91 0012 0DF14202 		add	r2, sp, #66
+  92 0016 11A9     		add	r1, sp, #68
+  93 0018 1846     		mov	r0, r3
+  94              	.LVL1:
+  95              		.loc 1 19 10 view .LVU10
+  96 001a FFF7FEFF 		bl	Mimic_ParsePin
+  97              	.LVL2:
+  98              		.loc 1 19 8 discriminator 1 view .LVU11
+  99 001e 28B1     		cbz	r0, .L14
+ 100              	.LBB2:
+  20:Core/Src/mimic_gpio.c ****     {
+  21:Core/Src/mimic_gpio.c ****         Mimic_SendResponseF("ERROR: Invalid pin '%s'\r\n", cmd->args[0]);
+  22:Core/Src/mimic_gpio.c ****         return;
+  23:Core/Src/mimic_gpio.c ****     }
+  24:Core/Src/mimic_gpio.c ****     
+  25:Core/Src/mimic_gpio.c ****     uint8_t pin_num = 0;
+  26:Core/Src/mimic_gpio.c ****     for (int i = 0; i < 16; i++) {
+ 101              		.loc 1 26 14 view .LVU12
+ 102 0020 0023     		movs	r3, #0
+ 103 0022 09E0     		b	.L4
+ 104              	.LVL3:
+ 105              	.L13:
+ 106              		.loc 1 26 14 view .LVU13
+ 107              	.LBE2:
+  15:Core/Src/mimic_gpio.c ****         return;
+ 108              		.loc 1 15 9 is_stmt 1 view .LVU14
+ 109 0024 3E48     		ldr	r0, .L16
+ 110              	.LVL4:
+  15:Core/Src/mimic_gpio.c ****         return;
+ 111              		.loc 1 15 9 is_stmt 0 view .LVU15
+ 112 0026 FFF7FEFF 		bl	Mimic_SendResponse
+ 113              	.LVL5:
+  16:Core/Src/mimic_gpio.c ****     }
+ 114              		.loc 1 16 9 is_stmt 1 view .LVU16
+ 115 002a 74E0     		b	.L1
+ 116              	.L14:
+  21:Core/Src/mimic_gpio.c ****         return;
+ARM GAS  /tmp/ccU8KOoq.s 			page 4
+
+
+ 117              		.loc 1 21 9 view .LVU17
+ 118 002c 4146     		mov	r1, r8
+ 119 002e 3D48     		ldr	r0, .L16+4
+ 120 0030 FFF7FEFF 		bl	Mimic_SendResponseF
+ 121              	.LVL6:
+  22:Core/Src/mimic_gpio.c ****     }
+ 122              		.loc 1 22 9 view .LVU18
+ 123 0034 6FE0     		b	.L1
+ 124              	.LVL7:
+ 125              	.L5:
+ 126              	.LBB3:
+ 127              		.loc 1 26 30 discriminator 2 view .LVU19
+ 128 0036 0133     		adds	r3, r3, #1
+ 129              	.LVL8:
+ 130              	.L4:
+ 131              		.loc 1 26 23 discriminator 1 view .LVU20
+ 132 0038 0F2B     		cmp	r3, #15
+ 133 003a 08DC     		bgt	.L15
+  27:Core/Src/mimic_gpio.c ****         if (pin & (1 << i)) { pin_num = i; break; }
+ 134              		.loc 1 27 9 view .LVU21
+ 135              		.loc 1 27 13 is_stmt 0 view .LVU22
+ 136 003c BDF84220 		ldrh	r2, [sp, #66]
+ 137 0040 1A41     		asrs	r2, r2, r3
+ 138              		.loc 1 27 12 view .LVU23
+ 139 0042 12F0010F 		tst	r2, #1
+ 140 0046 F6D0     		beq	.L5
+ 141              		.loc 1 27 31 is_stmt 1 discriminator 1 view .LVU24
+ 142              		.loc 1 27 39 is_stmt 0 discriminator 1 view .LVU25
+ 143 0048 5FFA83FC 		uxtb	ip, r3
+ 144              	.LVL9:
+ 145              		.loc 1 27 44 is_stmt 1 view .LVU26
+ 146 004c 01E0     		b	.L6
+ 147              	.LVL10:
+ 148              	.L15:
+ 149              		.loc 1 27 44 is_stmt 0 view .LVU27
+ 150              	.LBE3:
+  25:Core/Src/mimic_gpio.c ****     for (int i = 0; i < 16; i++) {
+ 151              		.loc 1 25 13 view .LVU28
+ 152 004e 4FF0000C 		mov	ip, #0
+ 153              	.L6:
+ 154              	.LVL11:
+  28:Core/Src/mimic_gpio.c ****     }
+  29:Core/Src/mimic_gpio.c ****     
+  30:Core/Src/mimic_gpio.c ****     /* Read MODER */
+  31:Core/Src/mimic_gpio.c ****     uint32_t moder = (port->MODER >> (pin_num * 2)) & 0x03;
+ 155              		.loc 1 31 5 is_stmt 1 view .LVU29
+ 156              		.loc 1 31 27 is_stmt 0 view .LVU30
+ 157 0052 119C     		ldr	r4, [sp, #68]
+ 158 0054 2368     		ldr	r3, [r4]
+ 159              	.LVL12:
+ 160              		.loc 1 31 47 view .LVU31
+ 161 0056 4FEA4C05 		lsl	r5, ip, #1
+ 162              		.loc 1 31 35 view .LVU32
+ 163 005a EB40     		lsrs	r3, r3, r5
+ 164              		.loc 1 31 14 view .LVU33
+ 165 005c 03F00306 		and	r6, r3, #3
+ 166              	.LVL13:
+ARM GAS  /tmp/ccU8KOoq.s 			page 5
+
+
+  32:Core/Src/mimic_gpio.c ****     const char *mode_str[] = {"INPUT", "OUTPUT", "ALT_FUNC", "ANALOG"};
+ 167              		.loc 1 32 5 is_stmt 1 view .LVU34
+ 168              		.loc 1 32 17 is_stmt 0 view .LVU35
+ 169 0060 DFF8E4E0 		ldr	lr, .L16+40
+ 170 0064 9EE80F00 		ldm	lr, {r0, r1, r2, r3}
+ 171 0068 0CAF     		add	r7, sp, #48
+ 172 006a 87E80F00 		stm	r7, {r0, r1, r2, r3}
+  33:Core/Src/mimic_gpio.c ****     
+  34:Core/Src/mimic_gpio.c ****     /* Read OTYPER */
+  35:Core/Src/mimic_gpio.c ****     uint32_t otyper = (port->OTYPER >> pin_num) & 0x01;
+ 173              		.loc 1 35 5 is_stmt 1 view .LVU36
+ 174              		.loc 1 35 28 is_stmt 0 view .LVU37
+ 175 006e 6368     		ldr	r3, [r4, #4]
+ 176              		.loc 1 35 37 view .LVU38
+ 177 0070 23FA0CF3 		lsr	r3, r3, ip
+ 178              		.loc 1 35 14 view .LVU39
+ 179 0074 03F00107 		and	r7, r3, #1
+ 180              	.LVL14:
+  36:Core/Src/mimic_gpio.c ****     const char *otype_str[] = {"PUSH_PULL", "OPEN_DRAIN"};
+ 181              		.loc 1 36 5 is_stmt 1 view .LVU40
+ 182              		.loc 1 36 17 is_stmt 0 view .LVU41
+ 183 0078 0AAB     		add	r3, sp, #40
+ 184 007a 0EF11002 		add	r2, lr, #16
+ 185 007e 92E80300 		ldm	r2, {r0, r1}
+ 186 0082 83E80300 		stm	r3, {r0, r1}
+  37:Core/Src/mimic_gpio.c ****     
+  38:Core/Src/mimic_gpio.c ****     /* Read OSPEEDR */
+  39:Core/Src/mimic_gpio.c ****     uint32_t ospeedr = (port->OSPEEDR >> (pin_num * 2)) & 0x03;
+ 187              		.loc 1 39 5 is_stmt 1 view .LVU42
+ 188              		.loc 1 39 29 is_stmt 0 view .LVU43
+ 189 0086 A368     		ldr	r3, [r4, #8]
+ 190              		.loc 1 39 39 view .LVU44
+ 191 0088 EB40     		lsrs	r3, r3, r5
+ 192              		.loc 1 39 14 view .LVU45
+ 193 008a 03F00303 		and	r3, r3, #3
+ 194 008e 0193     		str	r3, [sp, #4]
+ 195              	.LVL15:
+  40:Core/Src/mimic_gpio.c ****     const char *speed_str[] = {"LOW", "MEDIUM", "HIGH", "VERY_HIGH"};
+ 196              		.loc 1 40 5 is_stmt 1 view .LVU46
+ 197              		.loc 1 40 17 is_stmt 0 view .LVU47
+ 198 0090 0DF1180C 		add	ip, sp, #24
+ 199              	.LVL16:
+ 200              		.loc 1 40 17 view .LVU48
+ 201 0094 0EF11803 		add	r3, lr, #24
+ 202              	.LVL17:
+ 203              		.loc 1 40 17 view .LVU49
+ 204 0098 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 205 009a 8CE80F00 		stm	ip, {r0, r1, r2, r3}
+  41:Core/Src/mimic_gpio.c ****     
+  42:Core/Src/mimic_gpio.c ****     /* Read PUPDR */
+  43:Core/Src/mimic_gpio.c ****     uint32_t pupdr = (port->PUPDR >> (pin_num * 2)) & 0x03;
+ 206              		.loc 1 43 5 is_stmt 1 view .LVU50
+ 207              		.loc 1 43 27 is_stmt 0 view .LVU51
+ 208 009e E368     		ldr	r3, [r4, #12]
+ 209              		.loc 1 43 35 view .LVU52
+ 210 00a0 EB40     		lsrs	r3, r3, r5
+ 211              		.loc 1 43 14 view .LVU53
+ARM GAS  /tmp/ccU8KOoq.s 			page 6
+
+
+ 212 00a2 03F00305 		and	r5, r3, #3
+ 213              	.LVL18:
+  44:Core/Src/mimic_gpio.c ****     const char *pupd_str[] = {"NONE", "PULL_UP", "PULL_DOWN", "RESERVED"};
+ 214              		.loc 1 44 5 is_stmt 1 view .LVU54
+ 215              		.loc 1 44 17 is_stmt 0 view .LVU55
+ 216 00a6 0DF1080C 		add	ip, sp, #8
+ 217 00aa 0EF1280E 		add	lr, lr, #40
+ 218 00ae 9EE80F00 		ldm	lr, {r0, r1, r2, r3}
+ 219 00b2 8CE80F00 		stm	ip, {r0, r1, r2, r3}
+  45:Core/Src/mimic_gpio.c ****     
+  46:Core/Src/mimic_gpio.c ****     /* Read current state */
+  47:Core/Src/mimic_gpio.c ****     uint8_t state = HAL_GPIO_ReadPin(port, pin);
+ 220              		.loc 1 47 5 is_stmt 1 view .LVU56
+ 221              		.loc 1 47 21 is_stmt 0 view .LVU57
+ 222 00b6 BDF84210 		ldrh	r1, [sp, #66]
+ 223 00ba 2046     		mov	r0, r4
+ 224 00bc FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 225              	.LVL19:
+ 226 00c0 0446     		mov	r4, r0
+ 227              	.LVL20:
+  48:Core/Src/mimic_gpio.c ****     
+  49:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("PIN %s:\r\n", cmd->args[0]);
+ 228              		.loc 1 49 5 is_stmt 1 view .LVU58
+ 229 00c2 4146     		mov	r1, r8
+ 230 00c4 1848     		ldr	r0, .L16+8
+ 231 00c6 FFF7FEFF 		bl	Mimic_SendResponseF
+ 232              	.LVL21:
+  50:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("  Mode:   %s\r\n", mode_str[moder]);
+ 233              		.loc 1 50 5 view .LVU59
+ 234 00ca 12AA     		add	r2, sp, #72
+ 235 00cc 02EB8603 		add	r3, r2, r6, lsl #2
+ 236 00d0 53F8181C 		ldr	r1, [r3, #-24]
+ 237 00d4 1548     		ldr	r0, .L16+12
+ 238 00d6 FFF7FEFF 		bl	Mimic_SendResponseF
+ 239              	.LVL22:
+  51:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("  Type:   %s\r\n", otype_str[otyper]);
+ 240              		.loc 1 51 5 view .LVU60
+ 241 00da 12AA     		add	r2, sp, #72
+ 242 00dc 02EB8703 		add	r3, r2, r7, lsl #2
+ 243 00e0 53F8201C 		ldr	r1, [r3, #-32]
+ 244 00e4 1248     		ldr	r0, .L16+16
+ 245 00e6 FFF7FEFF 		bl	Mimic_SendResponseF
+ 246              	.LVL23:
+  52:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("  Speed:  %s\r\n", speed_str[ospeedr]);
+ 247              		.loc 1 52 5 view .LVU61
+ 248 00ea 12AA     		add	r2, sp, #72
+ 249 00ec 019B     		ldr	r3, [sp, #4]
+ 250 00ee 02EB8303 		add	r3, r2, r3, lsl #2
+ 251 00f2 53F8301C 		ldr	r1, [r3, #-48]
+ 252 00f6 0F48     		ldr	r0, .L16+20
+ 253 00f8 FFF7FEFF 		bl	Mimic_SendResponseF
+ 254              	.LVL24:
+  53:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("  Pull:   %s\r\n", pupd_str[pupdr]);
+ 255              		.loc 1 53 5 view .LVU62
+ 256 00fc 12AB     		add	r3, sp, #72
+ 257 00fe 03EB8503 		add	r3, r3, r5, lsl #2
+ 258 0102 53F8401C 		ldr	r1, [r3, #-64]
+ARM GAS  /tmp/ccU8KOoq.s 			page 7
+
+
+ 259 0106 0C48     		ldr	r0, .L16+24
+ 260 0108 FFF7FEFF 		bl	Mimic_SendResponseF
+ 261              	.LVL25:
+  54:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("  State:  %s\r\n", state ? "HIGH" : "LOW");
+ 262              		.loc 1 54 5 view .LVU63
+ 263 010c 34B1     		cbz	r4, .L11
+ 264              		.loc 1 54 5 is_stmt 0 discriminator 1 view .LVU64
+ 265 010e 0B49     		ldr	r1, .L16+28
+ 266              	.L8:
+ 267              		.loc 1 54 5 discriminator 4 view .LVU65
+ 268 0110 0B48     		ldr	r0, .L16+32
+ 269 0112 FFF7FEFF 		bl	Mimic_SendResponseF
+ 270              	.LVL26:
+ 271              	.L1:
+  55:Core/Src/mimic_gpio.c **** }
+ 272              		.loc 1 55 1 view .LVU66
+ 273 0116 12B0     		add	sp, sp, #72
+ 274              	.LCFI2:
+ 275              		.cfi_remember_state
+ 276              		.cfi_def_cfa_offset 24
+ 277              		@ sp needed
+ 278 0118 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 279              	.LVL27:
+ 280              	.L11:
+ 281              	.LCFI3:
+ 282              		.cfi_restore_state
+  54:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("  State:  %s\r\n", state ? "HIGH" : "LOW");
+ 283              		.loc 1 54 5 discriminator 2 view .LVU67
+ 284 011c 0949     		ldr	r1, .L16+36
+ 285 011e F7E7     		b	.L8
+ 286              	.L17:
+ 287              		.align	2
+ 288              	.L16:
+ 289 0120 0C000000 		.word	.LC18
+ 290 0124 3C000000 		.word	.LC19
+ 291 0128 58000000 		.word	.LC24
+ 292 012c 64000000 		.word	.LC25
+ 293 0130 74000000 		.word	.LC26
+ 294 0134 84000000 		.word	.LC27
+ 295 0138 94000000 		.word	.LC28
+ 296 013c 00000000 		.word	.LC10
+ 297 0140 A4000000 		.word	.LC29
+ 298 0144 08000000 		.word	.LC8
+ 299 0148 00000000 		.word	.LANCHOR0
+ 300              		.cfi_endproc
+ 301              	.LFE137:
+ 303              		.section	.rodata.Mimic_CMD_PIN_SET_OUT.str1.4,"aMS",%progbits,1
+ 304              		.align	2
+ 305              	.LC30:
+ 306 0000 55736167 		.ascii	"Usage: PIN_SET_OUT <PIN>\015\012\000"
+ 306      653A2050 
+ 306      494E5F53 
+ 306      45545F4F 
+ 306      5554203C 
+ 307 001b 00       		.align	2
+ 308              	.LC31:
+ 309 001c 4F4B3A20 		.ascii	"OK: %s configured as OUTPUT\015\012\000"
+ARM GAS  /tmp/ccU8KOoq.s 			page 8
+
+
+ 309      25732063 
+ 309      6F6E6669 
+ 309      67757265 
+ 309      64206173 
+ 310              		.section	.text.Mimic_CMD_PIN_SET_OUT,"ax",%progbits
+ 311              		.align	1
+ 312              		.global	Mimic_CMD_PIN_SET_OUT
+ 313              		.syntax unified
+ 314              		.thumb
+ 315              		.thumb_func
+ 317              	Mimic_CMD_PIN_SET_OUT:
+ 318              	.LVL28:
+ 319              	.LFB138:
+  56:Core/Src/mimic_gpio.c **** 
+  57:Core/Src/mimic_gpio.c **** /**
+  58:Core/Src/mimic_gpio.c ****   * @brief  PIN_SET_OUT <PIN> - Configure pin as output
+  59:Core/Src/mimic_gpio.c ****   */
+  60:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_SET_OUT(Mimic_Command_t *cmd)
+  61:Core/Src/mimic_gpio.c **** {
+ 320              		.loc 1 61 1 is_stmt 1 view -0
+ 321              		.cfi_startproc
+ 322              		@ args = 0, pretend = 0, frame = 48
+ 323              		@ frame_needed = 0, uses_anonymous_args = 0
+ 324              		.loc 1 61 1 is_stmt 0 view .LVU69
+ 325 0000 10B5     		push	{r4, lr}
+ 326              	.LCFI4:
+ 327              		.cfi_def_cfa_offset 8
+ 328              		.cfi_offset 4, -8
+ 329              		.cfi_offset 14, -4
+ 330 0002 8CB0     		sub	sp, sp, #48
+ 331              	.LCFI5:
+ 332              		.cfi_def_cfa_offset 56
+  62:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
+ 333              		.loc 1 62 5 is_stmt 1 view .LVU70
+  63:Core/Src/mimic_gpio.c ****     uint16_t pin;
+ 334              		.loc 1 63 5 view .LVU71
+  64:Core/Src/mimic_gpio.c ****     
+  65:Core/Src/mimic_gpio.c ****     if (cmd->argc < 1)
+ 335              		.loc 1 65 5 view .LVU72
+ 336              		.loc 1 65 12 is_stmt 0 view .LVU73
+ 337 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 338              		.loc 1 65 8 view .LVU74
+ 339 0008 33B3     		cbz	r3, .L29
+  66:Core/Src/mimic_gpio.c ****     {
+  67:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("Usage: PIN_SET_OUT <PIN>\r\n");
+  68:Core/Src/mimic_gpio.c ****         return;
+  69:Core/Src/mimic_gpio.c ****     }
+  70:Core/Src/mimic_gpio.c ****     
+  71:Core/Src/mimic_gpio.c ****     if (!Mimic_ParsePin(cmd->args[0], &port, &pin))
+ 340              		.loc 1 71 5 is_stmt 1 view .LVU75
+ 341              		.loc 1 71 34 is_stmt 0 view .LVU76
+ 342 000a 00F12003 		add	r3, r0, #32
+ 343 000e 1C46     		mov	r4, r3
+ 344              		.loc 1 71 10 view .LVU77
+ 345 0010 0DF12A02 		add	r2, sp, #42
+ 346 0014 0BA9     		add	r1, sp, #44
+ 347 0016 1846     		mov	r0, r3
+ARM GAS  /tmp/ccU8KOoq.s 			page 9
+
+
+ 348              	.LVL29:
+ 349              		.loc 1 71 10 view .LVU78
+ 350 0018 FFF7FEFF 		bl	Mimic_ParsePin
+ 351              	.LVL30:
+ 352              		.loc 1 71 8 discriminator 1 view .LVU79
+ 353 001c 00B3     		cbz	r0, .L30
+  72:Core/Src/mimic_gpio.c ****     {
+  73:Core/Src/mimic_gpio.c ****         Mimic_SendResponseF("ERROR: Invalid pin '%s'\r\n", cmd->args[0]);
+  74:Core/Src/mimic_gpio.c ****         return;
+  75:Core/Src/mimic_gpio.c ****     }
+  76:Core/Src/mimic_gpio.c ****     
+  77:Core/Src/mimic_gpio.c ****     /* Enable GPIO clock */
+  78:Core/Src/mimic_gpio.c ****     if (port == GPIOA) __HAL_RCC_GPIOA_CLK_ENABLE();
+ 354              		.loc 1 78 5 is_stmt 1 view .LVU80
+ 355              		.loc 1 78 14 is_stmt 0 view .LVU81
+ 356 001e 0B98     		ldr	r0, [sp, #44]
+ 357              		.loc 1 78 8 view .LVU82
+ 358 0020 354B     		ldr	r3, .L35
+ 359 0022 9842     		cmp	r0, r3
+ 360 0024 21D0     		beq	.L31
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 361              		.loc 1 79 10 is_stmt 1 view .LVU83
+ 362              		.loc 1 79 13 is_stmt 0 view .LVU84
+ 363 0026 354B     		ldr	r3, .L35+4
+ 364 0028 9842     		cmp	r0, r3
+ 365 002a 3ED0     		beq	.L32
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 366              		.loc 1 80 10 is_stmt 1 view .LVU85
+ 367              		.loc 1 80 13 is_stmt 0 view .LVU86
+ 368 002c 344B     		ldr	r3, .L35+8
+ 369 002e 9842     		cmp	r0, r3
+ 370 0030 48D0     		beq	.L33
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 371              		.loc 1 81 10 is_stmt 1 view .LVU87
+ 372              		.loc 1 81 13 is_stmt 0 view .LVU88
+ 373 0032 344B     		ldr	r3, .L35+12
+ 374 0034 9842     		cmp	r0, r3
+ 375 0036 52D0     		beq	.L34
+  82:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 376              		.loc 1 82 10 is_stmt 1 view .LVU89
+ 377              		.loc 1 82 13 is_stmt 0 view .LVU90
+ 378 0038 334B     		ldr	r3, .L35+16
+ 379 003a 9842     		cmp	r0, r3
+ 380 003c 21D1     		bne	.L23
+ 381              		.loc 1 82 29 is_stmt 1 discriminator 1 view .LVU91
+ 382              	.LBB4:
+ 383              		.loc 1 82 29 discriminator 1 view .LVU92
+ 384 003e 0023     		movs	r3, #0
+ 385 0040 0493     		str	r3, [sp, #16]
+ 386              		.loc 1 82 29 view .LVU93
+ 387              		.loc 1 82 29 is_stmt 0 discriminator 1 view .LVU94
+ 388 0042 324B     		ldr	r3, .L35+20
+ 389 0044 1A6B     		ldr	r2, [r3, #48]
+ 390 0046 42F01002 		orr	r2, r2, #16
+ 391 004a 1A63     		str	r2, [r3, #48]
+ 392              		.loc 1 82 29 is_stmt 1 view .LVU95
+ 393              		.loc 1 82 29 is_stmt 0 discriminator 1 view .LVU96
+ARM GAS  /tmp/ccU8KOoq.s 			page 10
+
+
+ 394 004c 1B6B     		ldr	r3, [r3, #48]
+ 395 004e 03F01003 		and	r3, r3, #16
+ 396 0052 0493     		str	r3, [sp, #16]
+ 397              		.loc 1 82 29 is_stmt 1 view .LVU97
+ 398              		.loc 1 82 29 is_stmt 0 discriminator 1 view .LVU98
+ 399 0054 049B     		ldr	r3, [sp, #16]
+ 400 0056 14E0     		b	.L23
+ 401              	.LVL31:
+ 402              	.L29:
+ 403              		.loc 1 82 29 discriminator 1 view .LVU99
+ 404              	.LBE4:
+  67:Core/Src/mimic_gpio.c ****         return;
+ 405              		.loc 1 67 9 is_stmt 1 view .LVU100
+ 406 0058 2D48     		ldr	r0, .L35+24
+ 407              	.LVL32:
+  67:Core/Src/mimic_gpio.c ****         return;
+ 408              		.loc 1 67 9 is_stmt 0 view .LVU101
+ 409 005a FFF7FEFF 		bl	Mimic_SendResponse
+ 410              	.LVL33:
+  68:Core/Src/mimic_gpio.c ****     }
+ 411              		.loc 1 68 9 is_stmt 1 view .LVU102
+ 412 005e 22E0     		b	.L18
+ 413              	.L30:
+  73:Core/Src/mimic_gpio.c ****         return;
+ 414              		.loc 1 73 9 view .LVU103
+ 415 0060 2146     		mov	r1, r4
+ 416 0062 2C48     		ldr	r0, .L35+28
+ 417 0064 FFF7FEFF 		bl	Mimic_SendResponseF
+ 418              	.LVL34:
+  74:Core/Src/mimic_gpio.c ****     }
+ 419              		.loc 1 74 9 view .LVU104
+ 420 0068 1DE0     		b	.L18
+ 421              	.L31:
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 422              		.loc 1 78 24 discriminator 1 view .LVU105
+ 423              	.LBB5:
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 424              		.loc 1 78 24 discriminator 1 view .LVU106
+ 425 006a 0023     		movs	r3, #0
+ 426 006c 0093     		str	r3, [sp]
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 427              		.loc 1 78 24 view .LVU107
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 428              		.loc 1 78 24 is_stmt 0 discriminator 1 view .LVU108
+ 429 006e 274B     		ldr	r3, .L35+20
+ 430 0070 1A6B     		ldr	r2, [r3, #48]
+ 431 0072 42F00102 		orr	r2, r2, #1
+ 432 0076 1A63     		str	r2, [r3, #48]
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 433              		.loc 1 78 24 is_stmt 1 view .LVU109
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 434              		.loc 1 78 24 is_stmt 0 discriminator 1 view .LVU110
+ 435 0078 1B6B     		ldr	r3, [r3, #48]
+ 436 007a 03F00103 		and	r3, r3, #1
+ 437 007e 0093     		str	r3, [sp]
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 438              		.loc 1 78 24 is_stmt 1 view .LVU111
+ARM GAS  /tmp/ccU8KOoq.s 			page 11
+
+
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 439              		.loc 1 78 24 is_stmt 0 discriminator 1 view .LVU112
+ 440 0080 009B     		ldr	r3, [sp]
+ 441              	.LBE5:
+  78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 442              		.loc 1 78 24 is_stmt 1 view .LVU113
+ 443              	.L23:
+ 444              		.loc 1 82 29 view .LVU114
+  83:Core/Src/mimic_gpio.c ****     
+  84:Core/Src/mimic_gpio.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 445              		.loc 1 84 5 view .LVU115
+ 446              		.loc 1 84 22 is_stmt 0 view .LVU116
+ 447 0082 05A9     		add	r1, sp, #20
+ 448 0084 0023     		movs	r3, #0
+ 449 0086 0593     		str	r3, [sp, #20]
+ 450 0088 4B60     		str	r3, [r1, #4]
+ 451 008a 8B60     		str	r3, [r1, #8]
+ 452 008c CB60     		str	r3, [r1, #12]
+ 453 008e 0B61     		str	r3, [r1, #16]
+  85:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Pin = pin;
+ 454              		.loc 1 85 5 is_stmt 1 view .LVU117
+ 455              		.loc 1 85 25 is_stmt 0 view .LVU118
+ 456 0090 BDF82A30 		ldrh	r3, [sp, #42]
+ 457 0094 0593     		str	r3, [sp, #20]
+  86:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 458              		.loc 1 86 5 is_stmt 1 view .LVU119
+ 459              		.loc 1 86 26 is_stmt 0 view .LVU120
+ 460 0096 0123     		movs	r3, #1
+ 461 0098 0693     		str	r3, [sp, #24]
+  87:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 462              		.loc 1 87 5 is_stmt 1 view .LVU121
+  88:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ 463              		.loc 1 88 5 view .LVU122
+  89:Core/Src/mimic_gpio.c ****     HAL_GPIO_Init(port, &GPIO_InitStruct);
+ 464              		.loc 1 89 5 view .LVU123
+ 465 009a FFF7FEFF 		bl	HAL_GPIO_Init
+ 466              	.LVL35:
+  90:Core/Src/mimic_gpio.c ****     
+  91:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("OK: %s configured as OUTPUT\r\n", cmd->args[0]);
+ 467              		.loc 1 91 5 view .LVU124
+ 468 009e 2146     		mov	r1, r4
+ 469 00a0 1D48     		ldr	r0, .L35+32
+ 470 00a2 FFF7FEFF 		bl	Mimic_SendResponseF
+ 471              	.LVL36:
+ 472              	.L18:
+  92:Core/Src/mimic_gpio.c **** }
+ 473              		.loc 1 92 1 is_stmt 0 view .LVU125
+ 474 00a6 0CB0     		add	sp, sp, #48
+ 475              	.LCFI6:
+ 476              		.cfi_remember_state
+ 477              		.cfi_def_cfa_offset 8
+ 478              		@ sp needed
+ 479 00a8 10BD     		pop	{r4, pc}
+ 480              	.L32:
+ 481              	.LCFI7:
+ 482              		.cfi_restore_state
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ARM GAS  /tmp/ccU8KOoq.s 			page 12
+
+
+ 483              		.loc 1 79 29 is_stmt 1 discriminator 1 view .LVU126
+ 484              	.LBB6:
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 485              		.loc 1 79 29 discriminator 1 view .LVU127
+ 486 00aa 0023     		movs	r3, #0
+ 487 00ac 0193     		str	r3, [sp, #4]
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 488              		.loc 1 79 29 view .LVU128
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 489              		.loc 1 79 29 is_stmt 0 discriminator 1 view .LVU129
+ 490 00ae 174B     		ldr	r3, .L35+20
+ 491 00b0 1A6B     		ldr	r2, [r3, #48]
+ 492 00b2 42F00202 		orr	r2, r2, #2
+ 493 00b6 1A63     		str	r2, [r3, #48]
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 494              		.loc 1 79 29 is_stmt 1 view .LVU130
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 495              		.loc 1 79 29 is_stmt 0 discriminator 1 view .LVU131
+ 496 00b8 1B6B     		ldr	r3, [r3, #48]
+ 497 00ba 03F00203 		and	r3, r3, #2
+ 498 00be 0193     		str	r3, [sp, #4]
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 499              		.loc 1 79 29 is_stmt 1 view .LVU132
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 500              		.loc 1 79 29 is_stmt 0 discriminator 1 view .LVU133
+ 501 00c0 019B     		ldr	r3, [sp, #4]
+ 502              	.LBE6:
+  79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 503              		.loc 1 79 29 is_stmt 1 view .LVU134
+ 504 00c2 DEE7     		b	.L23
+ 505              	.L33:
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 506              		.loc 1 80 29 discriminator 1 view .LVU135
+ 507              	.LBB7:
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 508              		.loc 1 80 29 discriminator 1 view .LVU136
+ 509 00c4 0023     		movs	r3, #0
+ 510 00c6 0293     		str	r3, [sp, #8]
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 511              		.loc 1 80 29 view .LVU137
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 512              		.loc 1 80 29 is_stmt 0 discriminator 1 view .LVU138
+ 513 00c8 104B     		ldr	r3, .L35+20
+ 514 00ca 1A6B     		ldr	r2, [r3, #48]
+ 515 00cc 42F00402 		orr	r2, r2, #4
+ 516 00d0 1A63     		str	r2, [r3, #48]
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 517              		.loc 1 80 29 is_stmt 1 view .LVU139
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 518              		.loc 1 80 29 is_stmt 0 discriminator 1 view .LVU140
+ 519 00d2 1B6B     		ldr	r3, [r3, #48]
+ 520 00d4 03F00403 		and	r3, r3, #4
+ 521 00d8 0293     		str	r3, [sp, #8]
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 522              		.loc 1 80 29 is_stmt 1 view .LVU141
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 523              		.loc 1 80 29 is_stmt 0 discriminator 1 view .LVU142
+ARM GAS  /tmp/ccU8KOoq.s 			page 13
+
+
+ 524 00da 029B     		ldr	r3, [sp, #8]
+ 525              	.LBE7:
+  80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 526              		.loc 1 80 29 is_stmt 1 view .LVU143
+ 527 00dc D1E7     		b	.L23
+ 528              	.L34:
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 529              		.loc 1 81 29 discriminator 1 view .LVU144
+ 530              	.LBB8:
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 531              		.loc 1 81 29 discriminator 1 view .LVU145
+ 532 00de 0023     		movs	r3, #0
+ 533 00e0 0393     		str	r3, [sp, #12]
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 534              		.loc 1 81 29 view .LVU146
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 535              		.loc 1 81 29 is_stmt 0 discriminator 1 view .LVU147
+ 536 00e2 0A4B     		ldr	r3, .L35+20
+ 537 00e4 1A6B     		ldr	r2, [r3, #48]
+ 538 00e6 42F00802 		orr	r2, r2, #8
+ 539 00ea 1A63     		str	r2, [r3, #48]
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 540              		.loc 1 81 29 is_stmt 1 view .LVU148
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 541              		.loc 1 81 29 is_stmt 0 discriminator 1 view .LVU149
+ 542 00ec 1B6B     		ldr	r3, [r3, #48]
+ 543 00ee 03F00803 		and	r3, r3, #8
+ 544 00f2 0393     		str	r3, [sp, #12]
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 545              		.loc 1 81 29 is_stmt 1 view .LVU150
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 546              		.loc 1 81 29 is_stmt 0 discriminator 1 view .LVU151
+ 547 00f4 039B     		ldr	r3, [sp, #12]
+ 548              	.LBE8:
+  81:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 549              		.loc 1 81 29 is_stmt 1 view .LVU152
+ 550 00f6 C4E7     		b	.L23
+ 551              	.L36:
+ 552              		.align	2
+ 553              	.L35:
+ 554 00f8 00000240 		.word	1073872896
+ 555 00fc 00040240 		.word	1073873920
+ 556 0100 00080240 		.word	1073874944
+ 557 0104 000C0240 		.word	1073875968
+ 558 0108 00100240 		.word	1073876992
+ 559 010c 00380240 		.word	1073887232
+ 560 0110 00000000 		.word	.LC30
+ 561 0114 3C000000 		.word	.LC19
+ 562 0118 1C000000 		.word	.LC31
+ 563              		.cfi_endproc
+ 564              	.LFE138:
+ 566              		.section	.rodata.Mimic_CMD_PIN_SET_IN.str1.4,"aMS",%progbits,1
+ 567              		.align	2
+ 568              	.LC32:
+ 569 0000 55736167 		.ascii	"Usage: PIN_SET_IN <PIN> [UP|DOWN|NONE]\015\012\000"
+ 569      653A2050 
+ 569      494E5F53 
+ARM GAS  /tmp/ccU8KOoq.s 			page 14
+
+
+ 569      45545F49 
+ 569      4E203C50 
+ 570 0029 000000   		.align	2
+ 571              	.LC33:
+ 572 002c 555000   		.ascii	"UP\000"
+ 573 002f 00       		.align	2
+ 574              	.LC34:
+ 575 0030 444F574E 		.ascii	"DOWN\000"
+ 575      00
+ 576 0035 000000   		.align	2
+ 577              	.LC35:
+ 578 0038 4F4B3A20 		.ascii	"OK: %s configured as INPUT\015\012\000"
+ 578      25732063 
+ 578      6F6E6669 
+ 578      67757265 
+ 578      64206173 
+ 579              		.section	.text.Mimic_CMD_PIN_SET_IN,"ax",%progbits
+ 580              		.align	1
+ 581              		.global	Mimic_CMD_PIN_SET_IN
+ 582              		.syntax unified
+ 583              		.thumb
+ 584              		.thumb_func
+ 586              	Mimic_CMD_PIN_SET_IN:
+ 587              	.LVL37:
+ 588              	.LFB139:
+  93:Core/Src/mimic_gpio.c **** 
+  94:Core/Src/mimic_gpio.c **** /**
+  95:Core/Src/mimic_gpio.c ****   * @brief  PIN_SET_IN <PIN> [PULL] - Configure pin as input
+  96:Core/Src/mimic_gpio.c ****   */
+  97:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_SET_IN(Mimic_Command_t *cmd)
+  98:Core/Src/mimic_gpio.c **** {
+ 589              		.loc 1 98 1 view -0
+ 590              		.cfi_startproc
+ 591              		@ args = 0, pretend = 0, frame = 48
+ 592              		@ frame_needed = 0, uses_anonymous_args = 0
+ 593              		.loc 1 98 1 is_stmt 0 view .LVU154
+ 594 0000 70B5     		push	{r4, r5, r6, lr}
+ 595              	.LCFI8:
+ 596              		.cfi_def_cfa_offset 16
+ 597              		.cfi_offset 4, -16
+ 598              		.cfi_offset 5, -12
+ 599              		.cfi_offset 6, -8
+ 600              		.cfi_offset 14, -4
+ 601 0002 8CB0     		sub	sp, sp, #48
+ 602              	.LCFI9:
+ 603              		.cfi_def_cfa_offset 64
+  99:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
+ 604              		.loc 1 99 5 is_stmt 1 view .LVU155
+ 100:Core/Src/mimic_gpio.c ****     uint16_t pin;
+ 605              		.loc 1 100 5 view .LVU156
+ 101:Core/Src/mimic_gpio.c ****     
+ 102:Core/Src/mimic_gpio.c ****     if (cmd->argc < 1)
+ 606              		.loc 1 102 5 view .LVU157
+ 607              		.loc 1 102 12 is_stmt 0 view .LVU158
+ 608 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 609              		.loc 1 102 8 view .LVU159
+ 610 0008 3BB3     		cbz	r3, .L52
+ARM GAS  /tmp/ccU8KOoq.s 			page 15
+
+
+ 611 000a 0446     		mov	r4, r0
+ 103:Core/Src/mimic_gpio.c ****     {
+ 104:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("Usage: PIN_SET_IN <PIN> [UP|DOWN|NONE]\r\n");
+ 105:Core/Src/mimic_gpio.c ****         return;
+ 106:Core/Src/mimic_gpio.c ****     }
+ 107:Core/Src/mimic_gpio.c ****     
+ 108:Core/Src/mimic_gpio.c ****     if (!Mimic_ParsePin(cmd->args[0], &port, &pin))
+ 612              		.loc 1 108 5 is_stmt 1 view .LVU160
+ 613              		.loc 1 108 34 is_stmt 0 view .LVU161
+ 614 000c 00F12003 		add	r3, r0, #32
+ 615 0010 1E46     		mov	r6, r3
+ 616              		.loc 1 108 10 view .LVU162
+ 617 0012 0DF12A02 		add	r2, sp, #42
+ 618 0016 0BA9     		add	r1, sp, #44
+ 619 0018 1846     		mov	r0, r3
+ 620              	.LVL38:
+ 621              		.loc 1 108 10 view .LVU163
+ 622 001a FFF7FEFF 		bl	Mimic_ParsePin
+ 623              	.LVL39:
+ 624              		.loc 1 108 8 discriminator 1 view .LVU164
+ 625 001e 00B3     		cbz	r0, .L53
+ 109:Core/Src/mimic_gpio.c ****     {
+ 110:Core/Src/mimic_gpio.c ****         Mimic_SendResponseF("ERROR: Invalid pin '%s'\r\n", cmd->args[0]);
+ 111:Core/Src/mimic_gpio.c ****         return;
+ 112:Core/Src/mimic_gpio.c ****     }
+ 113:Core/Src/mimic_gpio.c ****     
+ 114:Core/Src/mimic_gpio.c ****     /* Enable GPIO clock */
+ 115:Core/Src/mimic_gpio.c ****     if (port == GPIOA) __HAL_RCC_GPIOA_CLK_ENABLE();
+ 626              		.loc 1 115 5 is_stmt 1 view .LVU165
+ 627              		.loc 1 115 14 is_stmt 0 view .LVU166
+ 628 0020 0B9D     		ldr	r5, [sp, #44]
+ 629              		.loc 1 115 8 view .LVU167
+ 630 0022 424B     		ldr	r3, .L58
+ 631 0024 9D42     		cmp	r5, r3
+ 632 0026 21D0     		beq	.L54
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 633              		.loc 1 116 10 is_stmt 1 view .LVU168
+ 634              		.loc 1 116 13 is_stmt 0 view .LVU169
+ 635 0028 414B     		ldr	r3, .L58+4
+ 636 002a 9D42     		cmp	r5, r3
+ 637 002c 3DD0     		beq	.L55
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 638              		.loc 1 117 10 is_stmt 1 view .LVU170
+ 639              		.loc 1 117 13 is_stmt 0 view .LVU171
+ 640 002e 414B     		ldr	r3, .L58+8
+ 641 0030 9D42     		cmp	r5, r3
+ 642 0032 47D0     		beq	.L56
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 643              		.loc 1 118 10 is_stmt 1 view .LVU172
+ 644              		.loc 1 118 13 is_stmt 0 view .LVU173
+ 645 0034 404B     		ldr	r3, .L58+12
+ 646 0036 9D42     		cmp	r5, r3
+ 647 0038 51D0     		beq	.L57
+ 119:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 648              		.loc 1 119 10 is_stmt 1 view .LVU174
+ 649              		.loc 1 119 13 is_stmt 0 view .LVU175
+ 650 003a 404B     		ldr	r3, .L58+16
+ARM GAS  /tmp/ccU8KOoq.s 			page 16
+
+
+ 651 003c 9D42     		cmp	r5, r3
+ 652 003e 21D1     		bne	.L42
+ 653              		.loc 1 119 29 is_stmt 1 discriminator 1 view .LVU176
+ 654              	.LBB9:
+ 655              		.loc 1 119 29 discriminator 1 view .LVU177
+ 656 0040 0023     		movs	r3, #0
+ 657 0042 0493     		str	r3, [sp, #16]
+ 658              		.loc 1 119 29 view .LVU178
+ 659              		.loc 1 119 29 is_stmt 0 discriminator 1 view .LVU179
+ 660 0044 3E4B     		ldr	r3, .L58+20
+ 661 0046 1A6B     		ldr	r2, [r3, #48]
+ 662 0048 42F01002 		orr	r2, r2, #16
+ 663 004c 1A63     		str	r2, [r3, #48]
+ 664              		.loc 1 119 29 is_stmt 1 view .LVU180
+ 665              		.loc 1 119 29 is_stmt 0 discriminator 1 view .LVU181
+ 666 004e 1B6B     		ldr	r3, [r3, #48]
+ 667 0050 03F01003 		and	r3, r3, #16
+ 668 0054 0493     		str	r3, [sp, #16]
+ 669              		.loc 1 119 29 is_stmt 1 view .LVU182
+ 670              		.loc 1 119 29 is_stmt 0 discriminator 1 view .LVU183
+ 671 0056 049B     		ldr	r3, [sp, #16]
+ 672 0058 14E0     		b	.L42
+ 673              	.LVL40:
+ 674              	.L52:
+ 675              		.loc 1 119 29 discriminator 1 view .LVU184
+ 676              	.LBE9:
+ 104:Core/Src/mimic_gpio.c ****         return;
+ 677              		.loc 1 104 9 is_stmt 1 view .LVU185
+ 678 005a 3A48     		ldr	r0, .L58+24
+ 679              	.LVL41:
+ 104:Core/Src/mimic_gpio.c ****         return;
+ 680              		.loc 1 104 9 is_stmt 0 view .LVU186
+ 681 005c FFF7FEFF 		bl	Mimic_SendResponse
+ 682              	.LVL42:
+ 105:Core/Src/mimic_gpio.c ****     }
+ 683              		.loc 1 105 9 is_stmt 1 view .LVU187
+ 684 0060 5DE0     		b	.L37
+ 685              	.LVL43:
+ 686              	.L53:
+ 110:Core/Src/mimic_gpio.c ****         return;
+ 687              		.loc 1 110 9 view .LVU188
+ 688 0062 3146     		mov	r1, r6
+ 689 0064 3848     		ldr	r0, .L58+28
+ 690 0066 FFF7FEFF 		bl	Mimic_SendResponseF
+ 691              	.LVL44:
+ 111:Core/Src/mimic_gpio.c ****     }
+ 692              		.loc 1 111 9 view .LVU189
+ 693 006a 58E0     		b	.L37
+ 694              	.L54:
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 695              		.loc 1 115 24 discriminator 1 view .LVU190
+ 696              	.LBB10:
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 697              		.loc 1 115 24 discriminator 1 view .LVU191
+ 698 006c 0023     		movs	r3, #0
+ 699 006e 0093     		str	r3, [sp]
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ARM GAS  /tmp/ccU8KOoq.s 			page 17
+
+
+ 700              		.loc 1 115 24 view .LVU192
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 701              		.loc 1 115 24 is_stmt 0 discriminator 1 view .LVU193
+ 702 0070 334B     		ldr	r3, .L58+20
+ 703 0072 1A6B     		ldr	r2, [r3, #48]
+ 704 0074 42F00102 		orr	r2, r2, #1
+ 705 0078 1A63     		str	r2, [r3, #48]
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 706              		.loc 1 115 24 is_stmt 1 view .LVU194
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 707              		.loc 1 115 24 is_stmt 0 discriminator 1 view .LVU195
+ 708 007a 1B6B     		ldr	r3, [r3, #48]
+ 709 007c 03F00103 		and	r3, r3, #1
+ 710 0080 0093     		str	r3, [sp]
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 711              		.loc 1 115 24 is_stmt 1 view .LVU196
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 712              		.loc 1 115 24 is_stmt 0 discriminator 1 view .LVU197
+ 713 0082 009B     		ldr	r3, [sp]
+ 714              	.LBE10:
+ 115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 715              		.loc 1 115 24 is_stmt 1 view .LVU198
+ 716              	.L42:
+ 717              		.loc 1 119 29 view .LVU199
+ 120:Core/Src/mimic_gpio.c ****     
+ 121:Core/Src/mimic_gpio.c ****     uint32_t pull = GPIO_NOPULL;
+ 718              		.loc 1 121 5 view .LVU200
+ 719              	.LVL45:
+ 122:Core/Src/mimic_gpio.c ****     if (cmd->argc >= 2)
+ 720              		.loc 1 122 5 view .LVU201
+ 721              		.loc 1 122 12 is_stmt 0 view .LVU202
+ 722 0084 94F82031 		ldrb	r3, [r4, #288]	@ zero_extendqisi2
+ 723              		.loc 1 122 8 view .LVU203
+ 724 0088 012B     		cmp	r3, #1
+ 725 008a 35D9     		bls	.L48
+ 123:Core/Src/mimic_gpio.c ****     {
+ 124:Core/Src/mimic_gpio.c ****         if (strcmp(cmd->args[1], "UP") == 0) pull = GPIO_PULLUP;
+ 726              		.loc 1 124 9 is_stmt 1 view .LVU204
+ 727              		.loc 1 124 29 is_stmt 0 view .LVU205
+ 728 008c 4034     		adds	r4, r4, #64
+ 729              	.LVL46:
+ 730              		.loc 1 124 13 view .LVU206
+ 731 008e 2F49     		ldr	r1, .L58+32
+ 732 0090 2046     		mov	r0, r4
+ 733 0092 FFF7FEFF 		bl	strcmp
+ 734              	.LVL47:
+ 735              		.loc 1 124 12 discriminator 1 view .LVU207
+ 736 0096 0028     		cmp	r0, #0
+ 737 0098 43D0     		beq	.L49
+ 125:Core/Src/mimic_gpio.c ****         else if (strcmp(cmd->args[1], "DOWN") == 0) pull = GPIO_PULLDOWN;
+ 738              		.loc 1 125 14 is_stmt 1 view .LVU208
+ 739              		.loc 1 125 18 is_stmt 0 view .LVU209
+ 740 009a 2D49     		ldr	r1, .L58+36
+ 741 009c 2046     		mov	r0, r4
+ 742 009e FFF7FEFF 		bl	strcmp
+ 743              	.LVL48:
+ 744              		.loc 1 125 17 discriminator 1 view .LVU210
+ARM GAS  /tmp/ccU8KOoq.s 			page 18
+
+
+ 745 00a2 0028     		cmp	r0, #0
+ 746 00a4 3FD0     		beq	.L50
+ 121:Core/Src/mimic_gpio.c ****     if (cmd->argc >= 2)
+ 747              		.loc 1 121 14 view .LVU211
+ 748 00a6 0022     		movs	r2, #0
+ 749 00a8 27E0     		b	.L46
+ 750              	.LVL49:
+ 751              	.L55:
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 752              		.loc 1 116 29 is_stmt 1 discriminator 1 view .LVU212
+ 753              	.LBB11:
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 754              		.loc 1 116 29 discriminator 1 view .LVU213
+ 755 00aa 0023     		movs	r3, #0
+ 756 00ac 0193     		str	r3, [sp, #4]
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 757              		.loc 1 116 29 view .LVU214
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 758              		.loc 1 116 29 is_stmt 0 discriminator 1 view .LVU215
+ 759 00ae 244B     		ldr	r3, .L58+20
+ 760 00b0 1A6B     		ldr	r2, [r3, #48]
+ 761 00b2 42F00202 		orr	r2, r2, #2
+ 762 00b6 1A63     		str	r2, [r3, #48]
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 763              		.loc 1 116 29 is_stmt 1 view .LVU216
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 764              		.loc 1 116 29 is_stmt 0 discriminator 1 view .LVU217
+ 765 00b8 1B6B     		ldr	r3, [r3, #48]
+ 766 00ba 03F00203 		and	r3, r3, #2
+ 767 00be 0193     		str	r3, [sp, #4]
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 768              		.loc 1 116 29 is_stmt 1 view .LVU218
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 769              		.loc 1 116 29 is_stmt 0 discriminator 1 view .LVU219
+ 770 00c0 019B     		ldr	r3, [sp, #4]
+ 771              	.LBE11:
+ 116:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 772              		.loc 1 116 29 is_stmt 1 view .LVU220
+ 773 00c2 DFE7     		b	.L42
+ 774              	.L56:
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 775              		.loc 1 117 29 discriminator 1 view .LVU221
+ 776              	.LBB12:
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 777              		.loc 1 117 29 discriminator 1 view .LVU222
+ 778 00c4 0023     		movs	r3, #0
+ 779 00c6 0293     		str	r3, [sp, #8]
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 780              		.loc 1 117 29 view .LVU223
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 781              		.loc 1 117 29 is_stmt 0 discriminator 1 view .LVU224
+ 782 00c8 1D4B     		ldr	r3, .L58+20
+ 783 00ca 1A6B     		ldr	r2, [r3, #48]
+ 784 00cc 42F00402 		orr	r2, r2, #4
+ 785 00d0 1A63     		str	r2, [r3, #48]
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 786              		.loc 1 117 29 is_stmt 1 view .LVU225
+ARM GAS  /tmp/ccU8KOoq.s 			page 19
+
+
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 787              		.loc 1 117 29 is_stmt 0 discriminator 1 view .LVU226
+ 788 00d2 1B6B     		ldr	r3, [r3, #48]
+ 789 00d4 03F00403 		and	r3, r3, #4
+ 790 00d8 0293     		str	r3, [sp, #8]
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 791              		.loc 1 117 29 is_stmt 1 view .LVU227
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 792              		.loc 1 117 29 is_stmt 0 discriminator 1 view .LVU228
+ 793 00da 029B     		ldr	r3, [sp, #8]
+ 794              	.LBE12:
+ 117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 795              		.loc 1 117 29 is_stmt 1 view .LVU229
+ 796 00dc D2E7     		b	.L42
+ 797              	.L57:
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 798              		.loc 1 118 29 discriminator 1 view .LVU230
+ 799              	.LBB13:
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 800              		.loc 1 118 29 discriminator 1 view .LVU231
+ 801 00de 0023     		movs	r3, #0
+ 802 00e0 0393     		str	r3, [sp, #12]
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 803              		.loc 1 118 29 view .LVU232
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 804              		.loc 1 118 29 is_stmt 0 discriminator 1 view .LVU233
+ 805 00e2 174B     		ldr	r3, .L58+20
+ 806 00e4 1A6B     		ldr	r2, [r3, #48]
+ 807 00e6 42F00802 		orr	r2, r2, #8
+ 808 00ea 1A63     		str	r2, [r3, #48]
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 809              		.loc 1 118 29 is_stmt 1 view .LVU234
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 810              		.loc 1 118 29 is_stmt 0 discriminator 1 view .LVU235
+ 811 00ec 1B6B     		ldr	r3, [r3, #48]
+ 812 00ee 03F00803 		and	r3, r3, #8
+ 813 00f2 0393     		str	r3, [sp, #12]
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 814              		.loc 1 118 29 is_stmt 1 view .LVU236
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 815              		.loc 1 118 29 is_stmt 0 discriminator 1 view .LVU237
+ 816 00f4 039B     		ldr	r3, [sp, #12]
+ 817              	.LBE13:
+ 118:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 818              		.loc 1 118 29 is_stmt 1 view .LVU238
+ 819 00f6 C5E7     		b	.L42
+ 820              	.LVL50:
+ 821              	.L48:
+ 121:Core/Src/mimic_gpio.c ****     if (cmd->argc >= 2)
+ 822              		.loc 1 121 14 is_stmt 0 view .LVU239
+ 823 00f8 0022     		movs	r2, #0
+ 824              	.LVL51:
+ 825              	.L46:
+ 126:Core/Src/mimic_gpio.c ****     }
+ 127:Core/Src/mimic_gpio.c ****     
+ 128:Core/Src/mimic_gpio.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 826              		.loc 1 128 5 is_stmt 1 view .LVU240
+ARM GAS  /tmp/ccU8KOoq.s 			page 20
+
+
+ 827              		.loc 1 128 22 is_stmt 0 view .LVU241
+ 828 00fa 05A9     		add	r1, sp, #20
+ 829 00fc 0023     		movs	r3, #0
+ 830 00fe 0593     		str	r3, [sp, #20]
+ 831 0100 4B60     		str	r3, [r1, #4]
+ 832 0102 8B60     		str	r3, [r1, #8]
+ 833 0104 CB60     		str	r3, [r1, #12]
+ 834 0106 0B61     		str	r3, [r1, #16]
+ 129:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Pin = pin;
+ 835              		.loc 1 129 5 is_stmt 1 view .LVU242
+ 836              		.loc 1 129 25 is_stmt 0 view .LVU243
+ 837 0108 BDF82A30 		ldrh	r3, [sp, #42]
+ 838 010c 0593     		str	r3, [sp, #20]
+ 130:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+ 839              		.loc 1 130 5 is_stmt 1 view .LVU244
+ 131:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Pull = pull;
+ 840              		.loc 1 131 5 view .LVU245
+ 841              		.loc 1 131 26 is_stmt 0 view .LVU246
+ 842 010e 0792     		str	r2, [sp, #28]
+ 132:Core/Src/mimic_gpio.c ****     HAL_GPIO_Init(port, &GPIO_InitStruct);
+ 843              		.loc 1 132 5 is_stmt 1 view .LVU247
+ 844 0110 2846     		mov	r0, r5
+ 845 0112 FFF7FEFF 		bl	HAL_GPIO_Init
+ 846              	.LVL52:
+ 133:Core/Src/mimic_gpio.c ****     
+ 134:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("OK: %s configured as INPUT\r\n", cmd->args[0]);
+ 847              		.loc 1 134 5 view .LVU248
+ 848 0116 3146     		mov	r1, r6
+ 849 0118 0E48     		ldr	r0, .L58+40
+ 850 011a FFF7FEFF 		bl	Mimic_SendResponseF
+ 851              	.LVL53:
+ 852              	.L37:
+ 135:Core/Src/mimic_gpio.c **** }
+ 853              		.loc 1 135 1 is_stmt 0 view .LVU249
+ 854 011e 0CB0     		add	sp, sp, #48
+ 855              	.LCFI10:
+ 856              		.cfi_remember_state
+ 857              		.cfi_def_cfa_offset 16
+ 858              		@ sp needed
+ 859 0120 70BD     		pop	{r4, r5, r6, pc}
+ 860              	.LVL54:
+ 861              	.L49:
+ 862              	.LCFI11:
+ 863              		.cfi_restore_state
+ 124:Core/Src/mimic_gpio.c ****         else if (strcmp(cmd->args[1], "DOWN") == 0) pull = GPIO_PULLDOWN;
+ 864              		.loc 1 124 51 discriminator 2 view .LVU250
+ 865 0122 0122     		movs	r2, #1
+ 866 0124 E9E7     		b	.L46
+ 867              	.L50:
+ 125:Core/Src/mimic_gpio.c ****     }
+ 868              		.loc 1 125 58 discriminator 2 view .LVU251
+ 869 0126 0222     		movs	r2, #2
+ 870 0128 E7E7     		b	.L46
+ 871              	.L59:
+ 872 012a 00BF     		.align	2
+ 873              	.L58:
+ 874 012c 00000240 		.word	1073872896
+ARM GAS  /tmp/ccU8KOoq.s 			page 21
+
+
+ 875 0130 00040240 		.word	1073873920
+ 876 0134 00080240 		.word	1073874944
+ 877 0138 000C0240 		.word	1073875968
+ 878 013c 00100240 		.word	1073876992
+ 879 0140 00380240 		.word	1073887232
+ 880 0144 00000000 		.word	.LC32
+ 881 0148 3C000000 		.word	.LC19
+ 882 014c 2C000000 		.word	.LC33
+ 883 0150 30000000 		.word	.LC34
+ 884 0154 38000000 		.word	.LC35
+ 885              		.cfi_endproc
+ 886              	.LFE139:
+ 888              		.section	.rodata.Mimic_CMD_PIN_HIGH.str1.4,"aMS",%progbits,1
+ 889              		.align	2
+ 890              	.LC36:
+ 891 0000 55736167 		.ascii	"Usage: PIN_HIGH <PIN>\015\012\000"
+ 891      653A2050 
+ 891      494E5F48 
+ 891      49474820 
+ 891      3C50494E 
+ 892              		.align	2
+ 893              	.LC37:
+ 894 0018 4F4B3A20 		.ascii	"OK: %s = HIGH\015\012\000"
+ 894      2573203D 
+ 894      20484947 
+ 894      480D0A00 
+ 895              		.section	.text.Mimic_CMD_PIN_HIGH,"ax",%progbits
+ 896              		.align	1
+ 897              		.global	Mimic_CMD_PIN_HIGH
+ 898              		.syntax unified
+ 899              		.thumb
+ 900              		.thumb_func
+ 902              	Mimic_CMD_PIN_HIGH:
+ 903              	.LVL55:
+ 904              	.LFB140:
+ 136:Core/Src/mimic_gpio.c **** 
+ 137:Core/Src/mimic_gpio.c **** /**
+ 138:Core/Src/mimic_gpio.c ****   * @brief  PIN_HIGH <PIN> - Set pin high
+ 139:Core/Src/mimic_gpio.c ****   */
+ 140:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_HIGH(Mimic_Command_t *cmd)
+ 141:Core/Src/mimic_gpio.c **** {
+ 905              		.loc 1 141 1 is_stmt 1 view -0
+ 906              		.cfi_startproc
+ 907              		@ args = 0, pretend = 0, frame = 8
+ 908              		@ frame_needed = 0, uses_anonymous_args = 0
+ 909              		.loc 1 141 1 is_stmt 0 view .LVU253
+ 910 0000 10B5     		push	{r4, lr}
+ 911              	.LCFI12:
+ 912              		.cfi_def_cfa_offset 8
+ 913              		.cfi_offset 4, -8
+ 914              		.cfi_offset 14, -4
+ 915 0002 82B0     		sub	sp, sp, #8
+ 916              	.LCFI13:
+ 917              		.cfi_def_cfa_offset 16
+ 142:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
+ 918              		.loc 1 142 5 is_stmt 1 view .LVU254
+ 143:Core/Src/mimic_gpio.c ****     uint16_t pin;
+ARM GAS  /tmp/ccU8KOoq.s 			page 22
+
+
+ 919              		.loc 1 143 5 view .LVU255
+ 144:Core/Src/mimic_gpio.c ****     
+ 145:Core/Src/mimic_gpio.c ****     if (cmd->argc < 1)
+ 920              		.loc 1 145 5 view .LVU256
+ 921              		.loc 1 145 12 is_stmt 0 view .LVU257
+ 922 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 923              		.loc 1 145 8 view .LVU258
+ 924 0008 ABB1     		cbz	r3, .L66
+ 146:Core/Src/mimic_gpio.c ****     {
+ 147:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("Usage: PIN_HIGH <PIN>\r\n");
+ 148:Core/Src/mimic_gpio.c ****         return;
+ 149:Core/Src/mimic_gpio.c ****     }
+ 150:Core/Src/mimic_gpio.c ****     
+ 151:Core/Src/mimic_gpio.c ****     if (!Mimic_ParsePin(cmd->args[0], &port, &pin))
+ 925              		.loc 1 151 5 is_stmt 1 view .LVU259
+ 926              		.loc 1 151 34 is_stmt 0 view .LVU260
+ 927 000a 00F12003 		add	r3, r0, #32
+ 928 000e 1C46     		mov	r4, r3
+ 929              		.loc 1 151 10 view .LVU261
+ 930 0010 0DF10202 		add	r2, sp, #2
+ 931 0014 01A9     		add	r1, sp, #4
+ 932 0016 1846     		mov	r0, r3
+ 933              	.LVL56:
+ 934              		.loc 1 151 10 view .LVU262
+ 935 0018 FFF7FEFF 		bl	Mimic_ParsePin
+ 936              	.LVL57:
+ 937              		.loc 1 151 8 discriminator 1 view .LVU263
+ 938 001c 78B1     		cbz	r0, .L67
+ 152:Core/Src/mimic_gpio.c ****     {
+ 153:Core/Src/mimic_gpio.c ****         Mimic_SendResponseF("ERROR: Invalid pin '%s'\r\n", cmd->args[0]);
+ 154:Core/Src/mimic_gpio.c ****         return;
+ 155:Core/Src/mimic_gpio.c ****     }
+ 156:Core/Src/mimic_gpio.c ****     
+ 157:Core/Src/mimic_gpio.c ****     HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
+ 939              		.loc 1 157 5 is_stmt 1 view .LVU264
+ 940 001e 0122     		movs	r2, #1
+ 941 0020 BDF80210 		ldrh	r1, [sp, #2]
+ 942 0024 0198     		ldr	r0, [sp, #4]
+ 943 0026 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 944              	.LVL58:
+ 158:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("OK: %s = HIGH\r\n", cmd->args[0]);
+ 945              		.loc 1 158 5 view .LVU265
+ 946 002a 2146     		mov	r1, r4
+ 947 002c 0648     		ldr	r0, .L68
+ 948 002e FFF7FEFF 		bl	Mimic_SendResponseF
+ 949              	.LVL59:
+ 950              	.L60:
+ 159:Core/Src/mimic_gpio.c **** }
+ 951              		.loc 1 159 1 is_stmt 0 view .LVU266
+ 952 0032 02B0     		add	sp, sp, #8
+ 953              	.LCFI14:
+ 954              		.cfi_remember_state
+ 955              		.cfi_def_cfa_offset 8
+ 956              		@ sp needed
+ 957 0034 10BD     		pop	{r4, pc}
+ 958              	.LVL60:
+ 959              	.L66:
+ARM GAS  /tmp/ccU8KOoq.s 			page 23
+
+
+ 960              	.LCFI15:
+ 961              		.cfi_restore_state
+ 147:Core/Src/mimic_gpio.c ****         return;
+ 962              		.loc 1 147 9 is_stmt 1 view .LVU267
+ 963 0036 0548     		ldr	r0, .L68+4
+ 964              	.LVL61:
+ 147:Core/Src/mimic_gpio.c ****         return;
+ 965              		.loc 1 147 9 is_stmt 0 view .LVU268
+ 966 0038 FFF7FEFF 		bl	Mimic_SendResponse
+ 967              	.LVL62:
+ 148:Core/Src/mimic_gpio.c ****     }
+ 968              		.loc 1 148 9 is_stmt 1 view .LVU269
+ 969 003c F9E7     		b	.L60
+ 970              	.L67:
+ 153:Core/Src/mimic_gpio.c ****         return;
+ 971              		.loc 1 153 9 view .LVU270
+ 972 003e 2146     		mov	r1, r4
+ 973 0040 0348     		ldr	r0, .L68+8
+ 974 0042 FFF7FEFF 		bl	Mimic_SendResponseF
+ 975              	.LVL63:
+ 154:Core/Src/mimic_gpio.c ****     }
+ 976              		.loc 1 154 9 view .LVU271
+ 977 0046 F4E7     		b	.L60
+ 978              	.L69:
+ 979              		.align	2
+ 980              	.L68:
+ 981 0048 18000000 		.word	.LC37
+ 982 004c 00000000 		.word	.LC36
+ 983 0050 3C000000 		.word	.LC19
+ 984              		.cfi_endproc
+ 985              	.LFE140:
+ 987              		.section	.rodata.Mimic_CMD_PIN_LOW.str1.4,"aMS",%progbits,1
+ 988              		.align	2
+ 989              	.LC38:
+ 990 0000 55736167 		.ascii	"Usage: PIN_LOW <PIN>\015\012\000"
+ 990      653A2050 
+ 990      494E5F4C 
+ 990      4F57203C 
+ 990      50494E3E 
+ 991 0017 00       		.align	2
+ 992              	.LC39:
+ 993 0018 4F4B3A20 		.ascii	"OK: %s = LOW\015\012\000"
+ 993      2573203D 
+ 993      204C4F57 
+ 993      0D0A00
+ 994              		.section	.text.Mimic_CMD_PIN_LOW,"ax",%progbits
+ 995              		.align	1
+ 996              		.global	Mimic_CMD_PIN_LOW
+ 997              		.syntax unified
+ 998              		.thumb
+ 999              		.thumb_func
+ 1001              	Mimic_CMD_PIN_LOW:
+ 1002              	.LVL64:
+ 1003              	.LFB141:
+ 160:Core/Src/mimic_gpio.c **** 
+ 161:Core/Src/mimic_gpio.c **** /**
+ 162:Core/Src/mimic_gpio.c ****   * @brief  PIN_LOW <PIN> - Set pin low
+ARM GAS  /tmp/ccU8KOoq.s 			page 24
+
+
+ 163:Core/Src/mimic_gpio.c ****   */
+ 164:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_LOW(Mimic_Command_t *cmd)
+ 165:Core/Src/mimic_gpio.c **** {
+ 1004              		.loc 1 165 1 view -0
+ 1005              		.cfi_startproc
+ 1006              		@ args = 0, pretend = 0, frame = 8
+ 1007              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1008              		.loc 1 165 1 is_stmt 0 view .LVU273
+ 1009 0000 10B5     		push	{r4, lr}
+ 1010              	.LCFI16:
+ 1011              		.cfi_def_cfa_offset 8
+ 1012              		.cfi_offset 4, -8
+ 1013              		.cfi_offset 14, -4
+ 1014 0002 82B0     		sub	sp, sp, #8
+ 1015              	.LCFI17:
+ 1016              		.cfi_def_cfa_offset 16
+ 166:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
+ 1017              		.loc 1 166 5 is_stmt 1 view .LVU274
+ 167:Core/Src/mimic_gpio.c ****     uint16_t pin;
+ 1018              		.loc 1 167 5 view .LVU275
+ 168:Core/Src/mimic_gpio.c ****     
+ 169:Core/Src/mimic_gpio.c ****     if (cmd->argc < 1)
+ 1019              		.loc 1 169 5 view .LVU276
+ 1020              		.loc 1 169 12 is_stmt 0 view .LVU277
+ 1021 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1022              		.loc 1 169 8 view .LVU278
+ 1023 0008 ABB1     		cbz	r3, .L76
+ 170:Core/Src/mimic_gpio.c ****     {
+ 171:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("Usage: PIN_LOW <PIN>\r\n");
+ 172:Core/Src/mimic_gpio.c ****         return;
+ 173:Core/Src/mimic_gpio.c ****     }
+ 174:Core/Src/mimic_gpio.c ****     
+ 175:Core/Src/mimic_gpio.c ****     if (!Mimic_ParsePin(cmd->args[0], &port, &pin))
+ 1024              		.loc 1 175 5 is_stmt 1 view .LVU279
+ 1025              		.loc 1 175 34 is_stmt 0 view .LVU280
+ 1026 000a 00F12003 		add	r3, r0, #32
+ 1027 000e 1C46     		mov	r4, r3
+ 1028              		.loc 1 175 10 view .LVU281
+ 1029 0010 0DF10202 		add	r2, sp, #2
+ 1030 0014 01A9     		add	r1, sp, #4
+ 1031 0016 1846     		mov	r0, r3
+ 1032              	.LVL65:
+ 1033              		.loc 1 175 10 view .LVU282
+ 1034 0018 FFF7FEFF 		bl	Mimic_ParsePin
+ 1035              	.LVL66:
+ 1036              		.loc 1 175 8 discriminator 1 view .LVU283
+ 1037 001c 78B1     		cbz	r0, .L77
+ 176:Core/Src/mimic_gpio.c ****     {
+ 177:Core/Src/mimic_gpio.c ****         Mimic_SendResponseF("ERROR: Invalid pin '%s'\r\n", cmd->args[0]);
+ 178:Core/Src/mimic_gpio.c ****         return;
+ 179:Core/Src/mimic_gpio.c ****     }
+ 180:Core/Src/mimic_gpio.c ****     
+ 181:Core/Src/mimic_gpio.c ****     HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET);
+ 1038              		.loc 1 181 5 is_stmt 1 view .LVU284
+ 1039 001e 0022     		movs	r2, #0
+ 1040 0020 BDF80210 		ldrh	r1, [sp, #2]
+ 1041 0024 0198     		ldr	r0, [sp, #4]
+ARM GAS  /tmp/ccU8KOoq.s 			page 25
+
+
+ 1042 0026 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 1043              	.LVL67:
+ 182:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("OK: %s = LOW\r\n", cmd->args[0]);
+ 1044              		.loc 1 182 5 view .LVU285
+ 1045 002a 2146     		mov	r1, r4
+ 1046 002c 0648     		ldr	r0, .L78
+ 1047 002e FFF7FEFF 		bl	Mimic_SendResponseF
+ 1048              	.LVL68:
+ 1049              	.L70:
+ 183:Core/Src/mimic_gpio.c **** }
+ 1050              		.loc 1 183 1 is_stmt 0 view .LVU286
+ 1051 0032 02B0     		add	sp, sp, #8
+ 1052              	.LCFI18:
+ 1053              		.cfi_remember_state
+ 1054              		.cfi_def_cfa_offset 8
+ 1055              		@ sp needed
+ 1056 0034 10BD     		pop	{r4, pc}
+ 1057              	.LVL69:
+ 1058              	.L76:
+ 1059              	.LCFI19:
+ 1060              		.cfi_restore_state
+ 171:Core/Src/mimic_gpio.c ****         return;
+ 1061              		.loc 1 171 9 is_stmt 1 view .LVU287
+ 1062 0036 0548     		ldr	r0, .L78+4
+ 1063              	.LVL70:
+ 171:Core/Src/mimic_gpio.c ****         return;
+ 1064              		.loc 1 171 9 is_stmt 0 view .LVU288
+ 1065 0038 FFF7FEFF 		bl	Mimic_SendResponse
+ 1066              	.LVL71:
+ 172:Core/Src/mimic_gpio.c ****     }
+ 1067              		.loc 1 172 9 is_stmt 1 view .LVU289
+ 1068 003c F9E7     		b	.L70
+ 1069              	.L77:
+ 177:Core/Src/mimic_gpio.c ****         return;
+ 1070              		.loc 1 177 9 view .LVU290
+ 1071 003e 2146     		mov	r1, r4
+ 1072 0040 0348     		ldr	r0, .L78+8
+ 1073 0042 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1074              	.LVL72:
+ 178:Core/Src/mimic_gpio.c ****     }
+ 1075              		.loc 1 178 9 view .LVU291
+ 1076 0046 F4E7     		b	.L70
+ 1077              	.L79:
+ 1078              		.align	2
+ 1079              	.L78:
+ 1080 0048 18000000 		.word	.LC39
+ 1081 004c 00000000 		.word	.LC38
+ 1082 0050 3C000000 		.word	.LC19
+ 1083              		.cfi_endproc
+ 1084              	.LFE141:
+ 1086              		.section	.rodata.Mimic_CMD_PIN_READ.str1.4,"aMS",%progbits,1
+ 1087              		.align	2
+ 1088              	.LC40:
+ 1089 0000 55736167 		.ascii	"Usage: PIN_READ <PIN>\015\012\000"
+ 1089      653A2050 
+ 1089      494E5F52 
+ 1089      45414420 
+ARM GAS  /tmp/ccU8KOoq.s 			page 26
+
+
+ 1089      3C50494E 
+ 1090              		.align	2
+ 1091              	.LC41:
+ 1092 0018 2573203D 		.ascii	"%s = %s\015\012\000"
+ 1092      2025730D 
+ 1092      0A00
+ 1093              		.section	.text.Mimic_CMD_PIN_READ,"ax",%progbits
+ 1094              		.align	1
+ 1095              		.global	Mimic_CMD_PIN_READ
+ 1096              		.syntax unified
+ 1097              		.thumb
+ 1098              		.thumb_func
+ 1100              	Mimic_CMD_PIN_READ:
+ 1101              	.LVL73:
+ 1102              	.LFB142:
+ 184:Core/Src/mimic_gpio.c **** 
+ 185:Core/Src/mimic_gpio.c **** /**
+ 186:Core/Src/mimic_gpio.c ****   * @brief  PIN_READ <PIN> - Read pin state
+ 187:Core/Src/mimic_gpio.c ****   */
+ 188:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_READ(Mimic_Command_t *cmd)
+ 189:Core/Src/mimic_gpio.c **** {
+ 1103              		.loc 1 189 1 view -0
+ 1104              		.cfi_startproc
+ 1105              		@ args = 0, pretend = 0, frame = 8
+ 1106              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1107              		.loc 1 189 1 is_stmt 0 view .LVU293
+ 1108 0000 10B5     		push	{r4, lr}
+ 1109              	.LCFI20:
+ 1110              		.cfi_def_cfa_offset 8
+ 1111              		.cfi_offset 4, -8
+ 1112              		.cfi_offset 14, -4
+ 1113 0002 82B0     		sub	sp, sp, #8
+ 1114              	.LCFI21:
+ 1115              		.cfi_def_cfa_offset 16
+ 190:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
+ 1116              		.loc 1 190 5 is_stmt 1 view .LVU294
+ 191:Core/Src/mimic_gpio.c ****     uint16_t pin;
+ 1117              		.loc 1 191 5 view .LVU295
+ 192:Core/Src/mimic_gpio.c ****     
+ 193:Core/Src/mimic_gpio.c ****     if (cmd->argc < 1)
+ 1118              		.loc 1 193 5 view .LVU296
+ 1119              		.loc 1 193 12 is_stmt 0 view .LVU297
+ 1120 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1121              		.loc 1 193 8 view .LVU298
+ 1122 0008 B3B1     		cbz	r3, .L88
+ 194:Core/Src/mimic_gpio.c ****     {
+ 195:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("Usage: PIN_READ <PIN>\r\n");
+ 196:Core/Src/mimic_gpio.c ****         return;
+ 197:Core/Src/mimic_gpio.c ****     }
+ 198:Core/Src/mimic_gpio.c ****     
+ 199:Core/Src/mimic_gpio.c ****     if (!Mimic_ParsePin(cmd->args[0], &port, &pin))
+ 1123              		.loc 1 199 5 is_stmt 1 view .LVU299
+ 1124              		.loc 1 199 34 is_stmt 0 view .LVU300
+ 1125 000a 00F12003 		add	r3, r0, #32
+ 1126 000e 1C46     		mov	r4, r3
+ 1127              		.loc 1 199 10 view .LVU301
+ 1128 0010 0DF10202 		add	r2, sp, #2
+ARM GAS  /tmp/ccU8KOoq.s 			page 27
+
+
+ 1129 0014 01A9     		add	r1, sp, #4
+ 1130 0016 1846     		mov	r0, r3
+ 1131              	.LVL74:
+ 1132              		.loc 1 199 10 view .LVU302
+ 1133 0018 FFF7FEFF 		bl	Mimic_ParsePin
+ 1134              	.LVL75:
+ 1135              		.loc 1 199 8 discriminator 1 view .LVU303
+ 1136 001c 80B1     		cbz	r0, .L89
+ 200:Core/Src/mimic_gpio.c ****     {
+ 201:Core/Src/mimic_gpio.c ****         Mimic_SendResponseF("ERROR: Invalid pin '%s'\r\n", cmd->args[0]);
+ 202:Core/Src/mimic_gpio.c ****         return;
+ 203:Core/Src/mimic_gpio.c ****     }
+ 204:Core/Src/mimic_gpio.c ****     
+ 205:Core/Src/mimic_gpio.c ****     uint8_t state = HAL_GPIO_ReadPin(port, pin);
+ 1137              		.loc 1 205 5 is_stmt 1 view .LVU304
+ 1138              		.loc 1 205 21 is_stmt 0 view .LVU305
+ 1139 001e BDF80210 		ldrh	r1, [sp, #2]
+ 1140 0022 0198     		ldr	r0, [sp, #4]
+ 1141 0024 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 1142              	.LVL76:
+ 206:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("%s = %s\r\n", cmd->args[0], state ? "HIGH" : "LOW");
+ 1143              		.loc 1 206 5 is_stmt 1 view .LVU306
+ 1144 0028 78B1     		cbz	r0, .L86
+ 1145              		.loc 1 206 5 is_stmt 0 discriminator 1 view .LVU307
+ 1146 002a 094A     		ldr	r2, .L90
+ 1147              	.L84:
+ 1148              		.loc 1 206 5 discriminator 4 view .LVU308
+ 1149 002c 2146     		mov	r1, r4
+ 1150 002e 0948     		ldr	r0, .L90+4
+ 1151              	.LVL77:
+ 1152              		.loc 1 206 5 discriminator 4 view .LVU309
+ 1153 0030 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1154              	.LVL78:
+ 1155              	.L80:
+ 207:Core/Src/mimic_gpio.c **** }
+ 1156              		.loc 1 207 1 view .LVU310
+ 1157 0034 02B0     		add	sp, sp, #8
+ 1158              	.LCFI22:
+ 1159              		.cfi_remember_state
+ 1160              		.cfi_def_cfa_offset 8
+ 1161              		@ sp needed
+ 1162 0036 10BD     		pop	{r4, pc}
+ 1163              	.LVL79:
+ 1164              	.L88:
+ 1165              	.LCFI23:
+ 1166              		.cfi_restore_state
+ 195:Core/Src/mimic_gpio.c ****         return;
+ 1167              		.loc 1 195 9 is_stmt 1 view .LVU311
+ 1168 0038 0748     		ldr	r0, .L90+8
+ 1169              	.LVL80:
+ 195:Core/Src/mimic_gpio.c ****         return;
+ 1170              		.loc 1 195 9 is_stmt 0 view .LVU312
+ 1171 003a FFF7FEFF 		bl	Mimic_SendResponse
+ 1172              	.LVL81:
+ 196:Core/Src/mimic_gpio.c ****     }
+ 1173              		.loc 1 196 9 is_stmt 1 view .LVU313
+ 1174 003e F9E7     		b	.L80
+ARM GAS  /tmp/ccU8KOoq.s 			page 28
+
+
+ 1175              	.L89:
+ 201:Core/Src/mimic_gpio.c ****         return;
+ 1176              		.loc 1 201 9 view .LVU314
+ 1177 0040 2146     		mov	r1, r4
+ 1178 0042 0648     		ldr	r0, .L90+12
+ 1179 0044 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1180              	.LVL82:
+ 202:Core/Src/mimic_gpio.c ****     }
+ 1181              		.loc 1 202 9 view .LVU315
+ 1182 0048 F4E7     		b	.L80
+ 1183              	.LVL83:
+ 1184              	.L86:
+ 206:Core/Src/mimic_gpio.c **** }
+ 1185              		.loc 1 206 5 is_stmt 0 discriminator 2 view .LVU316
+ 1186 004a 054A     		ldr	r2, .L90+16
+ 1187 004c EEE7     		b	.L84
+ 1188              	.L91:
+ 1189 004e 00BF     		.align	2
+ 1190              	.L90:
+ 1191 0050 00000000 		.word	.LC10
+ 1192 0054 18000000 		.word	.LC41
+ 1193 0058 00000000 		.word	.LC40
+ 1194 005c 3C000000 		.word	.LC19
+ 1195 0060 08000000 		.word	.LC8
+ 1196              		.cfi_endproc
+ 1197              	.LFE142:
+ 1199              		.section	.rodata.Mimic_CMD_PIN_TOGGLE.str1.4,"aMS",%progbits,1
+ 1200              		.align	2
+ 1201              	.LC42:
+ 1202 0000 55736167 		.ascii	"Usage: PIN_TOGGLE <PIN>\015\012\000"
+ 1202      653A2050 
+ 1202      494E5F54 
+ 1202      4F47474C 
+ 1202      45203C50 
+ 1203 001a 0000     		.align	2
+ 1204              	.LC43:
+ 1205 001c 4F4B3A20 		.ascii	"OK: %s toggled to %s\015\012\000"
+ 1205      25732074 
+ 1205      6F67676C 
+ 1205      65642074 
+ 1205      6F202573 
+ 1206              		.section	.text.Mimic_CMD_PIN_TOGGLE,"ax",%progbits
+ 1207              		.align	1
+ 1208              		.global	Mimic_CMD_PIN_TOGGLE
+ 1209              		.syntax unified
+ 1210              		.thumb
+ 1211              		.thumb_func
+ 1213              	Mimic_CMD_PIN_TOGGLE:
+ 1214              	.LVL84:
+ 1215              	.LFB143:
+ 208:Core/Src/mimic_gpio.c **** 
+ 209:Core/Src/mimic_gpio.c **** /**
+ 210:Core/Src/mimic_gpio.c ****   * @brief  PIN_TOGGLE <PIN> - Toggle pin state
+ 211:Core/Src/mimic_gpio.c ****   */
+ 212:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_TOGGLE(Mimic_Command_t *cmd)
+ 213:Core/Src/mimic_gpio.c **** {
+ 1216              		.loc 1 213 1 is_stmt 1 view -0
+ARM GAS  /tmp/ccU8KOoq.s 			page 29
+
+
+ 1217              		.cfi_startproc
+ 1218              		@ args = 0, pretend = 0, frame = 8
+ 1219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1220              		.loc 1 213 1 is_stmt 0 view .LVU318
+ 1221 0000 10B5     		push	{r4, lr}
+ 1222              	.LCFI24:
+ 1223              		.cfi_def_cfa_offset 8
+ 1224              		.cfi_offset 4, -8
+ 1225              		.cfi_offset 14, -4
+ 1226 0002 82B0     		sub	sp, sp, #8
+ 1227              	.LCFI25:
+ 1228              		.cfi_def_cfa_offset 16
+ 214:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
+ 1229              		.loc 1 214 5 is_stmt 1 view .LVU319
+ 215:Core/Src/mimic_gpio.c ****     uint16_t pin;
+ 1230              		.loc 1 215 5 view .LVU320
+ 216:Core/Src/mimic_gpio.c ****     
+ 217:Core/Src/mimic_gpio.c ****     if (cmd->argc < 1)
+ 1231              		.loc 1 217 5 view .LVU321
+ 1232              		.loc 1 217 12 is_stmt 0 view .LVU322
+ 1233 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1234              		.loc 1 217 8 view .LVU323
+ 1235 0008 DBB1     		cbz	r3, .L100
+ 218:Core/Src/mimic_gpio.c ****     {
+ 219:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("Usage: PIN_TOGGLE <PIN>\r\n");
+ 220:Core/Src/mimic_gpio.c ****         return;
+ 221:Core/Src/mimic_gpio.c ****     }
+ 222:Core/Src/mimic_gpio.c ****     
+ 223:Core/Src/mimic_gpio.c ****     if (!Mimic_ParsePin(cmd->args[0], &port, &pin))
+ 1236              		.loc 1 223 5 is_stmt 1 view .LVU324
+ 1237              		.loc 1 223 34 is_stmt 0 view .LVU325
+ 1238 000a 00F12003 		add	r3, r0, #32
+ 1239 000e 1C46     		mov	r4, r3
+ 1240              		.loc 1 223 10 view .LVU326
+ 1241 0010 0DF10202 		add	r2, sp, #2
+ 1242 0014 01A9     		add	r1, sp, #4
+ 1243 0016 1846     		mov	r0, r3
+ 1244              	.LVL85:
+ 1245              		.loc 1 223 10 view .LVU327
+ 1246 0018 FFF7FEFF 		bl	Mimic_ParsePin
+ 1247              	.LVL86:
+ 1248              		.loc 1 223 8 discriminator 1 view .LVU328
+ 1249 001c A8B1     		cbz	r0, .L101
+ 224:Core/Src/mimic_gpio.c ****     {
+ 225:Core/Src/mimic_gpio.c ****         Mimic_SendResponseF("ERROR: Invalid pin '%s'\r\n", cmd->args[0]);
+ 226:Core/Src/mimic_gpio.c ****         return;
+ 227:Core/Src/mimic_gpio.c ****     }
+ 228:Core/Src/mimic_gpio.c ****     
+ 229:Core/Src/mimic_gpio.c ****     HAL_GPIO_TogglePin(port, pin);
+ 1250              		.loc 1 229 5 is_stmt 1 view .LVU329
+ 1251 001e BDF80210 		ldrh	r1, [sp, #2]
+ 1252 0022 0198     		ldr	r0, [sp, #4]
+ 1253 0024 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 1254              	.LVL87:
+ 230:Core/Src/mimic_gpio.c ****     uint8_t state = HAL_GPIO_ReadPin(port, pin);
+ 1255              		.loc 1 230 5 view .LVU330
+ 1256              		.loc 1 230 21 is_stmt 0 view .LVU331
+ARM GAS  /tmp/ccU8KOoq.s 			page 30
+
+
+ 1257 0028 BDF80210 		ldrh	r1, [sp, #2]
+ 1258 002c 0198     		ldr	r0, [sp, #4]
+ 1259 002e FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 1260              	.LVL88:
+ 231:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("OK: %s toggled to %s\r\n", cmd->args[0], state ? "HIGH" : "LOW");
+ 1261              		.loc 1 231 5 is_stmt 1 view .LVU332
+ 1262 0032 78B1     		cbz	r0, .L98
+ 1263              		.loc 1 231 5 is_stmt 0 discriminator 1 view .LVU333
+ 1264 0034 084A     		ldr	r2, .L102
+ 1265              	.L96:
+ 1266              		.loc 1 231 5 discriminator 4 view .LVU334
+ 1267 0036 2146     		mov	r1, r4
+ 1268 0038 0848     		ldr	r0, .L102+4
+ 1269              	.LVL89:
+ 1270              		.loc 1 231 5 discriminator 4 view .LVU335
+ 1271 003a FFF7FEFF 		bl	Mimic_SendResponseF
+ 1272              	.LVL90:
+ 1273              	.L92:
+ 232:Core/Src/mimic_gpio.c **** }
+ 1274              		.loc 1 232 1 view .LVU336
+ 1275 003e 02B0     		add	sp, sp, #8
+ 1276              	.LCFI26:
+ 1277              		.cfi_remember_state
+ 1278              		.cfi_def_cfa_offset 8
+ 1279              		@ sp needed
+ 1280 0040 10BD     		pop	{r4, pc}
+ 1281              	.LVL91:
+ 1282              	.L100:
+ 1283              	.LCFI27:
+ 1284              		.cfi_restore_state
+ 219:Core/Src/mimic_gpio.c ****         return;
+ 1285              		.loc 1 219 9 is_stmt 1 view .LVU337
+ 1286 0042 0748     		ldr	r0, .L102+8
+ 1287              	.LVL92:
+ 219:Core/Src/mimic_gpio.c ****         return;
+ 1288              		.loc 1 219 9 is_stmt 0 view .LVU338
+ 1289 0044 FFF7FEFF 		bl	Mimic_SendResponse
+ 1290              	.LVL93:
+ 220:Core/Src/mimic_gpio.c ****     }
+ 1291              		.loc 1 220 9 is_stmt 1 view .LVU339
+ 1292 0048 F9E7     		b	.L92
+ 1293              	.L101:
+ 225:Core/Src/mimic_gpio.c ****         return;
+ 1294              		.loc 1 225 9 view .LVU340
+ 1295 004a 2146     		mov	r1, r4
+ 1296 004c 0548     		ldr	r0, .L102+12
+ 1297 004e FFF7FEFF 		bl	Mimic_SendResponseF
+ 1298              	.LVL94:
+ 226:Core/Src/mimic_gpio.c ****     }
+ 1299              		.loc 1 226 9 view .LVU341
+ 1300 0052 F4E7     		b	.L92
+ 1301              	.LVL95:
+ 1302              	.L98:
+ 231:Core/Src/mimic_gpio.c **** }
+ 1303              		.loc 1 231 5 is_stmt 0 discriminator 2 view .LVU342
+ 1304 0054 044A     		ldr	r2, .L102+16
+ 1305 0056 EEE7     		b	.L96
+ARM GAS  /tmp/ccU8KOoq.s 			page 31
+
+
+ 1306              	.L103:
+ 1307              		.align	2
+ 1308              	.L102:
+ 1309 0058 00000000 		.word	.LC10
+ 1310 005c 1C000000 		.word	.LC43
+ 1311 0060 00000000 		.word	.LC42
+ 1312 0064 3C000000 		.word	.LC19
+ 1313 0068 08000000 		.word	.LC8
+ 1314              		.cfi_endproc
+ 1315              	.LFE143:
+ 1317              		.section	.rodata.Mimic_CMD_PIN_MODE.str1.4,"aMS",%progbits,1
+ 1318              		.align	2
+ 1319              	.LC44:
+ 1320 0000 55736167 		.ascii	"Usage: PIN_MODE <PIN> <IN|OUT|AF|AN>\015\012\000"
+ 1320      653A2050 
+ 1320      494E5F4D 
+ 1320      4F444520 
+ 1320      3C50494E 
+ 1321 0027 00       		.align	2
+ 1322              	.LC45:
+ 1323 0028 494E00   		.ascii	"IN\000"
+ 1324 002b 00       		.align	2
+ 1325              	.LC46:
+ 1326 002c 4F555400 		.ascii	"OUT\000"
+ 1327              		.align	2
+ 1328              	.LC47:
+ 1329 0030 414600   		.ascii	"AF\000"
+ 1330 0033 00       		.align	2
+ 1331              	.LC48:
+ 1332 0034 414E00   		.ascii	"AN\000"
+ 1333 0037 00       		.align	2
+ 1334              	.LC49:
+ 1335 0038 4552524F 		.ascii	"ERROR: Mode must be IN, OUT, AF, or AN\015\012\000"
+ 1335      523A204D 
+ 1335      6F646520 
+ 1335      6D757374 
+ 1335      20626520 
+ 1336 0061 000000   		.align	2
+ 1337              	.LC50:
+ 1338 0064 4F4B3A20 		.ascii	"OK: %s mode set to %s\015\012\000"
+ 1338      2573206D 
+ 1338      6F646520 
+ 1338      73657420 
+ 1338      746F2025 
+ 1339              		.section	.text.Mimic_CMD_PIN_MODE,"ax",%progbits
+ 1340              		.align	1
+ 1341              		.global	Mimic_CMD_PIN_MODE
+ 1342              		.syntax unified
+ 1343              		.thumb
+ 1344              		.thumb_func
+ 1346              	Mimic_CMD_PIN_MODE:
+ 1347              	.LVL96:
+ 1348              	.LFB144:
+ 233:Core/Src/mimic_gpio.c **** 
+ 234:Core/Src/mimic_gpio.c **** /**
+ 235:Core/Src/mimic_gpio.c ****   * @brief  PIN_MODE <PIN> <MODE> - Set pin mode
+ 236:Core/Src/mimic_gpio.c ****   */
+ARM GAS  /tmp/ccU8KOoq.s 			page 32
+
+
+ 237:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_MODE(Mimic_Command_t *cmd)
+ 238:Core/Src/mimic_gpio.c **** {
+ 1349              		.loc 1 238 1 is_stmt 1 view -0
+ 1350              		.cfi_startproc
+ 1351              		@ args = 0, pretend = 0, frame = 48
+ 1352              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1353              		.loc 1 238 1 is_stmt 0 view .LVU344
+ 1354 0000 70B5     		push	{r4, r5, r6, lr}
+ 1355              	.LCFI28:
+ 1356              		.cfi_def_cfa_offset 16
+ 1357              		.cfi_offset 4, -16
+ 1358              		.cfi_offset 5, -12
+ 1359              		.cfi_offset 6, -8
+ 1360              		.cfi_offset 14, -4
+ 1361 0002 8CB0     		sub	sp, sp, #48
+ 1362              	.LCFI29:
+ 1363              		.cfi_def_cfa_offset 64
+ 239:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
+ 1364              		.loc 1 239 5 is_stmt 1 view .LVU345
+ 240:Core/Src/mimic_gpio.c ****     uint16_t pin;
+ 1365              		.loc 1 240 5 view .LVU346
+ 241:Core/Src/mimic_gpio.c ****     
+ 242:Core/Src/mimic_gpio.c ****     if (cmd->argc < 2)
+ 1366              		.loc 1 242 5 view .LVU347
+ 1367              		.loc 1 242 12 is_stmt 0 view .LVU348
+ 1368 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1369              		.loc 1 242 8 view .LVU349
+ 1370 0008 012B     		cmp	r3, #1
+ 1371 000a 27D9     		bls	.L119
+ 1372 000c 0446     		mov	r4, r0
+ 243:Core/Src/mimic_gpio.c ****     {
+ 244:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("Usage: PIN_MODE <PIN> <IN|OUT|AF|AN>\r\n");
+ 245:Core/Src/mimic_gpio.c ****         return;
+ 246:Core/Src/mimic_gpio.c ****     }
+ 247:Core/Src/mimic_gpio.c ****     
+ 248:Core/Src/mimic_gpio.c ****     if (!Mimic_ParsePin(cmd->args[0], &port, &pin))
+ 1373              		.loc 1 248 5 is_stmt 1 view .LVU350
+ 1374              		.loc 1 248 34 is_stmt 0 view .LVU351
+ 1375 000e 00F12003 		add	r3, r0, #32
+ 1376 0012 1E46     		mov	r6, r3
+ 1377              		.loc 1 248 10 view .LVU352
+ 1378 0014 0DF12A02 		add	r2, sp, #42
+ 1379 0018 0BA9     		add	r1, sp, #44
+ 1380 001a 1846     		mov	r0, r3
+ 1381              	.LVL97:
+ 1382              		.loc 1 248 10 view .LVU353
+ 1383 001c FFF7FEFF 		bl	Mimic_ParsePin
+ 1384              	.LVL98:
+ 1385              		.loc 1 248 8 discriminator 1 view .LVU354
+ 1386 0020 00B3     		cbz	r0, .L120
+ 249:Core/Src/mimic_gpio.c ****     {
+ 250:Core/Src/mimic_gpio.c ****         Mimic_SendResponseF("ERROR: Invalid pin '%s'\r\n", cmd->args[0]);
+ 251:Core/Src/mimic_gpio.c ****         return;
+ 252:Core/Src/mimic_gpio.c ****     }
+ 253:Core/Src/mimic_gpio.c ****     
+ 254:Core/Src/mimic_gpio.c ****     /* Enable GPIO clock */
+ 255:Core/Src/mimic_gpio.c ****     if (port == GPIOA) __HAL_RCC_GPIOA_CLK_ENABLE();
+ARM GAS  /tmp/ccU8KOoq.s 			page 33
+
+
+ 1387              		.loc 1 255 5 is_stmt 1 view .LVU355
+ 1388              		.loc 1 255 14 is_stmt 0 view .LVU356
+ 1389 0022 0B9D     		ldr	r5, [sp, #44]
+ 1390              		.loc 1 255 8 view .LVU357
+ 1391 0024 464B     		ldr	r3, .L125
+ 1392 0026 9D42     		cmp	r5, r3
+ 1393 0028 21D0     		beq	.L121
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1394              		.loc 1 256 10 is_stmt 1 view .LVU358
+ 1395              		.loc 1 256 13 is_stmt 0 view .LVU359
+ 1396 002a 464B     		ldr	r3, .L125+4
+ 1397 002c 9D42     		cmp	r5, r3
+ 1398 002e 4CD0     		beq	.L122
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1399              		.loc 1 257 10 is_stmt 1 view .LVU360
+ 1400              		.loc 1 257 13 is_stmt 0 view .LVU361
+ 1401 0030 454B     		ldr	r3, .L125+8
+ 1402 0032 9D42     		cmp	r5, r3
+ 1403 0034 56D0     		beq	.L123
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1404              		.loc 1 258 10 is_stmt 1 view .LVU362
+ 1405              		.loc 1 258 13 is_stmt 0 view .LVU363
+ 1406 0036 454B     		ldr	r3, .L125+12
+ 1407 0038 9D42     		cmp	r5, r3
+ 1408 003a 60D0     		beq	.L124
+ 259:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1409              		.loc 1 259 10 is_stmt 1 view .LVU364
+ 1410              		.loc 1 259 13 is_stmt 0 view .LVU365
+ 1411 003c 444B     		ldr	r3, .L125+16
+ 1412 003e 9D42     		cmp	r5, r3
+ 1413 0040 21D1     		bne	.L109
+ 1414              		.loc 1 259 29 is_stmt 1 discriminator 1 view .LVU366
+ 1415              	.LBB14:
+ 1416              		.loc 1 259 29 discriminator 1 view .LVU367
+ 1417 0042 0023     		movs	r3, #0
+ 1418 0044 0493     		str	r3, [sp, #16]
+ 1419              		.loc 1 259 29 view .LVU368
+ 1420              		.loc 1 259 29 is_stmt 0 discriminator 1 view .LVU369
+ 1421 0046 434B     		ldr	r3, .L125+20
+ 1422 0048 1A6B     		ldr	r2, [r3, #48]
+ 1423 004a 42F01002 		orr	r2, r2, #16
+ 1424 004e 1A63     		str	r2, [r3, #48]
+ 1425              		.loc 1 259 29 is_stmt 1 view .LVU370
+ 1426              		.loc 1 259 29 is_stmt 0 discriminator 1 view .LVU371
+ 1427 0050 1B6B     		ldr	r3, [r3, #48]
+ 1428 0052 03F01003 		and	r3, r3, #16
+ 1429 0056 0493     		str	r3, [sp, #16]
+ 1430              		.loc 1 259 29 is_stmt 1 view .LVU372
+ 1431              		.loc 1 259 29 is_stmt 0 discriminator 1 view .LVU373
+ 1432 0058 049B     		ldr	r3, [sp, #16]
+ 1433 005a 14E0     		b	.L109
+ 1434              	.LVL99:
+ 1435              	.L119:
+ 1436              		.loc 1 259 29 discriminator 1 view .LVU374
+ 1437              	.LBE14:
+ 244:Core/Src/mimic_gpio.c ****         return;
+ 1438              		.loc 1 244 9 is_stmt 1 view .LVU375
+ARM GAS  /tmp/ccU8KOoq.s 			page 34
+
+
+ 1439 005c 3E48     		ldr	r0, .L125+24
+ 1440              	.LVL100:
+ 244:Core/Src/mimic_gpio.c ****         return;
+ 1441              		.loc 1 244 9 is_stmt 0 view .LVU376
+ 1442 005e FFF7FEFF 		bl	Mimic_SendResponse
+ 1443              	.LVL101:
+ 245:Core/Src/mimic_gpio.c ****     }
+ 1444              		.loc 1 245 9 is_stmt 1 view .LVU377
+ 1445 0062 30E0     		b	.L104
+ 1446              	.LVL102:
+ 1447              	.L120:
+ 250:Core/Src/mimic_gpio.c ****         return;
+ 1448              		.loc 1 250 9 view .LVU378
+ 1449 0064 3146     		mov	r1, r6
+ 1450 0066 3D48     		ldr	r0, .L125+28
+ 1451 0068 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1452              	.LVL103:
+ 251:Core/Src/mimic_gpio.c ****     }
+ 1453              		.loc 1 251 9 view .LVU379
+ 1454 006c 2BE0     		b	.L104
+ 1455              	.L121:
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1456              		.loc 1 255 24 discriminator 1 view .LVU380
+ 1457              	.LBB15:
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1458              		.loc 1 255 24 discriminator 1 view .LVU381
+ 1459 006e 0023     		movs	r3, #0
+ 1460 0070 0093     		str	r3, [sp]
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1461              		.loc 1 255 24 view .LVU382
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1462              		.loc 1 255 24 is_stmt 0 discriminator 1 view .LVU383
+ 1463 0072 384B     		ldr	r3, .L125+20
+ 1464 0074 1A6B     		ldr	r2, [r3, #48]
+ 1465 0076 42F00102 		orr	r2, r2, #1
+ 1466 007a 1A63     		str	r2, [r3, #48]
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1467              		.loc 1 255 24 is_stmt 1 view .LVU384
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1468              		.loc 1 255 24 is_stmt 0 discriminator 1 view .LVU385
+ 1469 007c 1B6B     		ldr	r3, [r3, #48]
+ 1470 007e 03F00103 		and	r3, r3, #1
+ 1471 0082 0093     		str	r3, [sp]
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1472              		.loc 1 255 24 is_stmt 1 view .LVU386
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1473              		.loc 1 255 24 is_stmt 0 discriminator 1 view .LVU387
+ 1474 0084 009B     		ldr	r3, [sp]
+ 1475              	.LBE15:
+ 255:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
+ 1476              		.loc 1 255 24 is_stmt 1 view .LVU388
+ 1477              	.L109:
+ 1478              		.loc 1 259 29 view .LVU389
+ 260:Core/Src/mimic_gpio.c ****     
+ 261:Core/Src/mimic_gpio.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 1479              		.loc 1 261 5 view .LVU390
+ 1480              		.loc 1 261 22 is_stmt 0 view .LVU391
+ARM GAS  /tmp/ccU8KOoq.s 			page 35
+
+
+ 1481 0086 0023     		movs	r3, #0
+ 1482 0088 0593     		str	r3, [sp, #20]
+ 1483 008a 0693     		str	r3, [sp, #24]
+ 1484 008c 0793     		str	r3, [sp, #28]
+ 1485 008e 0893     		str	r3, [sp, #32]
+ 1486 0090 0993     		str	r3, [sp, #36]
+ 262:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Pin = pin;
+ 1487              		.loc 1 262 5 is_stmt 1 view .LVU392
+ 1488              		.loc 1 262 25 is_stmt 0 view .LVU393
+ 1489 0092 BDF82A30 		ldrh	r3, [sp, #42]
+ 1490 0096 0593     		str	r3, [sp, #20]
+ 263:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 1491              		.loc 1 263 5 is_stmt 1 view .LVU394
+ 264:Core/Src/mimic_gpio.c ****     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ 1492              		.loc 1 264 5 view .LVU395
+ 265:Core/Src/mimic_gpio.c ****     
+ 266:Core/Src/mimic_gpio.c ****     if (strcmp(cmd->args[1], "IN") == 0)
+ 1493              		.loc 1 266 5 view .LVU396
+ 1494              		.loc 1 266 25 is_stmt 0 view .LVU397
+ 1495 0098 4034     		adds	r4, r4, #64
+ 1496              	.LVL104:
+ 1497              		.loc 1 266 9 view .LVU398
+ 1498 009a 3149     		ldr	r1, .L125+32
+ 1499 009c 2046     		mov	r0, r4
+ 1500 009e FFF7FEFF 		bl	strcmp
+ 1501              	.LVL105:
+ 1502              		.loc 1 266 8 discriminator 1 view .LVU399
+ 1503 00a2 38B1     		cbz	r0, .L113
+ 267:Core/Src/mimic_gpio.c ****     {
+ 268:Core/Src/mimic_gpio.c ****         GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+ 269:Core/Src/mimic_gpio.c ****     }
+ 270:Core/Src/mimic_gpio.c ****     else if (strcmp(cmd->args[1], "OUT") == 0)
+ 1504              		.loc 1 270 10 is_stmt 1 view .LVU400
+ 1505              		.loc 1 270 14 is_stmt 0 view .LVU401
+ 1506 00a4 2F49     		ldr	r1, .L125+36
+ 1507 00a6 2046     		mov	r0, r4
+ 1508 00a8 FFF7FEFF 		bl	strcmp
+ 1509              	.LVL106:
+ 1510              		.loc 1 270 13 discriminator 1 view .LVU402
+ 1511 00ac 0028     		cmp	r0, #0
+ 1512 00ae 33D1     		bne	.L114
+ 271:Core/Src/mimic_gpio.c ****     {
+ 272:Core/Src/mimic_gpio.c ****         GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 1513              		.loc 1 272 9 is_stmt 1 view .LVU403
+ 1514              		.loc 1 272 30 is_stmt 0 view .LVU404
+ 1515 00b0 0123     		movs	r3, #1
+ 1516 00b2 0693     		str	r3, [sp, #24]
+ 1517              	.L113:
+ 273:Core/Src/mimic_gpio.c ****     }
+ 274:Core/Src/mimic_gpio.c ****     else if (strcmp(cmd->args[1], "AF") == 0)
+ 275:Core/Src/mimic_gpio.c ****     {
+ 276:Core/Src/mimic_gpio.c ****         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+ 277:Core/Src/mimic_gpio.c ****     }
+ 278:Core/Src/mimic_gpio.c ****     else if (strcmp(cmd->args[1], "AN") == 0)
+ 279:Core/Src/mimic_gpio.c ****     {
+ 280:Core/Src/mimic_gpio.c ****         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+ 281:Core/Src/mimic_gpio.c ****     }
+ARM GAS  /tmp/ccU8KOoq.s 			page 36
+
+
+ 282:Core/Src/mimic_gpio.c ****     else
+ 283:Core/Src/mimic_gpio.c ****     {
+ 284:Core/Src/mimic_gpio.c ****         Mimic_SendResponse("ERROR: Mode must be IN, OUT, AF, or AN\r\n");
+ 285:Core/Src/mimic_gpio.c ****         return;
+ 286:Core/Src/mimic_gpio.c ****     }
+ 287:Core/Src/mimic_gpio.c ****     
+ 288:Core/Src/mimic_gpio.c ****     HAL_GPIO_Init(port, &GPIO_InitStruct);
+ 1518              		.loc 1 288 5 is_stmt 1 view .LVU405
+ 1519 00b4 05A9     		add	r1, sp, #20
+ 1520 00b6 2846     		mov	r0, r5
+ 1521 00b8 FFF7FEFF 		bl	HAL_GPIO_Init
+ 1522              	.LVL107:
+ 289:Core/Src/mimic_gpio.c ****     Mimic_SendResponseF("OK: %s mode set to %s\r\n", cmd->args[0], cmd->args[1]);
+ 1523              		.loc 1 289 5 view .LVU406
+ 1524 00bc 2246     		mov	r2, r4
+ 1525 00be 3146     		mov	r1, r6
+ 1526 00c0 2948     		ldr	r0, .L125+40
+ 1527 00c2 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1528              	.LVL108:
+ 1529              	.L104:
+ 290:Core/Src/mimic_gpio.c **** }
+ 1530              		.loc 1 290 1 is_stmt 0 view .LVU407
+ 1531 00c6 0CB0     		add	sp, sp, #48
+ 1532              	.LCFI30:
+ 1533              		.cfi_remember_state
+ 1534              		.cfi_def_cfa_offset 16
+ 1535              		@ sp needed
+ 1536 00c8 70BD     		pop	{r4, r5, r6, pc}
+ 1537              	.LVL109:
+ 1538              	.L122:
+ 1539              	.LCFI31:
+ 1540              		.cfi_restore_state
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1541              		.loc 1 256 29 is_stmt 1 discriminator 1 view .LVU408
+ 1542              	.LBB16:
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1543              		.loc 1 256 29 discriminator 1 view .LVU409
+ 1544 00ca 0023     		movs	r3, #0
+ 1545 00cc 0193     		str	r3, [sp, #4]
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1546              		.loc 1 256 29 view .LVU410
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1547              		.loc 1 256 29 is_stmt 0 discriminator 1 view .LVU411
+ 1548 00ce 214B     		ldr	r3, .L125+20
+ 1549 00d0 1A6B     		ldr	r2, [r3, #48]
+ 1550 00d2 42F00202 		orr	r2, r2, #2
+ 1551 00d6 1A63     		str	r2, [r3, #48]
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1552              		.loc 1 256 29 is_stmt 1 view .LVU412
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1553              		.loc 1 256 29 is_stmt 0 discriminator 1 view .LVU413
+ 1554 00d8 1B6B     		ldr	r3, [r3, #48]
+ 1555 00da 03F00203 		and	r3, r3, #2
+ 1556 00de 0193     		str	r3, [sp, #4]
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1557              		.loc 1 256 29 is_stmt 1 view .LVU414
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ARM GAS  /tmp/ccU8KOoq.s 			page 37
+
+
+ 1558              		.loc 1 256 29 is_stmt 0 discriminator 1 view .LVU415
+ 1559 00e0 019B     		ldr	r3, [sp, #4]
+ 1560              	.LBE16:
+ 256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
+ 1561              		.loc 1 256 29 is_stmt 1 view .LVU416
+ 1562 00e2 D0E7     		b	.L109
+ 1563              	.L123:
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1564              		.loc 1 257 29 discriminator 1 view .LVU417
+ 1565              	.LBB17:
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1566              		.loc 1 257 29 discriminator 1 view .LVU418
+ 1567 00e4 0023     		movs	r3, #0
+ 1568 00e6 0293     		str	r3, [sp, #8]
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1569              		.loc 1 257 29 view .LVU419
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1570              		.loc 1 257 29 is_stmt 0 discriminator 1 view .LVU420
+ 1571 00e8 1A4B     		ldr	r3, .L125+20
+ 1572 00ea 1A6B     		ldr	r2, [r3, #48]
+ 1573 00ec 42F00402 		orr	r2, r2, #4
+ 1574 00f0 1A63     		str	r2, [r3, #48]
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1575              		.loc 1 257 29 is_stmt 1 view .LVU421
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1576              		.loc 1 257 29 is_stmt 0 discriminator 1 view .LVU422
+ 1577 00f2 1B6B     		ldr	r3, [r3, #48]
+ 1578 00f4 03F00403 		and	r3, r3, #4
+ 1579 00f8 0293     		str	r3, [sp, #8]
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1580              		.loc 1 257 29 is_stmt 1 view .LVU423
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1581              		.loc 1 257 29 is_stmt 0 discriminator 1 view .LVU424
+ 1582 00fa 029B     		ldr	r3, [sp, #8]
+ 1583              	.LBE17:
+ 257:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
+ 1584              		.loc 1 257 29 is_stmt 1 view .LVU425
+ 1585 00fc C3E7     		b	.L109
+ 1586              	.L124:
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1587              		.loc 1 258 29 discriminator 1 view .LVU426
+ 1588              	.LBB18:
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1589              		.loc 1 258 29 discriminator 1 view .LVU427
+ 1590 00fe 0023     		movs	r3, #0
+ 1591 0100 0393     		str	r3, [sp, #12]
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1592              		.loc 1 258 29 view .LVU428
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1593              		.loc 1 258 29 is_stmt 0 discriminator 1 view .LVU429
+ 1594 0102 144B     		ldr	r3, .L125+20
+ 1595 0104 1A6B     		ldr	r2, [r3, #48]
+ 1596 0106 42F00802 		orr	r2, r2, #8
+ 1597 010a 1A63     		str	r2, [r3, #48]
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1598              		.loc 1 258 29 is_stmt 1 view .LVU430
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ARM GAS  /tmp/ccU8KOoq.s 			page 38
+
+
+ 1599              		.loc 1 258 29 is_stmt 0 discriminator 1 view .LVU431
+ 1600 010c 1B6B     		ldr	r3, [r3, #48]
+ 1601 010e 03F00803 		and	r3, r3, #8
+ 1602 0112 0393     		str	r3, [sp, #12]
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1603              		.loc 1 258 29 is_stmt 1 view .LVU432
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1604              		.loc 1 258 29 is_stmt 0 discriminator 1 view .LVU433
+ 1605 0114 039B     		ldr	r3, [sp, #12]
+ 1606              	.LBE18:
+ 258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
+ 1607              		.loc 1 258 29 is_stmt 1 view .LVU434
+ 1608 0116 B6E7     		b	.L109
+ 1609              	.LVL110:
+ 1610              	.L114:
+ 274:Core/Src/mimic_gpio.c ****     {
+ 1611              		.loc 1 274 10 view .LVU435
+ 274:Core/Src/mimic_gpio.c ****     {
+ 1612              		.loc 1 274 14 is_stmt 0 view .LVU436
+ 1613 0118 1449     		ldr	r1, .L125+44
+ 1614 011a 2046     		mov	r0, r4
+ 1615 011c FFF7FEFF 		bl	strcmp
+ 1616              	.LVL111:
+ 274:Core/Src/mimic_gpio.c ****     {
+ 1617              		.loc 1 274 13 discriminator 1 view .LVU437
+ 1618 0120 10B9     		cbnz	r0, .L115
+ 276:Core/Src/mimic_gpio.c ****     }
+ 1619              		.loc 1 276 9 is_stmt 1 view .LVU438
+ 276:Core/Src/mimic_gpio.c ****     }
+ 1620              		.loc 1 276 30 is_stmt 0 view .LVU439
+ 1621 0122 0223     		movs	r3, #2
+ 1622 0124 0693     		str	r3, [sp, #24]
+ 1623 0126 C5E7     		b	.L113
+ 1624              	.L115:
+ 278:Core/Src/mimic_gpio.c ****     {
+ 1625              		.loc 1 278 10 is_stmt 1 view .LVU440
+ 278:Core/Src/mimic_gpio.c ****     {
+ 1626              		.loc 1 278 14 is_stmt 0 view .LVU441
+ 1627 0128 1149     		ldr	r1, .L125+48
+ 1628 012a 2046     		mov	r0, r4
+ 1629 012c FFF7FEFF 		bl	strcmp
+ 1630              	.LVL112:
+ 278:Core/Src/mimic_gpio.c ****     {
+ 1631              		.loc 1 278 13 discriminator 1 view .LVU442
+ 1632 0130 10B9     		cbnz	r0, .L116
+ 280:Core/Src/mimic_gpio.c ****     }
+ 1633              		.loc 1 280 9 is_stmt 1 view .LVU443
+ 280:Core/Src/mimic_gpio.c ****     }
+ 1634              		.loc 1 280 30 is_stmt 0 view .LVU444
+ 1635 0132 0323     		movs	r3, #3
+ 1636 0134 0693     		str	r3, [sp, #24]
+ 1637 0136 BDE7     		b	.L113
+ 1638              	.L116:
+ 284:Core/Src/mimic_gpio.c ****         return;
+ 1639              		.loc 1 284 9 is_stmt 1 view .LVU445
+ 1640 0138 0E48     		ldr	r0, .L125+52
+ 1641 013a FFF7FEFF 		bl	Mimic_SendResponse
+ARM GAS  /tmp/ccU8KOoq.s 			page 39
+
+
+ 1642              	.LVL113:
+ 285:Core/Src/mimic_gpio.c ****     }
+ 1643              		.loc 1 285 9 view .LVU446
+ 1644 013e C2E7     		b	.L104
+ 1645              	.L126:
+ 1646              		.align	2
+ 1647              	.L125:
+ 1648 0140 00000240 		.word	1073872896
+ 1649 0144 00040240 		.word	1073873920
+ 1650 0148 00080240 		.word	1073874944
+ 1651 014c 000C0240 		.word	1073875968
+ 1652 0150 00100240 		.word	1073876992
+ 1653 0154 00380240 		.word	1073887232
+ 1654 0158 00000000 		.word	.LC44
+ 1655 015c 3C000000 		.word	.LC19
+ 1656 0160 28000000 		.word	.LC45
+ 1657 0164 2C000000 		.word	.LC46
+ 1658 0168 64000000 		.word	.LC50
+ 1659 016c 30000000 		.word	.LC47
+ 1660 0170 34000000 		.word	.LC48
+ 1661 0174 38000000 		.word	.LC49
+ 1662              		.cfi_endproc
+ 1663              	.LFE144:
+ 1665              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 1666              		.align	2
+ 1667              	.LC13:
+ 1668 0000 4E4F4E45 		.ascii	"NONE\000"
+ 1668      00
+ 1669 0005 000000   		.align	2
+ 1670              	.LC14:
+ 1671 0008 50554C4C 		.ascii	"PULL_UP\000"
+ 1671      5F555000 
+ 1672              		.align	2
+ 1673              	.LC15:
+ 1674 0010 50554C4C 		.ascii	"PULL_DOWN\000"
+ 1674      5F444F57 
+ 1674      4E00
+ 1675 001a 0000     		.align	2
+ 1676              	.LC16:
+ 1677 001c 52455345 		.ascii	"RESERVED\000"
+ 1677      52564544 
+ 1677      00
+ 1678 0025 000000   		.align	2
+ 1679              	.LC9:
+ 1680 0028 4D454449 		.ascii	"MEDIUM\000"
+ 1680      554D00
+ 1681 002f 00       		.align	2
+ 1682              	.LC11:
+ 1683 0030 56455259 		.ascii	"VERY_HIGH\000"
+ 1683      5F484947 
+ 1683      4800
+ 1684 003a 0000     		.align	2
+ 1685              	.LC5:
+ 1686 003c 50555348 		.ascii	"PUSH_PULL\000"
+ 1686      5F50554C 
+ 1686      4C00
+ 1687 0046 0000     		.align	2
+ARM GAS  /tmp/ccU8KOoq.s 			page 40
+
+
+ 1688              	.LC6:
+ 1689 0048 4F50454E 		.ascii	"OPEN_DRAIN\000"
+ 1689      5F445241 
+ 1689      494E00
+ 1690 0053 00       		.align	2
+ 1691              	.LC0:
+ 1692 0054 494E5055 		.ascii	"INPUT\000"
+ 1692      5400
+ 1693 005a 0000     		.align	2
+ 1694              	.LC1:
+ 1695 005c 4F555450 		.ascii	"OUTPUT\000"
+ 1695      555400
+ 1696 0063 00       		.align	2
+ 1697              	.LC2:
+ 1698 0064 414C545F 		.ascii	"ALT_FUNC\000"
+ 1698      46554E43 
+ 1698      00
+ 1699 006d 000000   		.align	2
+ 1700              	.LC3:
+ 1701 0070 414E414C 		.ascii	"ANALOG\000"
+ 1701      4F4700
+ 1702              		.section	.rodata
+ 1703              		.align	2
+ 1704              		.set	.LANCHOR0,. + 0
+ 1705              	.LC20:
+ 1706 0000 54000000 		.word	.LC0
+ 1707 0004 5C000000 		.word	.LC1
+ 1708 0008 64000000 		.word	.LC2
+ 1709 000c 70000000 		.word	.LC3
+ 1710              	.LC21:
+ 1711 0010 3C000000 		.word	.LC5
+ 1712 0014 48000000 		.word	.LC6
+ 1713              	.LC22:
+ 1714 0018 08000000 		.word	.LC8
+ 1715 001c 28000000 		.word	.LC9
+ 1716 0020 00000000 		.word	.LC10
+ 1717 0024 30000000 		.word	.LC11
+ 1718              	.LC23:
+ 1719 0028 00000000 		.word	.LC13
+ 1720 002c 08000000 		.word	.LC14
+ 1721 0030 10000000 		.word	.LC15
+ 1722 0034 1C000000 		.word	.LC16
+ 1723              		.text
+ 1724              	.Letext0:
+ 1725              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 1726              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 1727              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+ 1728              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 1729              		.file 6 "Core/Inc/mimic.h"
+ 1730              		.file 7 "/usr/arm-none-eabi/include/string.h"
+ARM GAS  /tmp/ccU8KOoq.s 			page 41
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 mimic_gpio.c
+     /tmp/ccU8KOoq.s:21     .rodata.Mimic_CMD_PIN_STATUS.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:53     .text.Mimic_CMD_PIN_STATUS:00000000 $t
+     /tmp/ccU8KOoq.s:59     .text.Mimic_CMD_PIN_STATUS:00000000 Mimic_CMD_PIN_STATUS
+     /tmp/ccU8KOoq.s:289    .text.Mimic_CMD_PIN_STATUS:00000120 $d
+     /tmp/ccU8KOoq.s:304    .rodata.Mimic_CMD_PIN_SET_OUT.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:311    .text.Mimic_CMD_PIN_SET_OUT:00000000 $t
+     /tmp/ccU8KOoq.s:317    .text.Mimic_CMD_PIN_SET_OUT:00000000 Mimic_CMD_PIN_SET_OUT
+     /tmp/ccU8KOoq.s:554    .text.Mimic_CMD_PIN_SET_OUT:000000f8 $d
+     /tmp/ccU8KOoq.s:567    .rodata.Mimic_CMD_PIN_SET_IN.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:580    .text.Mimic_CMD_PIN_SET_IN:00000000 $t
+     /tmp/ccU8KOoq.s:586    .text.Mimic_CMD_PIN_SET_IN:00000000 Mimic_CMD_PIN_SET_IN
+     /tmp/ccU8KOoq.s:874    .text.Mimic_CMD_PIN_SET_IN:0000012c $d
+     /tmp/ccU8KOoq.s:889    .rodata.Mimic_CMD_PIN_HIGH.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:896    .text.Mimic_CMD_PIN_HIGH:00000000 $t
+     /tmp/ccU8KOoq.s:902    .text.Mimic_CMD_PIN_HIGH:00000000 Mimic_CMD_PIN_HIGH
+     /tmp/ccU8KOoq.s:981    .text.Mimic_CMD_PIN_HIGH:00000048 $d
+     /tmp/ccU8KOoq.s:988    .rodata.Mimic_CMD_PIN_LOW.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:995    .text.Mimic_CMD_PIN_LOW:00000000 $t
+     /tmp/ccU8KOoq.s:1001   .text.Mimic_CMD_PIN_LOW:00000000 Mimic_CMD_PIN_LOW
+     /tmp/ccU8KOoq.s:1080   .text.Mimic_CMD_PIN_LOW:00000048 $d
+     /tmp/ccU8KOoq.s:1087   .rodata.Mimic_CMD_PIN_READ.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:1094   .text.Mimic_CMD_PIN_READ:00000000 $t
+     /tmp/ccU8KOoq.s:1100   .text.Mimic_CMD_PIN_READ:00000000 Mimic_CMD_PIN_READ
+     /tmp/ccU8KOoq.s:1191   .text.Mimic_CMD_PIN_READ:00000050 $d
+     /tmp/ccU8KOoq.s:1200   .rodata.Mimic_CMD_PIN_TOGGLE.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:1207   .text.Mimic_CMD_PIN_TOGGLE:00000000 $t
+     /tmp/ccU8KOoq.s:1213   .text.Mimic_CMD_PIN_TOGGLE:00000000 Mimic_CMD_PIN_TOGGLE
+     /tmp/ccU8KOoq.s:1309   .text.Mimic_CMD_PIN_TOGGLE:00000058 $d
+     /tmp/ccU8KOoq.s:1318   .rodata.Mimic_CMD_PIN_MODE.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:1340   .text.Mimic_CMD_PIN_MODE:00000000 $t
+     /tmp/ccU8KOoq.s:1346   .text.Mimic_CMD_PIN_MODE:00000000 Mimic_CMD_PIN_MODE
+     /tmp/ccU8KOoq.s:1648   .text.Mimic_CMD_PIN_MODE:00000140 $d
+     /tmp/ccU8KOoq.s:1666   .rodata.str1.4:00000000 $d
+     /tmp/ccU8KOoq.s:1703   .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+Mimic_ParsePin
+Mimic_SendResponse
+Mimic_SendResponseF
+HAL_GPIO_ReadPin
+HAL_GPIO_Init
+strcmp
+HAL_GPIO_WritePin
+HAL_GPIO_TogglePin

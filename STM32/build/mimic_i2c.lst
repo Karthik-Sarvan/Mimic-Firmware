@@ -1,0 +1,3902 @@
+ARM GAS  /tmp/cczRQYDV.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"mimic_i2c.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/mimic_i2c.c"
+  20              		.section	.rodata.Mimic_GetI2CHandle.str1.4,"aMS",%progbits,1
+  21              		.align	2
+  22              	.LC12:
+  23 0000 3100     		.ascii	"1\000"
+  24 0002 0000     		.align	2
+  25              	.LC13:
+  26 0004 3200     		.ascii	"2\000"
+  27 0006 0000     		.align	2
+  28              	.LC14:
+  29 0008 3300     		.ascii	"3\000"
+  30              		.section	.text.Mimic_GetI2CHandle,"ax",%progbits
+  31              		.align	1
+  32              		.global	Mimic_GetI2CHandle
+  33              		.syntax unified
+  34              		.thumb
+  35              		.thumb_func
+  37              	Mimic_GetI2CHandle:
+  38              	.LVL0:
+  39              	.LFB137:
+   1:Core/Src/mimic_i2c.c **** #include "mimic.h"
+   2:Core/Src/mimic_i2c.c **** 
+   3:Core/Src/mimic_i2c.c **** I2C_HandleTypeDef hi2c1;
+   4:Core/Src/mimic_i2c.c **** void Mimic_SPI_Sync(void);
+   5:Core/Src/mimic_i2c.c **** I2C_HandleTypeDef hi2c2;
+   6:Core/Src/mimic_i2c.c **** I2C_HandleTypeDef hi2c3;
+   7:Core/Src/mimic_i2c.c **** 
+   8:Core/Src/mimic_i2c.c **** /* I2C State tracking */
+   9:Core/Src/mimic_i2c.c **** static Mimic_I2C_State_t i2c_states[3] = {0}; // 0=I2C1, 1=I2C2, 2=I2C3
+  10:Core/Src/mimic_i2c.c **** static uint8_t i2c_slave_rx_buffer[64];
+  11:Core/Src/mimic_i2c.c **** 
+  12:Core/Src/mimic_i2c.c **** /* Shadow Register Map for fast sensor emulation */
+  13:Core/Src/mimic_i2c.c **** uint8_t i2c_register_map[256] = {0};
+  14:Core/Src/mimic_i2c.c **** uint8_t current_reg_addr = 0;
+  15:Core/Src/mimic_i2c.c **** 
+  16:Core/Src/mimic_i2c.c **** /* SPI Slave Buffers */
+  17:Core/Src/mimic_i2c.c **** /* ========================== I2C COMMANDS ================================== */
+  18:Core/Src/mimic_i2c.c **** 
+  19:Core/Src/mimic_i2c.c **** /**
+ARM GAS  /tmp/cczRQYDV.s 			page 2
+
+
+  20:Core/Src/mimic_i2c.c ****   * @brief  Get I2C handle from string (1-3)
+  21:Core/Src/mimic_i2c.c ****   */
+  22:Core/Src/mimic_i2c.c **** I2C_HandleTypeDef* Mimic_GetI2CHandle(const char *instance)
+  23:Core/Src/mimic_i2c.c **** {
+  40              		.loc 1 23 1 view -0
+  41              		.cfi_startproc
+  42              		@ args = 0, pretend = 0, frame = 0
+  43              		@ frame_needed = 0, uses_anonymous_args = 0
+  44              		.loc 1 23 1 is_stmt 0 view .LVU1
+  45 0000 10B5     		push	{r4, lr}
+  46              	.LCFI0:
+  47              		.cfi_def_cfa_offset 8
+  48              		.cfi_offset 4, -8
+  49              		.cfi_offset 14, -4
+  50 0002 0446     		mov	r4, r0
+  24:Core/Src/mimic_i2c.c ****     if (strcmp(instance, "1") == 0) return &hi2c1;
+  51              		.loc 1 24 5 is_stmt 1 view .LVU2
+  52              		.loc 1 24 9 is_stmt 0 view .LVU3
+  53 0004 0A49     		ldr	r1, .L8
+  54 0006 FFF7FEFF 		bl	strcmp
+  55              	.LVL1:
+  56              		.loc 1 24 8 discriminator 1 view .LVU4
+  57 000a 68B1     		cbz	r0, .L3
+  25:Core/Src/mimic_i2c.c ****     if (strcmp(instance, "2") == 0) return &hi2c2;
+  58              		.loc 1 25 5 is_stmt 1 view .LVU5
+  59              		.loc 1 25 9 is_stmt 0 view .LVU6
+  60 000c 0949     		ldr	r1, .L8+4
+  61 000e 2046     		mov	r0, r4
+  62 0010 FFF7FEFF 		bl	strcmp
+  63              	.LVL2:
+  64              		.loc 1 25 8 discriminator 1 view .LVU7
+  65 0014 50B1     		cbz	r0, .L4
+  26:Core/Src/mimic_i2c.c ****     if (strcmp(instance, "3") == 0) return &hi2c3;
+  66              		.loc 1 26 5 is_stmt 1 view .LVU8
+  67              		.loc 1 26 9 is_stmt 0 view .LVU9
+  68 0016 0849     		ldr	r1, .L8+8
+  69 0018 2046     		mov	r0, r4
+  70 001a FFF7FEFF 		bl	strcmp
+  71              	.LVL3:
+  72              		.loc 1 26 8 discriminator 1 view .LVU10
+  73 001e 08B9     		cbnz	r0, .L7
+  74              		.loc 1 26 44 discriminator 2 view .LVU11
+  75 0020 0648     		ldr	r0, .L8+12
+  76 0022 02E0     		b	.L1
+  77              	.L7:
+  27:Core/Src/mimic_i2c.c ****     return NULL;
+  78              		.loc 1 27 12 view .LVU12
+  79 0024 0020     		movs	r0, #0
+  80 0026 00E0     		b	.L1
+  81              	.L3:
+  24:Core/Src/mimic_i2c.c ****     if (strcmp(instance, "2") == 0) return &hi2c2;
+  82              		.loc 1 24 44 discriminator 2 view .LVU13
+  83 0028 0548     		ldr	r0, .L8+16
+  84              	.L1:
+  28:Core/Src/mimic_i2c.c **** }
+  85              		.loc 1 28 1 view .LVU14
+  86 002a 10BD     		pop	{r4, pc}
+ARM GAS  /tmp/cczRQYDV.s 			page 3
+
+
+  87              	.LVL4:
+  88              	.L4:
+  25:Core/Src/mimic_i2c.c ****     if (strcmp(instance, "3") == 0) return &hi2c3;
+  89              		.loc 1 25 44 discriminator 2 view .LVU15
+  90 002c 0548     		ldr	r0, .L8+20
+  91 002e FCE7     		b	.L1
+  92              	.L9:
+  93              		.align	2
+  94              	.L8:
+  95 0030 00000000 		.word	.LC12
+  96 0034 04000000 		.word	.LC13
+  97 0038 08000000 		.word	.LC14
+  98 003c 00000000 		.word	hi2c3
+  99 0040 00000000 		.word	hi2c1
+ 100 0044 00000000 		.word	hi2c2
+ 101              		.cfi_endproc
+ 102              	.LFE137:
+ 104              		.section	.text.Mimic_ConfigureI2CGPIO,"ax",%progbits
+ 105              		.align	1
+ 106              		.global	Mimic_ConfigureI2CGPIO
+ 107              		.syntax unified
+ 108              		.thumb
+ 109              		.thumb_func
+ 111              	Mimic_ConfigureI2CGPIO:
+ 112              	.LVL5:
+ 113              	.LFB138:
+  29:Core/Src/mimic_i2c.c **** 
+  30:Core/Src/mimic_i2c.c **** /**
+  31:Core/Src/mimic_i2c.c ****   * @brief  Configure I2C GPIO pins
+  32:Core/Src/mimic_i2c.c ****   */
+  33:Core/Src/mimic_i2c.c **** void Mimic_ConfigureI2CGPIO(I2C_TypeDef *instance)
+  34:Core/Src/mimic_i2c.c **** {
+ 114              		.loc 1 34 1 is_stmt 1 view -0
+ 115              		.cfi_startproc
+ 116              		@ args = 0, pretend = 0, frame = 24
+ 117              		@ frame_needed = 0, uses_anonymous_args = 0
+ 118              		.loc 1 34 1 is_stmt 0 view .LVU17
+ 119 0000 00B5     		push	{lr}
+ 120              	.LCFI1:
+ 121              		.cfi_def_cfa_offset 4
+ 122              		.cfi_offset 14, -4
+ 123 0002 87B0     		sub	sp, sp, #28
+ 124              	.LCFI2:
+ 125              		.cfi_def_cfa_offset 32
+  35:Core/Src/mimic_i2c.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 126              		.loc 1 35 5 is_stmt 1 view .LVU18
+ 127              		.loc 1 35 22 is_stmt 0 view .LVU19
+ 128 0004 0023     		movs	r3, #0
+ 129 0006 0193     		str	r3, [sp, #4]
+ 130 0008 0293     		str	r3, [sp, #8]
+ 131 000a 0393     		str	r3, [sp, #12]
+ 132 000c 0493     		str	r3, [sp, #16]
+ 133 000e 0593     		str	r3, [sp, #20]
+  36:Core/Src/mimic_i2c.c ****     
+  37:Core/Src/mimic_i2c.c ****     if (instance == I2C1)
+ 134              		.loc 1 37 5 is_stmt 1 view .LVU20
+ 135              		.loc 1 37 8 is_stmt 0 view .LVU21
+ARM GAS  /tmp/cczRQYDV.s 			page 4
+
+
+ 136 0010 134B     		ldr	r3, .L14
+ 137 0012 9842     		cmp	r0, r3
+ 138 0014 01D0     		beq	.L13
+ 139              	.LVL6:
+ 140              	.L10:
+  38:Core/Src/mimic_i2c.c ****     {
+  39:Core/Src/mimic_i2c.c ****         /* I2C1: PB6 (SCL), PB7 (SDA) */
+  40:Core/Src/mimic_i2c.c ****         __HAL_RCC_GPIOB_CLK_ENABLE();
+  41:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
+  42:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+  43:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pull = GPIO_PULLUP;
+  44:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  45:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+  46:Core/Src/mimic_i2c.c ****         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  47:Core/Src/mimic_i2c.c ****         
+  48:Core/Src/mimic_i2c.c ****         /* Disable Analog and Digital filters for maximum signal sensitivity */
+  49:Core/Src/mimic_i2c.c ****         uint32_t *cr1 = (uint32_t*)((uint8_t*)I2C1 + 0x00);
+  50:Core/Src/mimic_i2c.c ****         *cr1 &= ~(1 << 12); // Disable PEC (usually default)
+  51:Core/Src/mimic_i2c.c ****         // Note: F4 series analog filter is in control registers if supported, 
+  52:Core/Src/mimic_i2c.c ****         // older F401 might not have software-controllable analog filters 
+  53:Core/Src/mimic_i2c.c ****         // depending on revision, but we reach for the manual bits.
+  54:Core/Src/mimic_i2c.c ****     }
+  55:Core/Src/mimic_i2c.c **** }
+ 141              		.loc 1 55 1 view .LVU22
+ 142 0016 07B0     		add	sp, sp, #28
+ 143              	.LCFI3:
+ 144              		.cfi_remember_state
+ 145              		.cfi_def_cfa_offset 4
+ 146              		@ sp needed
+ 147 0018 00BD     		pop	{pc}
+ 148              	.LVL7:
+ 149              	.L13:
+ 150              	.LCFI4:
+ 151              		.cfi_restore_state
+ 152              	.LBB2:
+  40:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
+ 153              		.loc 1 40 9 is_stmt 1 view .LVU23
+ 154              	.LBB3:
+  40:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
+ 155              		.loc 1 40 9 view .LVU24
+ 156 001a 0023     		movs	r3, #0
+ 157 001c 0093     		str	r3, [sp]
+  40:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
+ 158              		.loc 1 40 9 view .LVU25
+ 159 001e 114B     		ldr	r3, .L14+4
+ 160 0020 1A6B     		ldr	r2, [r3, #48]
+ 161 0022 42F00202 		orr	r2, r2, #2
+ 162 0026 1A63     		str	r2, [r3, #48]
+  40:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
+ 163              		.loc 1 40 9 view .LVU26
+ 164 0028 1B6B     		ldr	r3, [r3, #48]
+ 165 002a 03F00203 		and	r3, r3, #2
+ 166 002e 0093     		str	r3, [sp]
+  40:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
+ 167              		.loc 1 40 9 view .LVU27
+ 168 0030 009B     		ldr	r3, [sp]
+ 169              	.LBE3:
+ARM GAS  /tmp/cczRQYDV.s 			page 5
+
+
+  40:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
+ 170              		.loc 1 40 9 view .LVU28
+  41:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+ 171              		.loc 1 41 9 view .LVU29
+  41:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+ 172              		.loc 1 41 29 is_stmt 0 view .LVU30
+ 173 0032 C023     		movs	r3, #192
+ 174 0034 0193     		str	r3, [sp, #4]
+  42:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pull = GPIO_PULLUP;
+ 175              		.loc 1 42 9 is_stmt 1 view .LVU31
+  42:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Pull = GPIO_PULLUP;
+ 176              		.loc 1 42 30 is_stmt 0 view .LVU32
+ 177 0036 1223     		movs	r3, #18
+ 178 0038 0293     		str	r3, [sp, #8]
+  43:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+ 179              		.loc 1 43 9 is_stmt 1 view .LVU33
+  43:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+ 180              		.loc 1 43 30 is_stmt 0 view .LVU34
+ 181 003a 0123     		movs	r3, #1
+ 182 003c 0393     		str	r3, [sp, #12]
+  44:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+ 183              		.loc 1 44 9 is_stmt 1 view .LVU35
+  44:Core/Src/mimic_i2c.c ****         GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+ 184              		.loc 1 44 31 is_stmt 0 view .LVU36
+ 185 003e 0323     		movs	r3, #3
+ 186 0040 0493     		str	r3, [sp, #16]
+  45:Core/Src/mimic_i2c.c ****         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+ 187              		.loc 1 45 9 is_stmt 1 view .LVU37
+  45:Core/Src/mimic_i2c.c ****         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+ 188              		.loc 1 45 35 is_stmt 0 view .LVU38
+ 189 0042 0423     		movs	r3, #4
+ 190 0044 0593     		str	r3, [sp, #20]
+  46:Core/Src/mimic_i2c.c ****         
+ 191              		.loc 1 46 9 is_stmt 1 view .LVU39
+ 192 0046 0DEB0301 		add	r1, sp, r3
+ 193 004a 0748     		ldr	r0, .L14+8
+ 194              	.LVL8:
+  46:Core/Src/mimic_i2c.c ****         
+ 195              		.loc 1 46 9 is_stmt 0 view .LVU40
+ 196 004c FFF7FEFF 		bl	HAL_GPIO_Init
+ 197              	.LVL9:
+  49:Core/Src/mimic_i2c.c ****         *cr1 &= ~(1 << 12); // Disable PEC (usually default)
+ 198              		.loc 1 49 9 is_stmt 1 view .LVU41
+  50:Core/Src/mimic_i2c.c ****         // Note: F4 series analog filter is in control registers if supported, 
+ 199              		.loc 1 50 9 view .LVU42
+ 200 0050 064A     		ldr	r2, .L14+12
+ 201 0052 D2F80034 		ldr	r3, [r2, #1024]
+  50:Core/Src/mimic_i2c.c ****         // Note: F4 series analog filter is in control registers if supported, 
+ 202              		.loc 1 50 14 is_stmt 0 view .LVU43
+ 203 0056 23F48053 		bic	r3, r3, #4096
+ 204 005a C2F80034 		str	r3, [r2, #1024]
+ 205              	.LBE2:
+ 206              		.loc 1 55 1 view .LVU44
+ 207 005e DAE7     		b	.L10
+ 208              	.L15:
+ 209              		.align	2
+ 210              	.L14:
+ARM GAS  /tmp/cczRQYDV.s 			page 6
+
+
+ 211 0060 00540040 		.word	1073763328
+ 212 0064 00380240 		.word	1073887232
+ 213 0068 00040240 		.word	1073873920
+ 214 006c 00500040 		.word	1073762304
+ 215              		.cfi_endproc
+ 216              	.LFE138:
+ 218              		.section	.text.Mimic_InitMPU6050Registers,"ax",%progbits
+ 219              		.align	1
+ 220              		.global	Mimic_InitMPU6050Registers
+ 221              		.syntax unified
+ 222              		.thumb
+ 223              		.thumb_func
+ 225              	Mimic_InitMPU6050Registers:
+ 226              	.LFB139:
+  56:Core/Src/mimic_i2c.c **** 
+  57:Core/Src/mimic_i2c.c **** void Mimic_InitMPU6050Registers(void)
+  58:Core/Src/mimic_i2c.c **** {
+ 227              		.loc 1 58 1 is_stmt 1 view -0
+ 228              		.cfi_startproc
+ 229              		@ args = 0, pretend = 0, frame = 0
+ 230              		@ frame_needed = 0, uses_anonymous_args = 0
+ 231 0000 10B5     		push	{r4, lr}
+ 232              	.LCFI5:
+ 233              		.cfi_def_cfa_offset 8
+ 234              		.cfi_offset 4, -8
+ 235              		.cfi_offset 14, -4
+  59:Core/Src/mimic_i2c.c ****     memset(i2c_register_map, 0, 256);
+ 236              		.loc 1 59 5 view .LVU46
+ 237 0002 094C     		ldr	r4, .L18
+ 238 0004 4FF48072 		mov	r2, #256
+ 239 0008 0021     		movs	r1, #0
+ 240 000a 2046     		mov	r0, r4
+ 241 000c FFF7FEFF 		bl	memset
+ 242              	.LVL10:
+  60:Core/Src/mimic_i2c.c ****     i2c_register_map[0x75] = 0x68; // WHO_AM_I
+ 243              		.loc 1 60 5 view .LVU47
+ 244              		.loc 1 60 28 is_stmt 0 view .LVU48
+ 245 0010 6823     		movs	r3, #104
+ 246 0012 84F87530 		strb	r3, [r4, #117]
+  61:Core/Src/mimic_i2c.c ****     i2c_register_map[0x6B] = 0x40; // Sleep mode enabled (Standard MPU6050 state)
+ 247              		.loc 1 61 5 is_stmt 1 view .LVU49
+ 248              		.loc 1 61 28 is_stmt 0 view .LVU50
+ 249 0016 4023     		movs	r3, #64
+ 250 0018 84F86B30 		strb	r3, [r4, #107]
+  62:Core/Src/mimic_i2c.c ****     i2c_register_map[0x3B] = 0x00; // Accel X High
+ 251              		.loc 1 62 5 is_stmt 1 view .LVU51
+  63:Core/Src/mimic_i2c.c ****     i2c_register_map[0x3C] = 0x01; // Accel X Low
+ 252              		.loc 1 63 5 view .LVU52
+ 253              		.loc 1 63 28 is_stmt 0 view .LVU53
+ 254 001c 0122     		movs	r2, #1
+ 255 001e 84F83C20 		strb	r2, [r4, #60]
+  64:Core/Src/mimic_i2c.c ****     i2c_register_map[0x3F] = 0x40; // Z-axis ~1g
+ 256              		.loc 1 64 5 is_stmt 1 view .LVU54
+ 257              		.loc 1 64 28 is_stmt 0 view .LVU55
+ 258 0022 84F83F30 		strb	r3, [r4, #63]
+  65:Core/Src/mimic_i2c.c **** }
+ 259              		.loc 1 65 1 view .LVU56
+ARM GAS  /tmp/cczRQYDV.s 			page 7
+
+
+ 260 0026 10BD     		pop	{r4, pc}
+ 261              	.L19:
+ 262              		.align	2
+ 263              	.L18:
+ 264 0028 00000000 		.word	i2c_register_map
+ 265              		.cfi_endproc
+ 266              	.LFE139:
+ 268              		.section	.rodata.Mimic_CMD_I2C_INIT.str1.4,"aMS",%progbits,1
+ 269              		.align	2
+ 270              	.LC15:
+ 271 0000 534C4156 		.ascii	"SLAVE\000"
+ 271      4500
+ 272 0006 0000     		.align	2
+ 273              	.LC16:
+ 274 0008 4D415354 		.ascii	"MASTER\000"
+ 274      455200
+ 275 000f 00       		.align	2
+ 276              	.LC17:
+ 277 0010 55736167 		.ascii	"Usage: I2C_INIT <1-3> <MASTER|SLAVE> <SPEED|OWN_ADD"
+ 277      653A2049 
+ 277      32435F49 
+ 277      4E495420 
+ 277      3C312D33 
+ 278 0043 523E205B 		.ascii	"R> [10]\015\012\000"
+ 278      31305D0D 
+ 278      0A00
+ 279 004d 000000   		.align	2
+ 280              	.LC18:
+ 281 0050 20204D61 		.ascii	"  Master: I2C_INIT 1 MASTER 100000    (100kHz)\015\012"
+ 281      73746572 
+ 281      3A204932 
+ 281      435F494E 
+ 281      49542031 
+ 282 0080 00       		.ascii	"\000"
+ 283 0081 000000   		.align	2
+ 284              	.LC19:
+ 285 0084 2020536C 		.ascii	"  Slave:  I2C_INIT 1 SLAVE 0x30       (Address 0x30"
+ 285      6176653A 
+ 285      20204932 
+ 285      435F494E 
+ 285      49542031 
+ 286 00b7 290D0A00 		.ascii	")\015\012\000"
+ 287 00bb 00       		.align	2
+ 288              	.LC20:
+ 289 00bc 4552524F 		.ascii	"ERROR: Invalid I2C instance (use 1-3)\015\012\000"
+ 289      523A2049 
+ 289      6E76616C 
+ 289      69642049 
+ 289      32432069 
+ 290              		.align	2
+ 291              	.LC21:
+ 292 00e4 4552524F 		.ascii	"ERROR: Mode must be MASTER or SLAVE\015\012\000"
+ 292      523A204D 
+ 292      6F646520 
+ 292      6D757374 
+ 292      20626520 
+ 293 010a 0000     		.align	2
+ARM GAS  /tmp/cczRQYDV.s 			page 8
+
+
+ 294              	.LC22:
+ 295 010c 4552524F 		.ascii	"ERROR: Speed must be 1000-400000 Hz\015\012\000"
+ 295      523A2053 
+ 295      70656564 
+ 295      206D7573 
+ 295      74206265 
+ 296 0132 0000     		.align	2
+ 297              	.LC23:
+ 298 0134 4552524F 		.ascii	"ERROR: I2C init failed\015\012\000"
+ 298      523A2049 
+ 298      32432069 
+ 298      6E697420 
+ 298      6661696C 
+ 299 014d 000000   		.align	2
+ 300              	.LC24:
+ 301 0150 4F4B3A20 		.ascii	"OK: I2C %d SLEEPING AS SLAVE 0x%02lX\015\012\000"
+ 301      49324320 
+ 301      25642053 
+ 301      4C454550 
+ 301      494E4720 
+ 302 0177 00       		.align	2
+ 303              	.LC25:
+ 304 0178 4F4B3A20 		.ascii	"OK: I2C %d MASTER AT %lu Hz\015\012\000"
+ 304      49324320 
+ 304      2564204D 
+ 304      41535445 
+ 304      52204154 
+ 305 0196 0000     		.align	2
+ 306              	.LC26:
+ 307 0198 4F4B3A20 		.ascii	"OK: I2C%s initialized as %s\015\012\000"
+ 307      49324325 
+ 307      7320696E 
+ 307      69746961 
+ 307      6C697A65 
+ 308 01b6 0000     		.align	2
+ 309              	.LC27:
+ 310 01b8 20204164 		.ascii	"  Address: 0x%02X\015\012\000"
+ 310      64726573 
+ 310      733A2030 
+ 310      78253032 
+ 310      580D0A00 
+ 311              		.align	2
+ 312              	.LC28:
+ 313 01cc 20205370 		.ascii	"  Speed: %lu Hz\015\012\000"
+ 313      6565643A 
+ 313      20256C75 
+ 313      20487A0D 
+ 313      0A00
+ 314              		.section	.text.Mimic_CMD_I2C_INIT,"ax",%progbits
+ 315              		.align	1
+ 316              		.global	Mimic_CMD_I2C_INIT
+ 317              		.syntax unified
+ 318              		.thumb
+ 319              		.thumb_func
+ 321              	Mimic_CMD_I2C_INIT:
+ 322              	.LVL11:
+ 323              	.LFB140:
+ARM GAS  /tmp/cczRQYDV.s 			page 9
+
+
+  66:Core/Src/mimic_i2c.c **** 
+  67:Core/Src/mimic_i2c.c **** /**
+  68:Core/Src/mimic_i2c.c ****   * @brief  I2C_INIT <INSTANCE> <MASTER|SLAVE> <SPEED|OWN_ADDR> [ADDR_MODE]
+  69:Core/Src/mimic_i2c.c ****   */
+  70:Core/Src/mimic_i2c.c **** void Mimic_CMD_I2C_INIT(Mimic_Command_t *cmd)
+  71:Core/Src/mimic_i2c.c **** {
+ 324              		.loc 1 71 1 is_stmt 1 view -0
+ 325              		.cfi_startproc
+ 326              		@ args = 0, pretend = 0, frame = 16
+ 327              		@ frame_needed = 0, uses_anonymous_args = 0
+ 328              		.loc 1 71 1 is_stmt 0 view .LVU58
+ 329 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 330              	.LCFI6:
+ 331              		.cfi_def_cfa_offset 28
+ 332              		.cfi_offset 4, -28
+ 333              		.cfi_offset 5, -24
+ 334              		.cfi_offset 6, -20
+ 335              		.cfi_offset 7, -16
+ 336              		.cfi_offset 8, -12
+ 337              		.cfi_offset 9, -8
+ 338              		.cfi_offset 14, -4
+ 339 0004 85B0     		sub	sp, sp, #20
+ 340              	.LCFI7:
+ 341              		.cfi_def_cfa_offset 48
+  72:Core/Src/mimic_i2c.c ****     if (cmd->argc < 3)
+ 342              		.loc 1 72 5 is_stmt 1 view .LVU59
+ 343              		.loc 1 72 12 is_stmt 0 view .LVU60
+ 344 0006 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 345              		.loc 1 72 8 view .LVU61
+ 346 000a 022B     		cmp	r3, #2
+ 347 000c 73D9     		bls	.L40
+ 348 000e 0446     		mov	r4, r0
+  73:Core/Src/mimic_i2c.c ****     {
+  74:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("Usage: I2C_INIT <1-3> <MASTER|SLAVE> <SPEED|OWN_ADDR> [10]\r\n");
+  75:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Master: I2C_INIT 1 MASTER 100000    (100kHz)\r\n");
+  76:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Slave:  I2C_INIT 1 SLAVE 0x30       (Address 0x30)\r\n");
+  77:Core/Src/mimic_i2c.c ****         return;
+  78:Core/Src/mimic_i2c.c ****     }
+  79:Core/Src/mimic_i2c.c ****     
+  80:Core/Src/mimic_i2c.c ****     int idx = atoi(cmd->args[0]) - 1;
+ 349              		.loc 1 80 5 is_stmt 1 view .LVU62
+ 350              		.loc 1 80 29 is_stmt 0 view .LVU63
+ 351 0010 00F12003 		add	r3, r0, #32
+ 352 0014 1F46     		mov	r7, r3
+ 353              		.loc 1 80 15 view .LVU64
+ 354 0016 1846     		mov	r0, r3
+ 355              	.LVL12:
+ 356              		.loc 1 80 15 view .LVU65
+ 357 0018 FFF7FEFF 		bl	atoi
+ 358              	.LVL13:
+ 359 001c 8046     		mov	r8, r0
+ 360              		.loc 1 80 9 discriminator 1 view .LVU66
+ 361 001e 431E     		subs	r3, r0, #1
+ 362 0020 9946     		mov	r9, r3
+ 363              	.LVL14:
+  81:Core/Src/mimic_i2c.c ****     if (idx < 0 || idx > 2)
+ 364              		.loc 1 81 5 is_stmt 1 view .LVU67
+ARM GAS  /tmp/cczRQYDV.s 			page 10
+
+
+ 365              		.loc 1 81 8 is_stmt 0 view .LVU68
+ 366 0022 022B     		cmp	r3, #2
+ 367 0024 73D8     		bhi	.L41
+  82:Core/Src/mimic_i2c.c ****     {
+  83:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: Invalid I2C instance (use 1-3)\r\n");
+  84:Core/Src/mimic_i2c.c ****         return;
+  85:Core/Src/mimic_i2c.c ****     }
+  86:Core/Src/mimic_i2c.c ****     
+  87:Core/Src/mimic_i2c.c ****     I2C_HandleTypeDef *hi2c = Mimic_GetI2CHandle(cmd->args[0]);
+ 368              		.loc 1 87 5 is_stmt 1 view .LVU69
+ 369              		.loc 1 87 31 is_stmt 0 view .LVU70
+ 370 0026 3846     		mov	r0, r7
+ 371 0028 FFF7FEFF 		bl	Mimic_GetI2CHandle
+ 372              	.LVL15:
+  88:Core/Src/mimic_i2c.c ****     if (hi2c == NULL) return; // Should not happen with check above
+ 373              		.loc 1 88 5 is_stmt 1 view .LVU71
+ 374              		.loc 1 88 8 is_stmt 0 view .LVU72
+ 375 002c 0546     		mov	r5, r0
+ 376 002e 0028     		cmp	r0, #0
+ 377 0030 6AD0     		beq	.L20
+  89:Core/Src/mimic_i2c.c ****     
+  90:Core/Src/mimic_i2c.c ****     /* Parse Mode */
+  91:Core/Src/mimic_i2c.c ****     uint8_t is_slave = 0;
+ 378              		.loc 1 91 5 is_stmt 1 view .LVU73
+ 379              	.LVL16:
+  92:Core/Src/mimic_i2c.c ****     if (strcasecmp(cmd->args[1], "SLAVE") == 0) is_slave = 1;
+ 380              		.loc 1 92 5 view .LVU74
+ 381              		.loc 1 92 29 is_stmt 0 view .LVU75
+ 382 0032 04F14003 		add	r3, r4, #64
+ 383 0036 1E46     		mov	r6, r3
+ 384              		.loc 1 92 9 view .LVU76
+ 385 0038 7149     		ldr	r1, .L49
+ 386 003a 1846     		mov	r0, r3
+ 387              	.LVL17:
+ 388              		.loc 1 92 9 view .LVU77
+ 389 003c FFF7FEFF 		bl	strcasecmp
+ 390              	.LVL18:
+ 391              		.loc 1 92 8 discriminator 1 view .LVU78
+ 392 0040 0028     		cmp	r0, #0
+ 393 0042 6CD0     		beq	.L24
+  93:Core/Src/mimic_i2c.c ****     else if (strcasecmp(cmd->args[1], "MASTER") != 0)
+ 394              		.loc 1 93 10 is_stmt 1 view .LVU79
+ 395              		.loc 1 93 14 is_stmt 0 view .LVU80
+ 396 0044 6F49     		ldr	r1, .L49+4
+ 397 0046 3046     		mov	r0, r6
+ 398 0048 FFF7FEFF 		bl	strcasecmp
+ 399              	.LVL19:
+ 400              		.loc 1 93 13 discriminator 1 view .LVU81
+ 401 004c 0028     		cmp	r0, #0
+ 402 004e 62D1     		bne	.L42
+  94:Core/Src/mimic_i2c.c ****     {
+  95:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: Mode must be MASTER or SLAVE\r\n");
+  96:Core/Src/mimic_i2c.c ****         return;
+  97:Core/Src/mimic_i2c.c ****     }
+  98:Core/Src/mimic_i2c.c ****     
+  99:Core/Src/mimic_i2c.c ****     /* Parse Speed (Master) or Own Address (Slave) */
+ 100:Core/Src/mimic_i2c.c ****     uint32_t val = 0;
+ARM GAS  /tmp/cczRQYDV.s 			page 11
+
+
+ 403              		.loc 1 100 5 is_stmt 1 view .LVU82
+ 404              	.LVL20:
+ 101:Core/Src/mimic_i2c.c ****     if (is_slave) {
+ 405              		.loc 1 101 5 view .LVU83
+ 102:Core/Src/mimic_i2c.c ****         val = (uint32_t)strtol(cmd->args[2], NULL, 16);
+ 103:Core/Src/mimic_i2c.c ****     } else {
+ 104:Core/Src/mimic_i2c.c ****         val = atoi(cmd->args[2]);
+ 406              		.loc 1 104 9 view .LVU84
+ 407              		.loc 1 104 15 is_stmt 0 view .LVU85
+ 408 0050 04F16000 		add	r0, r4, #96
+ 409 0054 FFF7FEFF 		bl	atoi
+ 410              	.LVL21:
+ 411 0058 0646     		mov	r6, r0
+ 412              	.LVL22:
+ 105:Core/Src/mimic_i2c.c ****         if (val < 1000 || val > 400000)
+ 413              		.loc 1 105 9 is_stmt 1 view .LVU86
+ 414              		.loc 1 105 24 is_stmt 0 view .LVU87
+ 415 005a A0F57A72 		sub	r2, r0, #1000
+ 416              		.loc 1 105 12 view .LVU88
+ 417 005e 6A4B     		ldr	r3, .L49+8
+ 418 0060 9A42     		cmp	r2, r3
+ 419 0062 65D8     		bhi	.L43
+  91:Core/Src/mimic_i2c.c ****     if (strcasecmp(cmd->args[1], "SLAVE") == 0) is_slave = 1;
+ 420              		.loc 1 91 13 view .LVU89
+ 421 0064 0024     		movs	r4, #0
+ 422              	.LVL23:
+ 423              	.L26:
+ 106:Core/Src/mimic_i2c.c ****         {
+ 107:Core/Src/mimic_i2c.c ****             Mimic_SendResponse("ERROR: Speed must be 1000-400000 Hz\r\n");
+ 108:Core/Src/mimic_i2c.c ****             return;
+ 109:Core/Src/mimic_i2c.c ****         }
+ 110:Core/Src/mimic_i2c.c ****     }
+ 111:Core/Src/mimic_i2c.c ****     
+ 112:Core/Src/mimic_i2c.c ****     /* Enable I2C clock and configure GPIO */
+ 113:Core/Src/mimic_i2c.c ****     if (hi2c == &hi2c1)
+ 424              		.loc 1 113 5 is_stmt 1 view .LVU90
+ 425              		.loc 1 113 8 is_stmt 0 view .LVU91
+ 426 0066 694B     		ldr	r3, .L49+12
+ 427 0068 9D42     		cmp	r5, r3
+ 428 006a 65D0     		beq	.L44
+ 114:Core/Src/mimic_i2c.c ****     {
+ 115:Core/Src/mimic_i2c.c ****         __HAL_RCC_I2C1_CLK_ENABLE();
+ 116:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C1;
+ 117:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C1);
+ 118:Core/Src/mimic_i2c.c ****     }
+ 119:Core/Src/mimic_i2c.c ****     else if (hi2c == &hi2c2)
+ 429              		.loc 1 119 10 is_stmt 1 view .LVU92
+ 430              		.loc 1 119 13 is_stmt 0 view .LVU93
+ 431 006c 684B     		ldr	r3, .L49+16
+ 432 006e 9D42     		cmp	r5, r3
+ 433 0070 73D0     		beq	.L45
+ 120:Core/Src/mimic_i2c.c ****     {
+ 121:Core/Src/mimic_i2c.c ****         __HAL_RCC_I2C2_CLK_ENABLE();
+ 122:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C2;
+ 123:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C2);
+ 124:Core/Src/mimic_i2c.c ****     }
+ 125:Core/Src/mimic_i2c.c ****     else if (hi2c == &hi2c3)
+ARM GAS  /tmp/cczRQYDV.s 			page 12
+
+
+ 434              		.loc 1 125 10 is_stmt 1 view .LVU94
+ 435              		.loc 1 125 13 is_stmt 0 view .LVU95
+ 436 0072 684B     		ldr	r3, .L49+20
+ 437 0074 9D42     		cmp	r5, r3
+ 438 0076 00F08180 		beq	.L46
+ 439              	.LVL24:
+ 440              	.L28:
+ 126:Core/Src/mimic_i2c.c ****     {
+ 127:Core/Src/mimic_i2c.c ****         __HAL_RCC_I2C3_CLK_ENABLE();
+ 128:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C3;
+ 129:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C3);
+ 130:Core/Src/mimic_i2c.c ****     }
+ 131:Core/Src/mimic_i2c.c ****     
+ 132:Core/Src/mimic_i2c.c ****     /* Common Config - Optimized for No-Resistor/Weak Pull-up */
+ 133:Core/Src/mimic_i2c.c ****     HAL_I2C_DeInit(hi2c);
+ 441              		.loc 1 133 5 is_stmt 1 view .LVU96
+ 442 007a 2846     		mov	r0, r5
+ 443 007c FFF7FEFF 		bl	HAL_I2C_DeInit
+ 444              	.LVL25:
+ 134:Core/Src/mimic_i2c.c ****     
+ 135:Core/Src/mimic_i2c.c ****     hi2c->Init.ClockSpeed = 100000;
+ 445              		.loc 1 135 5 view .LVU97
+ 446              		.loc 1 135 27 is_stmt 0 view .LVU98
+ 447 0080 654B     		ldr	r3, .L49+24
+ 448 0082 6B60     		str	r3, [r5, #4]
+ 136:Core/Src/mimic_i2c.c ****     hi2c->Init.DutyCycle = I2C_DUTYCYCLE_2;
+ 449              		.loc 1 136 5 is_stmt 1 view .LVU99
+ 450              		.loc 1 136 26 is_stmt 0 view .LVU100
+ 451 0084 0023     		movs	r3, #0
+ 452 0086 AB60     		str	r3, [r5, #8]
+ 137:Core/Src/mimic_i2c.c ****     hi2c->Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+ 453              		.loc 1 137 5 is_stmt 1 view .LVU101
+ 454              		.loc 1 137 31 is_stmt 0 view .LVU102
+ 455 0088 4FF48042 		mov	r2, #16384
+ 456 008c 2A61     		str	r2, [r5, #16]
+ 138:Core/Src/mimic_i2c.c ****     hi2c->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+ 457              		.loc 1 138 5 is_stmt 1 view .LVU103
+ 458              		.loc 1 138 32 is_stmt 0 view .LVU104
+ 459 008e 6B61     		str	r3, [r5, #20]
+ 139:Core/Src/mimic_i2c.c ****     hi2c->Init.OwnAddress2 = 0;
+ 460              		.loc 1 139 5 is_stmt 1 view .LVU105
+ 461              		.loc 1 139 28 is_stmt 0 view .LVU106
+ 462 0090 AB61     		str	r3, [r5, #24]
+ 140:Core/Src/mimic_i2c.c ****     hi2c->Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+ 463              		.loc 1 140 5 is_stmt 1 view .LVU107
+ 464              		.loc 1 140 32 is_stmt 0 view .LVU108
+ 465 0092 EB61     		str	r3, [r5, #28]
+ 141:Core/Src/mimic_i2c.c ****     hi2c->Init.NoStretchMode = I2C_NOSTRETCH_DISABLE; // Allow stretching (Master will wait if need
+ 466              		.loc 1 141 5 is_stmt 1 view .LVU109
+ 467              		.loc 1 141 30 is_stmt 0 view .LVU110
+ 468 0094 2B62     		str	r3, [r5, #32]
+ 142:Core/Src/mimic_i2c.c ****     
+ 143:Core/Src/mimic_i2c.c ****     /* Mode Specific Config */
+ 144:Core/Src/mimic_i2c.c ****     if (is_slave) {
+ 469              		.loc 1 144 5 is_stmt 1 view .LVU111
+ 470              		.loc 1 144 8 is_stmt 0 view .LVU112
+ 471 0096 002C     		cmp	r4, #0
+ARM GAS  /tmp/cczRQYDV.s 			page 13
+
+
+ 472 0098 40F08180 		bne	.L47
+ 145:Core/Src/mimic_i2c.c ****         hi2c->Init.OwnAddress1 = (val << 1); 
+ 146:Core/Src/mimic_i2c.c ****         memset(i2c_register_map, 0, 256); // Clear map for new sensor
+ 147:Core/Src/mimic_i2c.c ****     } else {
+ 148:Core/Src/mimic_i2c.c ****         hi2c->Init.ClockSpeed = val;
+ 473              		.loc 1 148 9 is_stmt 1 view .LVU113
+ 474              		.loc 1 148 31 is_stmt 0 view .LVU114
+ 475 009c 6E60     		str	r6, [r5, #4]
+ 149:Core/Src/mimic_i2c.c ****         hi2c->Init.OwnAddress1 = 0;
+ 476              		.loc 1 149 9 is_stmt 1 view .LVU115
+ 477              		.loc 1 149 32 is_stmt 0 view .LVU116
+ 478 009e EC60     		str	r4, [r5, #12]
+ 479              	.L31:
+ 150:Core/Src/mimic_i2c.c ****     }
+ 151:Core/Src/mimic_i2c.c ****     
+ 152:Core/Src/mimic_i2c.c ****     if (HAL_I2C_Init(hi2c) != HAL_OK)
+ 480              		.loc 1 152 5 is_stmt 1 view .LVU117
+ 481              		.loc 1 152 9 is_stmt 0 view .LVU118
+ 482 00a0 2846     		mov	r0, r5
+ 483 00a2 FFF7FEFF 		bl	HAL_I2C_Init
+ 484              	.LVL26:
+ 485              		.loc 1 152 8 discriminator 1 view .LVU119
+ 486 00a6 0028     		cmp	r0, #0
+ 487 00a8 40F08280 		bne	.L48
+ 153:Core/Src/mimic_i2c.c ****     {
+ 154:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: I2C init failed\r\n");
+ 155:Core/Src/mimic_i2c.c ****         return;
+ 156:Core/Src/mimic_i2c.c ****     }
+ 157:Core/Src/mimic_i2c.c ****     
+ 158:Core/Src/mimic_i2c.c ****     if (is_slave) {
+ 488              		.loc 1 158 5 is_stmt 1 view .LVU120
+ 489              		.loc 1 158 8 is_stmt 0 view .LVU121
+ 490 00ac 002C     		cmp	r4, #0
+ 491 00ae 00F08380 		beq	.L33
+ 159:Core/Src/mimic_i2c.c ****         HAL_I2C_EnableListen_IT(hi2c);
+ 492              		.loc 1 159 9 is_stmt 1 view .LVU122
+ 493 00b2 2846     		mov	r0, r5
+ 494 00b4 FFF7FEFF 		bl	HAL_I2C_EnableListen_IT
+ 495              	.LVL27:
+ 160:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("OK: I2C %d SLEEPING AS SLAVE 0x%02lX\r\n", idx+1, val);
+ 496              		.loc 1 160 9 view .LVU123
+ 497 00b8 3246     		mov	r2, r6
+ 498 00ba 4146     		mov	r1, r8
+ 499 00bc 5748     		ldr	r0, .L49+28
+ 500 00be FFF7FEFF 		bl	Mimic_SendResponseF
+ 501              	.LVL28:
+ 502              	.L34:
+ 161:Core/Src/mimic_i2c.c ****     } else {
+ 162:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("OK: I2C %d MASTER AT %lu Hz\r\n", idx+1, val);
+ 163:Core/Src/mimic_i2c.c ****     }
+ 164:Core/Src/mimic_i2c.c ****     
+ 165:Core/Src/mimic_i2c.c ****     /* Disable Filters for better sensitivity with weak pull-ups */
+ 166:Core/Src/mimic_i2c.c ****     HAL_I2CEx_ConfigAnalogFilter(hi2c, I2C_ANALOGFILTER_DISABLE);
+ 503              		.loc 1 166 5 view .LVU124
+ 504 00c2 1021     		movs	r1, #16
+ 505 00c4 2846     		mov	r0, r5
+ 506 00c6 FFF7FEFF 		bl	HAL_I2CEx_ConfigAnalogFilter
+ARM GAS  /tmp/cczRQYDV.s 			page 14
+
+
+ 507              	.LVL29:
+ 167:Core/Src/mimic_i2c.c ****     HAL_I2CEx_ConfigDigitalFilter(hi2c, 0);
+ 508              		.loc 1 167 5 view .LVU125
+ 509 00ca 0021     		movs	r1, #0
+ 510 00cc 2846     		mov	r0, r5
+ 511 00ce FFF7FEFF 		bl	HAL_I2CEx_ConfigDigitalFilter
+ 512              	.LVL30:
+ 168:Core/Src/mimic_i2c.c ****     
+ 169:Core/Src/mimic_i2c.c ****     /* Enable Interrupts for Slave Mode with Lower Priority than UART */
+ 170:Core/Src/mimic_i2c.c ****     if (is_slave) {
+ 513              		.loc 1 170 5 view .LVU126
+ 514              		.loc 1 170 8 is_stmt 0 view .LVU127
+ 515 00d2 002C     		cmp	r4, #0
+ 516 00d4 76D1     		bne	.L35
+ 171:Core/Src/mimic_i2c.c ****         HAL_NVIC_SetPriority(I2C1_EV_IRQn, 1, 0); 
+ 172:Core/Src/mimic_i2c.c ****         HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+ 173:Core/Src/mimic_i2c.c ****         HAL_NVIC_SetPriority(I2C1_ER_IRQn, 1, 0); 
+ 174:Core/Src/mimic_i2c.c ****         HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
+ 175:Core/Src/mimic_i2c.c ****         
+ 176:Core/Src/mimic_i2c.c ****         // Start listening for master immediately
+ 177:Core/Src/mimic_i2c.c ****         HAL_I2C_EnableListen_IT(hi2c);
+ 178:Core/Src/mimic_i2c.c ****     }
+ 179:Core/Src/mimic_i2c.c ****     
+ 180:Core/Src/mimic_i2c.c ****     /* Save State */
+ 181:Core/Src/mimic_i2c.c ****     i2c_states[idx].is_slave = is_slave;
+ 517              		.loc 1 181 5 is_stmt 1 view .LVU128
+ 518              		.loc 1 181 30 is_stmt 0 view .LVU129
+ 519 00d6 524B     		ldr	r3, .L49+32
+ 520 00d8 03F80940 		strb	r4, [r3, r9]
+ 182:Core/Src/mimic_i2c.c ****     
+ 183:Core/Src/mimic_i2c.c ****     Mimic_SendResponseF("OK: I2C%s initialized as %s\r\n", 
+ 521              		.loc 1 183 5 is_stmt 1 view .LVU130
+ 522              		.loc 1 183 5 is_stmt 0 discriminator 2 view .LVU131
+ 523 00dc 494A     		ldr	r2, .L49+4
+ 524              	.L36:
+ 525              		.loc 1 183 5 discriminator 4 view .LVU132
+ 526 00de 3946     		mov	r1, r7
+ 527 00e0 5048     		ldr	r0, .L49+36
+ 528 00e2 FFF7FEFF 		bl	Mimic_SendResponseF
+ 529              	.LVL31:
+ 184:Core/Src/mimic_i2c.c ****                         cmd->args[0], is_slave ? "SLAVE" : "MASTER");
+ 185:Core/Src/mimic_i2c.c ****     
+ 186:Core/Src/mimic_i2c.c ****     if (is_slave) {
+ 530              		.loc 1 186 5 is_stmt 1 view .LVU133
+ 531              		.loc 1 186 8 is_stmt 0 view .LVU134
+ 532 00e6 002C     		cmp	r4, #0
+ 533 00e8 00F08480 		beq	.L37
+ 187:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("  Address: 0x%02X\r\n", val);
+ 534              		.loc 1 187 9 is_stmt 1 view .LVU135
+ 535 00ec 3146     		mov	r1, r6
+ 536 00ee 4E48     		ldr	r0, .L49+40
+ 537 00f0 FFF7FEFF 		bl	Mimic_SendResponseF
+ 538              	.LVL32:
+ 539 00f4 08E0     		b	.L20
+ 540              	.LVL33:
+ 541              	.L40:
+  74:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Master: I2C_INIT 1 MASTER 100000    (100kHz)\r\n");
+ARM GAS  /tmp/cczRQYDV.s 			page 15
+
+
+ 542              		.loc 1 74 9 view .LVU136
+ 543 00f6 4D48     		ldr	r0, .L49+44
+ 544              	.LVL34:
+  74:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Master: I2C_INIT 1 MASTER 100000    (100kHz)\r\n");
+ 545              		.loc 1 74 9 is_stmt 0 view .LVU137
+ 546 00f8 FFF7FEFF 		bl	Mimic_SendResponse
+ 547              	.LVL35:
+  75:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Slave:  I2C_INIT 1 SLAVE 0x30       (Address 0x30)\r\n");
+ 548              		.loc 1 75 9 is_stmt 1 view .LVU138
+ 549 00fc 4C48     		ldr	r0, .L49+48
+ 550 00fe FFF7FEFF 		bl	Mimic_SendResponse
+ 551              	.LVL36:
+  76:Core/Src/mimic_i2c.c ****         return;
+ 552              		.loc 1 76 9 view .LVU139
+ 553 0102 4C48     		ldr	r0, .L49+52
+ 554 0104 FFF7FEFF 		bl	Mimic_SendResponse
+ 555              	.LVL37:
+  77:Core/Src/mimic_i2c.c ****     }
+ 556              		.loc 1 77 9 view .LVU140
+ 557              	.L20:
+ 188:Core/Src/mimic_i2c.c ****     } else {
+ 189:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("  Speed: %lu Hz\r\n", val);
+ 190:Core/Src/mimic_i2c.c ****     }
+ 191:Core/Src/mimic_i2c.c **** }
+ 558              		.loc 1 191 1 is_stmt 0 view .LVU141
+ 559 0108 05B0     		add	sp, sp, #20
+ 560              	.LCFI8:
+ 561              		.cfi_remember_state
+ 562              		.cfi_def_cfa_offset 28
+ 563              		@ sp needed
+ 564 010a BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 565              	.LVL38:
+ 566              	.L41:
+ 567              	.LCFI9:
+ 568              		.cfi_restore_state
+  83:Core/Src/mimic_i2c.c ****         return;
+ 569              		.loc 1 83 9 is_stmt 1 view .LVU142
+ 570 010e 4A48     		ldr	r0, .L49+56
+ 571 0110 FFF7FEFF 		bl	Mimic_SendResponse
+ 572              	.LVL39:
+  84:Core/Src/mimic_i2c.c ****     }
+ 573              		.loc 1 84 9 view .LVU143
+ 574 0114 F8E7     		b	.L20
+ 575              	.LVL40:
+ 576              	.L42:
+  95:Core/Src/mimic_i2c.c ****         return;
+ 577              		.loc 1 95 9 view .LVU144
+ 578 0116 4948     		ldr	r0, .L49+60
+ 579 0118 FFF7FEFF 		bl	Mimic_SendResponse
+ 580              	.LVL41:
+  96:Core/Src/mimic_i2c.c ****     }
+ 581              		.loc 1 96 9 view .LVU145
+ 582 011c F4E7     		b	.L20
+ 583              	.L24:
+ 584              	.LVL42:
+ 100:Core/Src/mimic_i2c.c ****     if (is_slave) {
+ 585              		.loc 1 100 5 view .LVU146
+ARM GAS  /tmp/cczRQYDV.s 			page 16
+
+
+ 101:Core/Src/mimic_i2c.c ****         val = (uint32_t)strtol(cmd->args[2], NULL, 16);
+ 586              		.loc 1 101 5 view .LVU147
+ 102:Core/Src/mimic_i2c.c ****     } else {
+ 587              		.loc 1 102 9 view .LVU148
+ 102:Core/Src/mimic_i2c.c ****     } else {
+ 588              		.loc 1 102 25 is_stmt 0 view .LVU149
+ 589 011e 1022     		movs	r2, #16
+ 590 0120 0146     		mov	r1, r0
+ 591 0122 04F16000 		add	r0, r4, #96
+ 592 0126 FFF7FEFF 		bl	strtol
+ 593              	.LVL43:
+ 594 012a 0646     		mov	r6, r0
+ 595              	.LVL44:
+  92:Core/Src/mimic_i2c.c ****     else if (strcasecmp(cmd->args[1], "MASTER") != 0)
+ 596              		.loc 1 92 58 discriminator 2 view .LVU150
+ 597 012c 0124     		movs	r4, #1
+ 598              	.LVL45:
+  92:Core/Src/mimic_i2c.c ****     else if (strcasecmp(cmd->args[1], "MASTER") != 0)
+ 599              		.loc 1 92 58 discriminator 2 view .LVU151
+ 600 012e 9AE7     		b	.L26
+ 601              	.LVL46:
+ 602              	.L43:
+ 107:Core/Src/mimic_i2c.c ****             return;
+ 603              		.loc 1 107 13 is_stmt 1 view .LVU152
+ 604 0130 4348     		ldr	r0, .L49+64
+ 605              	.LVL47:
+ 107:Core/Src/mimic_i2c.c ****             return;
+ 606              		.loc 1 107 13 is_stmt 0 view .LVU153
+ 607 0132 FFF7FEFF 		bl	Mimic_SendResponse
+ 608              	.LVL48:
+ 108:Core/Src/mimic_i2c.c ****         }
+ 609              		.loc 1 108 13 is_stmt 1 view .LVU154
+ 610 0136 E7E7     		b	.L20
+ 611              	.LVL49:
+ 612              	.L44:
+ 115:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C1;
+ 613              		.loc 1 115 9 view .LVU155
+ 614              	.LBB4:
+ 115:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C1;
+ 615              		.loc 1 115 9 view .LVU156
+ 616 0138 0023     		movs	r3, #0
+ 617 013a 0193     		str	r3, [sp, #4]
+ 115:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C1;
+ 618              		.loc 1 115 9 view .LVU157
+ 619 013c 414B     		ldr	r3, .L49+68
+ 620 013e 1A6C     		ldr	r2, [r3, #64]
+ 621 0140 42F40012 		orr	r2, r2, #2097152
+ 622 0144 1A64     		str	r2, [r3, #64]
+ 115:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C1;
+ 623              		.loc 1 115 9 view .LVU158
+ 624 0146 1B6C     		ldr	r3, [r3, #64]
+ 625 0148 03F40013 		and	r3, r3, #2097152
+ 626 014c 0193     		str	r3, [sp, #4]
+ 115:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C1;
+ 627              		.loc 1 115 9 view .LVU159
+ 628 014e 019B     		ldr	r3, [sp, #4]
+ 629              	.LBE4:
+ARM GAS  /tmp/cczRQYDV.s 			page 17
+
+
+ 115:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C1;
+ 630              		.loc 1 115 9 view .LVU160
+ 116:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C1);
+ 631              		.loc 1 116 9 view .LVU161
+ 116:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C1);
+ 632              		.loc 1 116 24 is_stmt 0 view .LVU162
+ 633 0150 3D48     		ldr	r0, .L49+72
+ 634              	.LVL50:
+ 116:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C1);
+ 635              		.loc 1 116 24 view .LVU163
+ 636 0152 2860     		str	r0, [r5]
+ 117:Core/Src/mimic_i2c.c ****     }
+ 637              		.loc 1 117 9 is_stmt 1 view .LVU164
+ 638 0154 FFF7FEFF 		bl	Mimic_ConfigureI2CGPIO
+ 639              	.LVL51:
+ 640 0158 8FE7     		b	.L28
+ 641              	.LVL52:
+ 642              	.L45:
+ 121:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C2;
+ 643              		.loc 1 121 9 view .LVU165
+ 644              	.LBB5:
+ 121:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C2;
+ 645              		.loc 1 121 9 view .LVU166
+ 646 015a 0023     		movs	r3, #0
+ 647 015c 0293     		str	r3, [sp, #8]
+ 121:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C2;
+ 648              		.loc 1 121 9 view .LVU167
+ 649 015e 394B     		ldr	r3, .L49+68
+ 650 0160 1A6C     		ldr	r2, [r3, #64]
+ 651 0162 42F48002 		orr	r2, r2, #4194304
+ 652 0166 1A64     		str	r2, [r3, #64]
+ 121:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C2;
+ 653              		.loc 1 121 9 view .LVU168
+ 654 0168 1B6C     		ldr	r3, [r3, #64]
+ 655 016a 03F48003 		and	r3, r3, #4194304
+ 656 016e 0293     		str	r3, [sp, #8]
+ 121:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C2;
+ 657              		.loc 1 121 9 view .LVU169
+ 658 0170 029B     		ldr	r3, [sp, #8]
+ 659              	.LBE5:
+ 121:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C2;
+ 660              		.loc 1 121 9 view .LVU170
+ 122:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C2);
+ 661              		.loc 1 122 9 view .LVU171
+ 122:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C2);
+ 662              		.loc 1 122 24 is_stmt 0 view .LVU172
+ 663 0172 3648     		ldr	r0, .L49+76
+ 664              	.LVL53:
+ 122:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C2);
+ 665              		.loc 1 122 24 view .LVU173
+ 666 0174 2860     		str	r0, [r5]
+ 123:Core/Src/mimic_i2c.c ****     }
+ 667              		.loc 1 123 9 is_stmt 1 view .LVU174
+ 668 0176 FFF7FEFF 		bl	Mimic_ConfigureI2CGPIO
+ 669              	.LVL54:
+ 670 017a 7EE7     		b	.L28
+ 671              	.LVL55:
+ARM GAS  /tmp/cczRQYDV.s 			page 18
+
+
+ 672              	.L46:
+ 127:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C3;
+ 673              		.loc 1 127 9 view .LVU175
+ 674              	.LBB6:
+ 127:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C3;
+ 675              		.loc 1 127 9 view .LVU176
+ 676 017c 0023     		movs	r3, #0
+ 677 017e 0393     		str	r3, [sp, #12]
+ 127:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C3;
+ 678              		.loc 1 127 9 view .LVU177
+ 679 0180 304B     		ldr	r3, .L49+68
+ 680 0182 1A6C     		ldr	r2, [r3, #64]
+ 681 0184 42F40002 		orr	r2, r2, #8388608
+ 682 0188 1A64     		str	r2, [r3, #64]
+ 127:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C3;
+ 683              		.loc 1 127 9 view .LVU178
+ 684 018a 1B6C     		ldr	r3, [r3, #64]
+ 685 018c 03F40003 		and	r3, r3, #8388608
+ 686 0190 0393     		str	r3, [sp, #12]
+ 127:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C3;
+ 687              		.loc 1 127 9 view .LVU179
+ 688 0192 039B     		ldr	r3, [sp, #12]
+ 689              	.LBE6:
+ 127:Core/Src/mimic_i2c.c ****         hi2c->Instance = I2C3;
+ 690              		.loc 1 127 9 view .LVU180
+ 128:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C3);
+ 691              		.loc 1 128 9 view .LVU181
+ 128:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C3);
+ 692              		.loc 1 128 24 is_stmt 0 view .LVU182
+ 693 0194 2E48     		ldr	r0, .L49+80
+ 694              	.LVL56:
+ 128:Core/Src/mimic_i2c.c ****         Mimic_ConfigureI2CGPIO(I2C3);
+ 695              		.loc 1 128 24 view .LVU183
+ 696 0196 2860     		str	r0, [r5]
+ 129:Core/Src/mimic_i2c.c ****     }
+ 697              		.loc 1 129 9 is_stmt 1 view .LVU184
+ 698 0198 FFF7FEFF 		bl	Mimic_ConfigureI2CGPIO
+ 699              	.LVL57:
+ 700 019c 6DE7     		b	.L28
+ 701              	.L47:
+ 145:Core/Src/mimic_i2c.c ****         memset(i2c_register_map, 0, 256); // Clear map for new sensor
+ 702              		.loc 1 145 9 view .LVU185
+ 145:Core/Src/mimic_i2c.c ****         memset(i2c_register_map, 0, 256); // Clear map for new sensor
+ 703              		.loc 1 145 39 is_stmt 0 view .LVU186
+ 704 019e 7300     		lsls	r3, r6, #1
+ 145:Core/Src/mimic_i2c.c ****         memset(i2c_register_map, 0, 256); // Clear map for new sensor
+ 705              		.loc 1 145 32 view .LVU187
+ 706 01a0 EB60     		str	r3, [r5, #12]
+ 146:Core/Src/mimic_i2c.c ****     } else {
+ 707              		.loc 1 146 9 is_stmt 1 view .LVU188
+ 708 01a2 4FF48072 		mov	r2, #256
+ 709 01a6 0021     		movs	r1, #0
+ 710 01a8 2A48     		ldr	r0, .L49+84
+ 711 01aa FFF7FEFF 		bl	memset
+ 712              	.LVL58:
+ 713 01ae 77E7     		b	.L31
+ 714              	.L48:
+ARM GAS  /tmp/cczRQYDV.s 			page 19
+
+
+ 154:Core/Src/mimic_i2c.c ****         return;
+ 715              		.loc 1 154 9 view .LVU189
+ 716 01b0 2948     		ldr	r0, .L49+88
+ 717 01b2 FFF7FEFF 		bl	Mimic_SendResponse
+ 718              	.LVL59:
+ 155:Core/Src/mimic_i2c.c ****     }
+ 719              		.loc 1 155 9 view .LVU190
+ 720 01b6 A7E7     		b	.L20
+ 721              	.L33:
+ 162:Core/Src/mimic_i2c.c ****     }
+ 722              		.loc 1 162 9 view .LVU191
+ 723 01b8 3246     		mov	r2, r6
+ 724 01ba 4146     		mov	r1, r8
+ 725 01bc 2748     		ldr	r0, .L49+92
+ 726 01be FFF7FEFF 		bl	Mimic_SendResponseF
+ 727              	.LVL60:
+ 728 01c2 7EE7     		b	.L34
+ 729              	.L35:
+ 171:Core/Src/mimic_i2c.c ****         HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+ 730              		.loc 1 171 9 view .LVU192
+ 731 01c4 0022     		movs	r2, #0
+ 732 01c6 0121     		movs	r1, #1
+ 733 01c8 1F20     		movs	r0, #31
+ 734 01ca FFF7FEFF 		bl	HAL_NVIC_SetPriority
+ 735              	.LVL61:
+ 172:Core/Src/mimic_i2c.c ****         HAL_NVIC_SetPriority(I2C1_ER_IRQn, 1, 0); 
+ 736              		.loc 1 172 9 view .LVU193
+ 737 01ce 1F20     		movs	r0, #31
+ 738 01d0 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
+ 739              	.LVL62:
+ 173:Core/Src/mimic_i2c.c ****         HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
+ 740              		.loc 1 173 9 view .LVU194
+ 741 01d4 0022     		movs	r2, #0
+ 742 01d6 0121     		movs	r1, #1
+ 743 01d8 2020     		movs	r0, #32
+ 744 01da FFF7FEFF 		bl	HAL_NVIC_SetPriority
+ 745              	.LVL63:
+ 174:Core/Src/mimic_i2c.c ****         
+ 746              		.loc 1 174 9 view .LVU195
+ 747 01de 2020     		movs	r0, #32
+ 748 01e0 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
+ 749              	.LVL64:
+ 177:Core/Src/mimic_i2c.c ****     }
+ 750              		.loc 1 177 9 view .LVU196
+ 751 01e4 2846     		mov	r0, r5
+ 752 01e6 FFF7FEFF 		bl	HAL_I2C_EnableListen_IT
+ 753              	.LVL65:
+ 181:Core/Src/mimic_i2c.c ****     
+ 754              		.loc 1 181 5 view .LVU197
+ 181:Core/Src/mimic_i2c.c ****     
+ 755              		.loc 1 181 30 is_stmt 0 view .LVU198
+ 756 01ea 0D4B     		ldr	r3, .L49+32
+ 757 01ec 03F80940 		strb	r4, [r3, r9]
+ 183:Core/Src/mimic_i2c.c ****                         cmd->args[0], is_slave ? "SLAVE" : "MASTER");
+ 758              		.loc 1 183 5 is_stmt 1 view .LVU199
+ 183:Core/Src/mimic_i2c.c ****                         cmd->args[0], is_slave ? "SLAVE" : "MASTER");
+ 759              		.loc 1 183 5 is_stmt 0 discriminator 1 view .LVU200
+ARM GAS  /tmp/cczRQYDV.s 			page 20
+
+
+ 760 01f0 034A     		ldr	r2, .L49
+ 761 01f2 74E7     		b	.L36
+ 762              	.L37:
+ 189:Core/Src/mimic_i2c.c ****     }
+ 763              		.loc 1 189 9 is_stmt 1 view .LVU201
+ 764 01f4 3146     		mov	r1, r6
+ 765 01f6 1A48     		ldr	r0, .L49+96
+ 766 01f8 FFF7FEFF 		bl	Mimic_SendResponseF
+ 767              	.LVL66:
+ 768 01fc 84E7     		b	.L20
+ 769              	.L50:
+ 770 01fe 00BF     		.align	2
+ 771              	.L49:
+ 772 0200 00000000 		.word	.LC15
+ 773 0204 08000000 		.word	.LC16
+ 774 0208 98160600 		.word	399000
+ 775 020c 00000000 		.word	hi2c1
+ 776 0210 00000000 		.word	hi2c2
+ 777 0214 00000000 		.word	hi2c3
+ 778 0218 A0860100 		.word	100000
+ 779 021c 50010000 		.word	.LC24
+ 780 0220 00000000 		.word	i2c_states
+ 781 0224 98010000 		.word	.LC26
+ 782 0228 B8010000 		.word	.LC27
+ 783 022c 10000000 		.word	.LC17
+ 784 0230 50000000 		.word	.LC18
+ 785 0234 84000000 		.word	.LC19
+ 786 0238 BC000000 		.word	.LC20
+ 787 023c E4000000 		.word	.LC21
+ 788 0240 0C010000 		.word	.LC22
+ 789 0244 00380240 		.word	1073887232
+ 790 0248 00540040 		.word	1073763328
+ 791 024c 00580040 		.word	1073764352
+ 792 0250 005C0040 		.word	1073765376
+ 793 0254 00000000 		.word	i2c_register_map
+ 794 0258 34010000 		.word	.LC23
+ 795 025c 78010000 		.word	.LC25
+ 796 0260 CC010000 		.word	.LC28
+ 797              		.cfi_endproc
+ 798              	.LFE140:
+ 800              		.section	.rodata.Mimic_CMD_I2C_SCAN.str1.4,"aMS",%progbits,1
+ 801              		.align	2
+ 802              	.LC29:
+ 803 0000 55736167 		.ascii	"Usage: I2C_SCAN <1-3>\015\012\000"
+ 803      653A2049 
+ 803      32435F53 
+ 803      43414E20 
+ 803      3C312D33 
+ 804              		.align	2
+ 805              	.LC30:
+ 806 0018 4552524F 		.ascii	"ERROR: I2C not initialized. Use I2C_INIT first.\015"
+ 806      523A2049 
+ 806      3243206E 
+ 806      6F742069 
+ 806      6E697469 
+ 807 0048 0A00     		.ascii	"\012\000"
+ 808 004a 0000     		.align	2
+ARM GAS  /tmp/cczRQYDV.s 			page 21
+
+
+ 809              	.LC31:
+ 810 004c 5363616E 		.ascii	"Scanning I2C%s bus...\015\012\000"
+ 810      6E696E67 
+ 810      20493243 
+ 810      25732062 
+ 810      75732E2E 
+ 811              		.align	2
+ 812              	.LC32:
+ 813 0064 466F756E 		.ascii	"Found device at 0x%02X\015\012\000"
+ 813      64206465 
+ 813      76696365 
+ 813      20617420 
+ 813      30782530 
+ 814 007d 000000   		.align	2
+ 815              	.LC33:
+ 816 0080 4E6F2064 		.ascii	"No devices found\015\012\000"
+ 816      65766963 
+ 816      65732066 
+ 816      6F756E64 
+ 816      0D0A00
+ 817 0093 00       		.align	2
+ 818              	.LC34:
+ 819 0094 5363616E 		.ascii	"Scan complete. Found %d devices.\015\012\000"
+ 819      20636F6D 
+ 819      706C6574 
+ 819      652E2046 
+ 819      6F756E64 
+ 820              		.section	.text.Mimic_CMD_I2C_SCAN,"ax",%progbits
+ 821              		.align	1
+ 822              		.global	Mimic_CMD_I2C_SCAN
+ 823              		.syntax unified
+ 824              		.thumb
+ 825              		.thumb_func
+ 827              	Mimic_CMD_I2C_SCAN:
+ 828              	.LVL67:
+ 829              	.LFB141:
+ 192:Core/Src/mimic_i2c.c **** 
+ 193:Core/Src/mimic_i2c.c **** /**
+ 194:Core/Src/mimic_i2c.c ****   * @brief  I2C_SCAN <INSTANCE>
+ 195:Core/Src/mimic_i2c.c ****   */
+ 196:Core/Src/mimic_i2c.c **** void Mimic_CMD_I2C_SCAN(Mimic_Command_t *cmd)
+ 197:Core/Src/mimic_i2c.c **** {
+ 830              		.loc 1 197 1 view -0
+ 831              		.cfi_startproc
+ 832              		@ args = 0, pretend = 0, frame = 0
+ 833              		@ frame_needed = 0, uses_anonymous_args = 0
+ 834              		.loc 1 197 1 is_stmt 0 view .LVU203
+ 835 0000 70B5     		push	{r4, r5, r6, lr}
+ 836              	.LCFI10:
+ 837              		.cfi_def_cfa_offset 16
+ 838              		.cfi_offset 4, -16
+ 839              		.cfi_offset 5, -12
+ 840              		.cfi_offset 6, -8
+ 841              		.cfi_offset 14, -4
+ 198:Core/Src/mimic_i2c.c ****     if (cmd->argc < 1)
+ 842              		.loc 1 198 5 is_stmt 1 view .LVU204
+ 843              		.loc 1 198 12 is_stmt 0 view .LVU205
+ARM GAS  /tmp/cczRQYDV.s 			page 22
+
+
+ 844 0002 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 845              		.loc 1 198 8 view .LVU206
+ 846 0006 7BB1     		cbz	r3, .L61
+ 199:Core/Src/mimic_i2c.c ****     {
+ 200:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("Usage: I2C_SCAN <1-3>\r\n");
+ 201:Core/Src/mimic_i2c.c ****         return;
+ 202:Core/Src/mimic_i2c.c ****     }
+ 203:Core/Src/mimic_i2c.c ****     
+ 204:Core/Src/mimic_i2c.c ****     I2C_HandleTypeDef *hi2c = Mimic_GetI2CHandle(cmd->args[0]);
+ 847              		.loc 1 204 5 is_stmt 1 view .LVU207
+ 848              		.loc 1 204 59 is_stmt 0 view .LVU208
+ 849 0008 00F12004 		add	r4, r0, #32
+ 850              		.loc 1 204 31 view .LVU209
+ 851 000c 2046     		mov	r0, r4
+ 852              	.LVL68:
+ 853              		.loc 1 204 31 view .LVU210
+ 854 000e FFF7FEFF 		bl	Mimic_GetI2CHandle
+ 855              	.LVL69:
+ 205:Core/Src/mimic_i2c.c ****     if (hi2c == NULL || hi2c->Instance == NULL)
+ 856              		.loc 1 205 5 is_stmt 1 view .LVU211
+ 857              		.loc 1 205 8 is_stmt 0 view .LVU212
+ 858 0012 0646     		mov	r6, r0
+ 859 0014 60B1     		cbz	r0, .L54
+ 860              		.loc 1 205 29 discriminator 1 view .LVU213
+ 861 0016 0368     		ldr	r3, [r0]
+ 862              		.loc 1 205 22 discriminator 1 view .LVU214
+ 863 0018 53B1     		cbz	r3, .L54
+ 206:Core/Src/mimic_i2c.c ****     {
+ 207:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: I2C not initialized. Use I2C_INIT first.\r\n");
+ 208:Core/Src/mimic_i2c.c ****         return;
+ 209:Core/Src/mimic_i2c.c ****     }
+ 210:Core/Src/mimic_i2c.c ****     
+ 211:Core/Src/mimic_i2c.c ****     Mimic_SendResponseF("Scanning I2C%s bus...\r\n", cmd->args[0]);
+ 864              		.loc 1 211 5 is_stmt 1 view .LVU215
+ 865 001a 2146     		mov	r1, r4
+ 866 001c 1548     		ldr	r0, .L63
+ 867              	.LVL70:
+ 868              		.loc 1 211 5 is_stmt 0 view .LVU216
+ 869 001e FFF7FEFF 		bl	Mimic_SendResponseF
+ 870              	.LVL71:
+ 212:Core/Src/mimic_i2c.c ****     
+ 213:Core/Src/mimic_i2c.c ****     uint8_t devices_found = 0;
+ 871              		.loc 1 213 5 is_stmt 1 view .LVU217
+ 214:Core/Src/mimic_i2c.c ****     for (uint16_t addr = 1; addr < 128; addr++)
+ 872              		.loc 1 214 5 view .LVU218
+ 873              	.LBB7:
+ 874              		.loc 1 214 10 view .LVU219
+ 875              		.loc 1 214 19 is_stmt 0 view .LVU220
+ 876 0022 0124     		movs	r4, #1
+ 877              	.LVL72:
+ 878              		.loc 1 214 19 view .LVU221
+ 879              	.LBE7:
+ 213:Core/Src/mimic_i2c.c ****     for (uint16_t addr = 1; addr < 128; addr++)
+ 880              		.loc 1 213 13 view .LVU222
+ 881 0024 0025     		movs	r5, #0
+ 882              	.LBB8:
+ 883              		.loc 1 214 5 view .LVU223
+ARM GAS  /tmp/cczRQYDV.s 			page 23
+
+
+ 884 0026 09E0     		b	.L56
+ 885              	.LVL73:
+ 886              	.L61:
+ 887              		.loc 1 214 5 view .LVU224
+ 888              	.LBE8:
+ 200:Core/Src/mimic_i2c.c ****         return;
+ 889              		.loc 1 200 9 is_stmt 1 view .LVU225
+ 890 0028 1348     		ldr	r0, .L63+4
+ 891              	.LVL74:
+ 200:Core/Src/mimic_i2c.c ****         return;
+ 892              		.loc 1 200 9 is_stmt 0 view .LVU226
+ 893 002a FFF7FEFF 		bl	Mimic_SendResponse
+ 894              	.LVL75:
+ 201:Core/Src/mimic_i2c.c ****     }
+ 895              		.loc 1 201 9 is_stmt 1 view .LVU227
+ 896 002e 02E0     		b	.L51
+ 897              	.LVL76:
+ 898              	.L54:
+ 207:Core/Src/mimic_i2c.c ****         return;
+ 899              		.loc 1 207 9 view .LVU228
+ 900 0030 1248     		ldr	r0, .L63+8
+ 901              	.LVL77:
+ 207:Core/Src/mimic_i2c.c ****         return;
+ 902              		.loc 1 207 9 is_stmt 0 view .LVU229
+ 903 0032 FFF7FEFF 		bl	Mimic_SendResponse
+ 904              	.LVL78:
+ 208:Core/Src/mimic_i2c.c ****     }
+ 905              		.loc 1 208 9 is_stmt 1 view .LVU230
+ 906              	.L51:
+ 215:Core/Src/mimic_i2c.c ****     {
+ 216:Core/Src/mimic_i2c.c ****         if (HAL_I2C_IsDeviceReady(hi2c, (uint16_t)(addr << 1), 2, 2) == HAL_OK)
+ 217:Core/Src/mimic_i2c.c ****         {
+ 218:Core/Src/mimic_i2c.c ****             Mimic_SendResponseF("Found device at 0x%02X\r\n", addr);
+ 219:Core/Src/mimic_i2c.c ****             devices_found++;
+ 220:Core/Src/mimic_i2c.c ****         }
+ 221:Core/Src/mimic_i2c.c ****     }
+ 222:Core/Src/mimic_i2c.c ****     
+ 223:Core/Src/mimic_i2c.c ****     if (devices_found == 0)
+ 224:Core/Src/mimic_i2c.c ****     {
+ 225:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("No devices found\r\n");
+ 226:Core/Src/mimic_i2c.c ****     }
+ 227:Core/Src/mimic_i2c.c ****     else
+ 228:Core/Src/mimic_i2c.c ****     {
+ 229:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("Scan complete. Found %d devices.\r\n", devices_found);
+ 230:Core/Src/mimic_i2c.c ****     }
+ 231:Core/Src/mimic_i2c.c **** }
+ 907              		.loc 1 231 1 is_stmt 0 view .LVU231
+ 908 0036 70BD     		pop	{r4, r5, r6, pc}
+ 909              	.LVL79:
+ 910              	.L57:
+ 911              	.LBB9:
+ 214:Core/Src/mimic_i2c.c ****     {
+ 912              		.loc 1 214 45 is_stmt 1 discriminator 2 view .LVU232
+ 913 0038 0134     		adds	r4, r4, #1
+ 914              	.LVL80:
+ 214:Core/Src/mimic_i2c.c ****     {
+ 915              		.loc 1 214 45 is_stmt 0 discriminator 2 view .LVU233
+ARM GAS  /tmp/cczRQYDV.s 			page 24
+
+
+ 916 003a A4B2     		uxth	r4, r4
+ 917              	.LVL81:
+ 918              	.L56:
+ 214:Core/Src/mimic_i2c.c ****     {
+ 919              		.loc 1 214 34 is_stmt 1 discriminator 1 view .LVU234
+ 920 003c 7F2C     		cmp	r4, #127
+ 921 003e 0FD8     		bhi	.L62
+ 216:Core/Src/mimic_i2c.c ****         {
+ 922              		.loc 1 216 9 view .LVU235
+ 216:Core/Src/mimic_i2c.c ****         {
+ 923              		.loc 1 216 13 is_stmt 0 view .LVU236
+ 924 0040 6100     		lsls	r1, r4, #1
+ 925 0042 89B2     		uxth	r1, r1
+ 926 0044 0223     		movs	r3, #2
+ 927 0046 1A46     		mov	r2, r3
+ 928 0048 3046     		mov	r0, r6
+ 929 004a FFF7FEFF 		bl	HAL_I2C_IsDeviceReady
+ 930              	.LVL82:
+ 216:Core/Src/mimic_i2c.c ****         {
+ 931              		.loc 1 216 12 discriminator 1 view .LVU237
+ 932 004e 0028     		cmp	r0, #0
+ 933 0050 F2D1     		bne	.L57
+ 218:Core/Src/mimic_i2c.c ****             devices_found++;
+ 934              		.loc 1 218 13 is_stmt 1 view .LVU238
+ 935 0052 2146     		mov	r1, r4
+ 936 0054 0A48     		ldr	r0, .L63+12
+ 937 0056 FFF7FEFF 		bl	Mimic_SendResponseF
+ 938              	.LVL83:
+ 219:Core/Src/mimic_i2c.c ****         }
+ 939              		.loc 1 219 13 view .LVU239
+ 219:Core/Src/mimic_i2c.c ****         }
+ 940              		.loc 1 219 26 is_stmt 0 view .LVU240
+ 941 005a 0135     		adds	r5, r5, #1
+ 942              	.LVL84:
+ 219:Core/Src/mimic_i2c.c ****         }
+ 943              		.loc 1 219 26 view .LVU241
+ 944 005c EDB2     		uxtb	r5, r5
+ 945              	.LVL85:
+ 219:Core/Src/mimic_i2c.c ****         }
+ 946              		.loc 1 219 26 view .LVU242
+ 947 005e EBE7     		b	.L57
+ 948              	.LVL86:
+ 949              	.L62:
+ 219:Core/Src/mimic_i2c.c ****         }
+ 950              		.loc 1 219 26 view .LVU243
+ 951              	.LBE9:
+ 223:Core/Src/mimic_i2c.c ****     {
+ 952              		.loc 1 223 5 is_stmt 1 view .LVU244
+ 223:Core/Src/mimic_i2c.c ****     {
+ 953              		.loc 1 223 8 is_stmt 0 view .LVU245
+ 954 0060 1DB9     		cbnz	r5, .L59
+ 225:Core/Src/mimic_i2c.c ****     }
+ 955              		.loc 1 225 9 is_stmt 1 view .LVU246
+ 956 0062 0848     		ldr	r0, .L63+16
+ 957 0064 FFF7FEFF 		bl	Mimic_SendResponse
+ 958              	.LVL87:
+ 959 0068 E5E7     		b	.L51
+ARM GAS  /tmp/cczRQYDV.s 			page 25
+
+
+ 960              	.L59:
+ 229:Core/Src/mimic_i2c.c ****     }
+ 961              		.loc 1 229 9 view .LVU247
+ 962 006a 2946     		mov	r1, r5
+ 963 006c 0648     		ldr	r0, .L63+20
+ 964 006e FFF7FEFF 		bl	Mimic_SendResponseF
+ 965              	.LVL88:
+ 966 0072 E0E7     		b	.L51
+ 967              	.L64:
+ 968              		.align	2
+ 969              	.L63:
+ 970 0074 4C000000 		.word	.LC31
+ 971 0078 00000000 		.word	.LC29
+ 972 007c 18000000 		.word	.LC30
+ 973 0080 64000000 		.word	.LC32
+ 974 0084 80000000 		.word	.LC33
+ 975 0088 94000000 		.word	.LC34
+ 976              		.cfi_endproc
+ 977              	.LFE141:
+ 979              		.section	.rodata.Mimic_CMD_I2C_WRITE.str1.4,"aMS",%progbits,1
+ 980              		.align	2
+ 981              	.LC35:
+ 982 0000 55736167 		.ascii	"Usage: I2C_WRITE <1-3> <ADDR> <HEX_DATA>\015\012\000"
+ 982      653A2049 
+ 982      32435F57 
+ 982      52495445 
+ 982      203C312D 
+ 983 002b 00       		.align	2
+ 984              	.LC36:
+ 985 002c 20204578 		.ascii	"  Example: I2C_WRITE 1 0x68 6B 00\015\012\000"
+ 985      616D706C 
+ 985      653A2049 
+ 985      32435F57 
+ 985      52495445 
+ 986              		.align	2
+ 987              	.LC37:
+ 988 0050 4552524F 		.ascii	"ERROR: Invalid I2C instance\015\012\000"
+ 988      523A2049 
+ 988      6E76616C 
+ 988      69642049 
+ 988      32432069 
+ 989 006e 0000     		.align	2
+ 990              	.LC38:
+ 991 0070 4552524F 		.ascii	"ERROR: I2C not initialized\015\012\000"
+ 991      523A2049 
+ 991      3243206E 
+ 991      6F742069 
+ 991      6E697469 
+ 992 008d 000000   		.align	2
+ 993              	.LC39:
+ 994 0090 2000     		.ascii	" \000"
+ 995 0092 0000     		.align	2
+ 996              	.LC40:
+ 997 0094 4552524F 		.ascii	"ERROR: No valid hex data\015\012\000"
+ 997      523A204E 
+ 997      6F207661 
+ 997      6C696420 
+ARM GAS  /tmp/cczRQYDV.s 			page 26
+
+
+ 997      68657820 
+ 998 00af 00       		.align	2
+ 999              	.LC41:
+ 1000 00b0 57616974 		.ascii	"Wait for Master to read...\015\012\000"
+ 1000      20666F72 
+ 1000      204D6173 
+ 1000      74657220 
+ 1000      746F2072 
+ 1001 00cd 000000   		.align	2
+ 1002              	.LC42:
+ 1003 00d0 4F4B3A20 		.ascii	"OK: Write complete (%d bytes)\015\012\000"
+ 1003      57726974 
+ 1003      6520636F 
+ 1003      6D706C65 
+ 1003      74652028 
+ 1004              		.align	2
+ 1005              	.LC43:
+ 1006 00f0 4552524F 		.ascii	"ERROR: Write failed (Status: %d)\015\012\000"
+ 1006      523A2057 
+ 1006      72697465 
+ 1006      20666169 
+ 1006      6C656420 
+ 1007              		.section	.text.Mimic_CMD_I2C_WRITE,"ax",%progbits
+ 1008              		.align	1
+ 1009              		.global	Mimic_CMD_I2C_WRITE
+ 1010              		.syntax unified
+ 1011              		.thumb
+ 1012              		.thumb_func
+ 1014              	Mimic_CMD_I2C_WRITE:
+ 1015              	.LVL89:
+ 1016              	.LFB142:
+ 232:Core/Src/mimic_i2c.c **** 
+ 233:Core/Src/mimic_i2c.c **** /**
+ 234:Core/Src/mimic_i2c.c ****   * @brief  I2C_WRITE <INSTANCE> <ADDR> <HEX_DATA>
+ 235:Core/Src/mimic_i2c.c ****   *         Master: Write to ADDR
+ 236:Core/Src/mimic_i2c.c ****   *         Slave:  ADDR is ignored, Send HEX_DATA to Master (when requested)
+ 237:Core/Src/mimic_i2c.c ****   */
+ 238:Core/Src/mimic_i2c.c **** void Mimic_CMD_I2C_WRITE(Mimic_Command_t *cmd)
+ 239:Core/Src/mimic_i2c.c **** {
+ 1017              		.loc 1 239 1 view -0
+ 1018              		.cfi_startproc
+ 1019              		@ args = 0, pretend = 0, frame = 192
+ 1020              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1021              		.loc 1 239 1 is_stmt 0 view .LVU249
+ 1022 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 1023              	.LCFI11:
+ 1024              		.cfi_def_cfa_offset 28
+ 1025              		.cfi_offset 4, -28
+ 1026              		.cfi_offset 5, -24
+ 1027              		.cfi_offset 6, -20
+ 1028              		.cfi_offset 7, -16
+ 1029              		.cfi_offset 8, -12
+ 1030              		.cfi_offset 9, -8
+ 1031              		.cfi_offset 14, -4
+ 1032 0004 B3B0     		sub	sp, sp, #204
+ 1033              	.LCFI12:
+ 1034              		.cfi_def_cfa_offset 232
+ARM GAS  /tmp/cczRQYDV.s 			page 27
+
+
+ 240:Core/Src/mimic_i2c.c ****     if (cmd->argc < 3)
+ 1035              		.loc 1 240 5 is_stmt 1 view .LVU250
+ 1036              		.loc 1 240 12 is_stmt 0 view .LVU251
+ 1037 0006 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1038              		.loc 1 240 8 view .LVU252
+ 1039 000a 022B     		cmp	r3, #2
+ 1040 000c 1FD9     		bls	.L81
+ 1041 000e 0546     		mov	r5, r0
+ 241:Core/Src/mimic_i2c.c ****     {
+ 242:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("Usage: I2C_WRITE <1-3> <ADDR> <HEX_DATA>\r\n");
+ 243:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_WRITE 1 0x68 6B 00\r\n");
+ 244:Core/Src/mimic_i2c.c ****         return;
+ 245:Core/Src/mimic_i2c.c ****     }
+ 246:Core/Src/mimic_i2c.c ****     
+ 247:Core/Src/mimic_i2c.c ****     int idx = atoi(cmd->args[0]) - 1;
+ 1042              		.loc 1 247 5 is_stmt 1 view .LVU253
+ 1043              		.loc 1 247 29 is_stmt 0 view .LVU254
+ 1044 0010 00F12004 		add	r4, r0, #32
+ 1045              		.loc 1 247 15 view .LVU255
+ 1046 0014 2046     		mov	r0, r4
+ 1047              	.LVL90:
+ 1048              		.loc 1 247 15 view .LVU256
+ 1049 0016 FFF7FEFF 		bl	atoi
+ 1050              	.LVL91:
+ 1051              		.loc 1 247 9 discriminator 1 view .LVU257
+ 1052 001a 431E     		subs	r3, r0, #1
+ 1053 001c 1F46     		mov	r7, r3
+ 1054              	.LVL92:
+ 248:Core/Src/mimic_i2c.c ****     if (idx < 0 || idx > 2)
+ 1055              		.loc 1 248 5 is_stmt 1 view .LVU258
+ 1056              		.loc 1 248 8 is_stmt 0 view .LVU259
+ 1057 001e 022B     		cmp	r3, #2
+ 1058 0020 1ED8     		bhi	.L82
+ 249:Core/Src/mimic_i2c.c ****     {
+ 250:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: Invalid I2C instance\r\n");
+ 251:Core/Src/mimic_i2c.c ****         return;
+ 252:Core/Src/mimic_i2c.c ****     }
+ 253:Core/Src/mimic_i2c.c ****     
+ 254:Core/Src/mimic_i2c.c ****     I2C_HandleTypeDef *hi2c = Mimic_GetI2CHandle(cmd->args[0]);
+ 1059              		.loc 1 254 5 is_stmt 1 view .LVU260
+ 1060              		.loc 1 254 31 is_stmt 0 view .LVU261
+ 1061 0022 2046     		mov	r0, r4
+ 1062 0024 FFF7FEFF 		bl	Mimic_GetI2CHandle
+ 1063              	.LVL93:
+ 255:Core/Src/mimic_i2c.c ****     if (hi2c == NULL || hi2c->Instance == NULL)
+ 1064              		.loc 1 255 5 is_stmt 1 view .LVU262
+ 1065              		.loc 1 255 8 is_stmt 0 view .LVU263
+ 1066 0028 8046     		mov	r8, r0
+ 1067 002a E8B1     		cbz	r0, .L69
+ 1068              		.loc 1 255 29 discriminator 1 view .LVU264
+ 1069 002c 0368     		ldr	r3, [r0]
+ 1070              		.loc 1 255 22 discriminator 1 view .LVU265
+ 1071 002e DBB1     		cbz	r3, .L69
+ 256:Core/Src/mimic_i2c.c ****     {
+ 257:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: I2C not initialized\r\n");
+ 258:Core/Src/mimic_i2c.c ****         return;
+ 259:Core/Src/mimic_i2c.c ****     }
+ARM GAS  /tmp/cczRQYDV.s 			page 28
+
+
+ 260:Core/Src/mimic_i2c.c ****     
+ 261:Core/Src/mimic_i2c.c ****     uint16_t addr = (uint16_t)strtol(cmd->args[1], NULL, 16);
+ 1072              		.loc 1 261 5 is_stmt 1 view .LVU266
+ 1073              		.loc 1 261 31 is_stmt 0 view .LVU267
+ 1074 0030 1022     		movs	r2, #16
+ 1075 0032 0021     		movs	r1, #0
+ 1076 0034 05F14000 		add	r0, r5, #64
+ 1077              	.LVL94:
+ 1078              		.loc 1 261 31 view .LVU268
+ 1079 0038 FFF7FEFF 		bl	strtol
+ 1080              	.LVL95:
+ 1081              		.loc 1 261 14 discriminator 1 view .LVU269
+ 1082 003c 83B2     		uxth	r3, r0
+ 1083 003e 9946     		mov	r9, r3
+ 1084              	.LVL96:
+ 262:Core/Src/mimic_i2c.c ****     
+ 263:Core/Src/mimic_i2c.c ****     /* Combine all args as hex data */
+ 264:Core/Src/mimic_i2c.c ****     char hex_str[MIMIC_MAX_CMD_LEN] = {0};
+ 1085              		.loc 1 264 5 is_stmt 1 view .LVU270
+ 1086              		.loc 1 264 10 is_stmt 0 view .LVU271
+ 1087 0040 8022     		movs	r2, #128
+ 1088 0042 0021     		movs	r1, #0
+ 1089 0044 12A8     		add	r0, sp, #72
+ 1090 0046 FFF7FEFF 		bl	memset
+ 1091              	.LVL97:
+ 265:Core/Src/mimic_i2c.c ****     for (int i = 2; i < cmd->argc; i++)
+ 1092              		.loc 1 265 5 is_stmt 1 view .LVU272
+ 1093              	.LBB10:
+ 1094              		.loc 1 265 10 view .LVU273
+ 1095              		.loc 1 265 14 is_stmt 0 view .LVU274
+ 1096 004a 0224     		movs	r4, #2
+ 1097              		.loc 1 265 5 view .LVU275
+ 1098 004c 1DE0     		b	.L71
+ 1099              	.LVL98:
+ 1100              	.L81:
+ 1101              		.loc 1 265 5 view .LVU276
+ 1102              	.LBE10:
+ 242:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_WRITE 1 0x68 6B 00\r\n");
+ 1103              		.loc 1 242 9 is_stmt 1 view .LVU277
+ 1104 004e 2A48     		ldr	r0, .L86
+ 1105              	.LVL99:
+ 242:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_WRITE 1 0x68 6B 00\r\n");
+ 1106              		.loc 1 242 9 is_stmt 0 view .LVU278
+ 1107 0050 FFF7FEFF 		bl	Mimic_SendResponse
+ 1108              	.LVL100:
+ 243:Core/Src/mimic_i2c.c ****         return;
+ 1109              		.loc 1 243 9 is_stmt 1 view .LVU279
+ 1110 0054 2948     		ldr	r0, .L86+4
+ 1111 0056 FFF7FEFF 		bl	Mimic_SendResponse
+ 1112              	.LVL101:
+ 244:Core/Src/mimic_i2c.c ****     }
+ 1113              		.loc 1 244 9 view .LVU280
+ 1114              	.L65:
+ 266:Core/Src/mimic_i2c.c ****     {
+ 267:Core/Src/mimic_i2c.c ****         if (i > 2) strcat(hex_str, " ");
+ 268:Core/Src/mimic_i2c.c ****         strcat(hex_str, cmd->args[i]);
+ 269:Core/Src/mimic_i2c.c ****     }
+ARM GAS  /tmp/cczRQYDV.s 			page 29
+
+
+ 270:Core/Src/mimic_i2c.c ****     
+ 271:Core/Src/mimic_i2c.c ****     uint8_t data[64];
+ 272:Core/Src/mimic_i2c.c ****     uint16_t len = Mimic_ParseHexData(hex_str, data, sizeof(data));
+ 273:Core/Src/mimic_i2c.c ****     
+ 274:Core/Src/mimic_i2c.c ****     if (len == 0)
+ 275:Core/Src/mimic_i2c.c ****     {
+ 276:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: No valid hex data\r\n");
+ 277:Core/Src/mimic_i2c.c ****         return;
+ 278:Core/Src/mimic_i2c.c ****     }
+ 279:Core/Src/mimic_i2c.c ****     
+ 280:Core/Src/mimic_i2c.c ****     HAL_StatusTypeDef status;
+ 281:Core/Src/mimic_i2c.c ****     if (i2c_states[idx].is_slave)
+ 282:Core/Src/mimic_i2c.c ****     {
+ 283:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("Wait for Master to read...\r\n");
+ 284:Core/Src/mimic_i2c.c ****         /* In Slave mode, we transmit when master requests */
+ 285:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Slave_Transmit(hi2c, data, len, 5000);
+ 286:Core/Src/mimic_i2c.c ****     }
+ 287:Core/Src/mimic_i2c.c ****     else
+ 288:Core/Src/mimic_i2c.c ****     {
+ 289:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Master_Transmit(hi2c, (uint16_t)(addr << 1), data, len, 1000);
+ 290:Core/Src/mimic_i2c.c ****     }
+ 291:Core/Src/mimic_i2c.c ****     
+ 292:Core/Src/mimic_i2c.c ****     if (status == HAL_OK)
+ 293:Core/Src/mimic_i2c.c ****     {
+ 294:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("OK: Write complete (%d bytes)\r\n", len);
+ 295:Core/Src/mimic_i2c.c ****     }
+ 296:Core/Src/mimic_i2c.c ****     else
+ 297:Core/Src/mimic_i2c.c ****     {
+ 298:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("ERROR: Write failed (Status: %d)\r\n", status);
+ 299:Core/Src/mimic_i2c.c ****     }
+ 300:Core/Src/mimic_i2c.c **** }
+ 1115              		.loc 1 300 1 is_stmt 0 view .LVU281
+ 1116 005a 33B0     		add	sp, sp, #204
+ 1117              	.LCFI13:
+ 1118              		.cfi_remember_state
+ 1119              		.cfi_def_cfa_offset 28
+ 1120              		@ sp needed
+ 1121 005c BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 1122              	.LVL102:
+ 1123              	.L82:
+ 1124              	.LCFI14:
+ 1125              		.cfi_restore_state
+ 250:Core/Src/mimic_i2c.c ****         return;
+ 1126              		.loc 1 250 9 is_stmt 1 view .LVU282
+ 1127 0060 2748     		ldr	r0, .L86+8
+ 1128 0062 FFF7FEFF 		bl	Mimic_SendResponse
+ 1129              	.LVL103:
+ 251:Core/Src/mimic_i2c.c ****     }
+ 1130              		.loc 1 251 9 view .LVU283
+ 1131 0066 F8E7     		b	.L65
+ 1132              	.LVL104:
+ 1133              	.L69:
+ 257:Core/Src/mimic_i2c.c ****         return;
+ 1134              		.loc 1 257 9 view .LVU284
+ 1135 0068 2648     		ldr	r0, .L86+12
+ 1136              	.LVL105:
+ 257:Core/Src/mimic_i2c.c ****         return;
+ARM GAS  /tmp/cczRQYDV.s 			page 30
+
+
+ 1137              		.loc 1 257 9 is_stmt 0 view .LVU285
+ 1138 006a FFF7FEFF 		bl	Mimic_SendResponse
+ 1139              	.LVL106:
+ 258:Core/Src/mimic_i2c.c ****     }
+ 1140              		.loc 1 258 9 is_stmt 1 view .LVU286
+ 1141 006e F4E7     		b	.L65
+ 1142              	.LVL107:
+ 1143              	.L84:
+ 1144              	.LBB11:
+ 267:Core/Src/mimic_i2c.c ****         strcat(hex_str, cmd->args[i]);
+ 1145              		.loc 1 267 20 discriminator 1 view .LVU287
+ 1146 0070 12AE     		add	r6, sp, #72
+ 1147 0072 3046     		mov	r0, r6
+ 1148 0074 FFF7FEFF 		bl	strlen
+ 1149              	.LVL108:
+ 267:Core/Src/mimic_i2c.c ****         strcat(hex_str, cmd->args[i]);
+ 1150              		.loc 1 267 20 is_stmt 0 discriminator 2 view .LVU288
+ 1151 0078 234B     		ldr	r3, .L86+16
+ 1152 007a 1B88     		ldrh	r3, [r3]	@ unaligned
+ 1153 007c 3352     		strh	r3, [r6, r0]	@ unaligned
+ 1154              	.L72:
+ 268:Core/Src/mimic_i2c.c ****     }
+ 1155              		.loc 1 268 9 is_stmt 1 view .LVU289
+ 268:Core/Src/mimic_i2c.c ****     }
+ 1156              		.loc 1 268 34 is_stmt 0 view .LVU290
+ 1157 007e 0134     		adds	r4, r4, #1
+ 1158              	.LVL109:
+ 268:Core/Src/mimic_i2c.c ****     }
+ 1159              		.loc 1 268 9 view .LVU291
+ 1160 0080 05EB4411 		add	r1, r5, r4, lsl #5
+ 1161 0084 12A8     		add	r0, sp, #72
+ 1162 0086 FFF7FEFF 		bl	strcat
+ 1163              	.LVL110:
+ 265:Core/Src/mimic_i2c.c ****     {
+ 1164              		.loc 1 265 37 is_stmt 1 discriminator 2 view .LVU292
+ 1165              	.L71:
+ 265:Core/Src/mimic_i2c.c ****     {
+ 1166              		.loc 1 265 23 discriminator 1 view .LVU293
+ 265:Core/Src/mimic_i2c.c ****     {
+ 1167              		.loc 1 265 28 is_stmt 0 discriminator 1 view .LVU294
+ 1168 008a 95F82031 		ldrb	r3, [r5, #288]	@ zero_extendqisi2
+ 265:Core/Src/mimic_i2c.c ****     {
+ 1169              		.loc 1 265 23 discriminator 1 view .LVU295
+ 1170 008e A342     		cmp	r3, r4
+ 1171 0090 02DD     		ble	.L83
+ 267:Core/Src/mimic_i2c.c ****         strcat(hex_str, cmd->args[i]);
+ 1172              		.loc 1 267 9 is_stmt 1 view .LVU296
+ 267:Core/Src/mimic_i2c.c ****         strcat(hex_str, cmd->args[i]);
+ 1173              		.loc 1 267 12 is_stmt 0 view .LVU297
+ 1174 0092 022C     		cmp	r4, #2
+ 1175 0094 F3DD     		ble	.L72
+ 1176 0096 EBE7     		b	.L84
+ 1177              	.L83:
+ 1178              	.LBE11:
+ 271:Core/Src/mimic_i2c.c ****     uint16_t len = Mimic_ParseHexData(hex_str, data, sizeof(data));
+ 1179              		.loc 1 271 5 is_stmt 1 view .LVU298
+ 272:Core/Src/mimic_i2c.c ****     
+ARM GAS  /tmp/cczRQYDV.s 			page 31
+
+
+ 1180              		.loc 1 272 5 view .LVU299
+ 272:Core/Src/mimic_i2c.c ****     
+ 1181              		.loc 1 272 20 is_stmt 0 view .LVU300
+ 1182 0098 4022     		movs	r2, #64
+ 1183 009a 02A9     		add	r1, sp, #8
+ 1184 009c 12A8     		add	r0, sp, #72
+ 1185 009e FFF7FEFF 		bl	Mimic_ParseHexData
+ 1186              	.LVL111:
+ 274:Core/Src/mimic_i2c.c ****     {
+ 1187              		.loc 1 274 5 is_stmt 1 view .LVU301
+ 274:Core/Src/mimic_i2c.c ****     {
+ 1188              		.loc 1 274 8 is_stmt 0 view .LVU302
+ 1189 00a2 0446     		mov	r4, r0
+ 1190              	.LVL112:
+ 274:Core/Src/mimic_i2c.c ****     {
+ 1191              		.loc 1 274 8 view .LVU303
+ 1192 00a4 98B1     		cbz	r0, .L85
+ 280:Core/Src/mimic_i2c.c ****     if (i2c_states[idx].is_slave)
+ 1193              		.loc 1 280 5 is_stmt 1 view .LVU304
+ 281:Core/Src/mimic_i2c.c ****     {
+ 1194              		.loc 1 281 5 view .LVU305
+ 281:Core/Src/mimic_i2c.c ****     {
+ 1195              		.loc 1 281 24 is_stmt 0 view .LVU306
+ 1196 00a6 194B     		ldr	r3, .L86+20
+ 1197 00a8 DB5D     		ldrb	r3, [r3, r7]	@ zero_extendqisi2
+ 281:Core/Src/mimic_i2c.c ****     {
+ 1198              		.loc 1 281 8 view .LVU307
+ 1199 00aa A3B1     		cbz	r3, .L75
+ 283:Core/Src/mimic_i2c.c ****         /* In Slave mode, we transmit when master requests */
+ 1200              		.loc 1 283 9 is_stmt 1 view .LVU308
+ 1201 00ac 1848     		ldr	r0, .L86+24
+ 1202              	.LVL113:
+ 283:Core/Src/mimic_i2c.c ****         /* In Slave mode, we transmit when master requests */
+ 1203              		.loc 1 283 9 is_stmt 0 view .LVU309
+ 1204 00ae FFF7FEFF 		bl	Mimic_SendResponse
+ 1205              	.LVL114:
+ 285:Core/Src/mimic_i2c.c ****     }
+ 1206              		.loc 1 285 9 is_stmt 1 view .LVU310
+ 285:Core/Src/mimic_i2c.c ****     }
+ 1207              		.loc 1 285 18 is_stmt 0 view .LVU311
+ 1208 00b2 41F28833 		movw	r3, #5000
+ 1209 00b6 2246     		mov	r2, r4
+ 1210 00b8 02A9     		add	r1, sp, #8
+ 1211 00ba 4046     		mov	r0, r8
+ 1212 00bc FFF7FEFF 		bl	HAL_I2C_Slave_Transmit
+ 1213              	.LVL115:
+ 1214 00c0 0146     		mov	r1, r0
+ 1215              	.LVL116:
+ 1216              	.L76:
+ 292:Core/Src/mimic_i2c.c ****     {
+ 1217              		.loc 1 292 5 is_stmt 1 view .LVU312
+ 292:Core/Src/mimic_i2c.c ****     {
+ 1218              		.loc 1 292 8 is_stmt 0 view .LVU313
+ 1219 00c2 A9B9     		cbnz	r1, .L77
+ 294:Core/Src/mimic_i2c.c ****     }
+ 1220              		.loc 1 294 9 is_stmt 1 view .LVU314
+ 1221 00c4 2146     		mov	r1, r4
+ARM GAS  /tmp/cczRQYDV.s 			page 32
+
+
+ 1222              	.LVL117:
+ 294:Core/Src/mimic_i2c.c ****     }
+ 1223              		.loc 1 294 9 is_stmt 0 view .LVU315
+ 1224 00c6 1348     		ldr	r0, .L86+28
+ 1225 00c8 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1226              	.LVL118:
+ 1227 00cc C5E7     		b	.L65
+ 1228              	.LVL119:
+ 1229              	.L85:
+ 276:Core/Src/mimic_i2c.c ****         return;
+ 1230              		.loc 1 276 9 is_stmt 1 view .LVU316
+ 1231 00ce 1248     		ldr	r0, .L86+32
+ 1232              	.LVL120:
+ 276:Core/Src/mimic_i2c.c ****         return;
+ 1233              		.loc 1 276 9 is_stmt 0 view .LVU317
+ 1234 00d0 FFF7FEFF 		bl	Mimic_SendResponse
+ 1235              	.LVL121:
+ 277:Core/Src/mimic_i2c.c ****     }
+ 1236              		.loc 1 277 9 is_stmt 1 view .LVU318
+ 1237 00d4 C1E7     		b	.L65
+ 1238              	.LVL122:
+ 1239              	.L75:
+ 289:Core/Src/mimic_i2c.c ****     }
+ 1240              		.loc 1 289 9 view .LVU319
+ 289:Core/Src/mimic_i2c.c ****     }
+ 1241              		.loc 1 289 18 is_stmt 0 view .LVU320
+ 1242 00d6 4B46     		mov	r3, r9
+ 1243 00d8 5900     		lsls	r1, r3, #1
+ 1244 00da 89B2     		uxth	r1, r1
+ 1245 00dc 4FF47A73 		mov	r3, #1000
+ 1246 00e0 0093     		str	r3, [sp]
+ 1247 00e2 0346     		mov	r3, r0
+ 1248 00e4 02AA     		add	r2, sp, #8
+ 1249 00e6 4046     		mov	r0, r8
+ 1250              	.LVL123:
+ 289:Core/Src/mimic_i2c.c ****     }
+ 1251              		.loc 1 289 18 view .LVU321
+ 1252 00e8 FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+ 1253              	.LVL124:
+ 1254 00ec 0146     		mov	r1, r0
+ 1255 00ee E8E7     		b	.L76
+ 1256              	.LVL125:
+ 1257              	.L77:
+ 298:Core/Src/mimic_i2c.c ****     }
+ 1258              		.loc 1 298 9 is_stmt 1 view .LVU322
+ 1259 00f0 0A48     		ldr	r0, .L86+36
+ 1260 00f2 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1261              	.LVL126:
+ 298:Core/Src/mimic_i2c.c ****     }
+ 1262              		.loc 1 298 9 is_stmt 0 view .LVU323
+ 1263 00f6 B0E7     		b	.L65
+ 1264              	.L87:
+ 1265              		.align	2
+ 1266              	.L86:
+ 1267 00f8 00000000 		.word	.LC35
+ 1268 00fc 2C000000 		.word	.LC36
+ 1269 0100 50000000 		.word	.LC37
+ARM GAS  /tmp/cczRQYDV.s 			page 33
+
+
+ 1270 0104 70000000 		.word	.LC38
+ 1271 0108 90000000 		.word	.LC39
+ 1272 010c 00000000 		.word	i2c_states
+ 1273 0110 B0000000 		.word	.LC41
+ 1274 0114 D0000000 		.word	.LC42
+ 1275 0118 94000000 		.word	.LC40
+ 1276 011c F0000000 		.word	.LC43
+ 1277              		.cfi_endproc
+ 1278              	.LFE142:
+ 1280              		.section	.rodata.Mimic_CMD_I2C_READ.str1.4,"aMS",%progbits,1
+ 1281              		.align	2
+ 1282              	.LC44:
+ 1283 0000 55736167 		.ascii	"Usage: I2C_READ <1-3> <ADDR> <LENGTH>\015\012\000"
+ 1283      653A2049 
+ 1283      32435F52 
+ 1283      45414420 
+ 1283      3C312D33 
+ 1284              		.align	2
+ 1285              	.LC45:
+ 1286 0028 20204578 		.ascii	"  Example: I2C_READ 1 0x68 6\015\012\000"
+ 1286      616D706C 
+ 1286      653A2049 
+ 1286      32435F52 
+ 1286      45414420 
+ 1287 0047 00       		.align	2
+ 1288              	.LC46:
+ 1289 0048 4552524F 		.ascii	"ERROR: I2C listen failed\015\012\000"
+ 1289      523A2049 
+ 1289      3243206C 
+ 1289      69737465 
+ 1289      6E206661 
+ 1290 0063 00       		.align	2
+ 1291              	.LC47:
+ 1292 0064 4F4B3A20 		.ascii	"OK: Slave listening on bus...\015\012\000"
+ 1292      536C6176 
+ 1292      65206C69 
+ 1292      7374656E 
+ 1292      696E6720 
+ 1293              		.align	2
+ 1294              	.LC48:
+ 1295 0084 4F4B3A20 		.ascii	"OK: Read %d bytes: \000"
+ 1295      52656164 
+ 1295      20256420 
+ 1295      62797465 
+ 1295      733A2000 
+ 1296              		.align	2
+ 1297              	.LC49:
+ 1298 0098 25303258 		.ascii	"%02X \000"
+ 1298      2000
+ 1299 009e 0000     		.align	2
+ 1300              	.LC50:
+ 1301 00a0 0D0A00   		.ascii	"\015\012\000"
+ 1302 00a3 00       		.align	2
+ 1303              	.LC51:
+ 1304 00a4 4552524F 		.ascii	"ERROR: Read failed (Status: %d)\015\012\000"
+ 1304      523A2052 
+ 1304      65616420 
+ARM GAS  /tmp/cczRQYDV.s 			page 34
+
+
+ 1304      6661696C 
+ 1304      65642028 
+ 1305              		.section	.text.Mimic_CMD_I2C_READ,"ax",%progbits
+ 1306              		.align	1
+ 1307              		.global	Mimic_CMD_I2C_READ
+ 1308              		.syntax unified
+ 1309              		.thumb
+ 1310              		.thumb_func
+ 1312              	Mimic_CMD_I2C_READ:
+ 1313              	.LVL127:
+ 1314              	.LFB143:
+ 301:Core/Src/mimic_i2c.c **** 
+ 302:Core/Src/mimic_i2c.c **** /**
+ 303:Core/Src/mimic_i2c.c ****   * @brief  I2C_READ <INSTANCE> <ADDR> <LENGTH>
+ 304:Core/Src/mimic_i2c.c ****   *         Master: Read from ADDR
+ 305:Core/Src/mimic_i2c.c ****   *         Slave:  ADDR is ignored, Receive LENGTH bytes from Master
+ 306:Core/Src/mimic_i2c.c ****   */
+ 307:Core/Src/mimic_i2c.c **** void Mimic_CMD_I2C_READ(Mimic_Command_t *cmd)
+ 308:Core/Src/mimic_i2c.c **** {
+ 1315              		.loc 1 308 1 is_stmt 1 view -0
+ 1316              		.cfi_startproc
+ 1317              		@ args = 0, pretend = 0, frame = 72
+ 1318              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1319              		.loc 1 308 1 is_stmt 0 view .LVU325
+ 1320 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1321              	.LCFI15:
+ 1322              		.cfi_def_cfa_offset 20
+ 1323              		.cfi_offset 4, -20
+ 1324              		.cfi_offset 5, -16
+ 1325              		.cfi_offset 6, -12
+ 1326              		.cfi_offset 7, -8
+ 1327              		.cfi_offset 14, -4
+ 1328 0002 95B0     		sub	sp, sp, #84
+ 1329              	.LCFI16:
+ 1330              		.cfi_def_cfa_offset 104
+ 309:Core/Src/mimic_i2c.c ****     if (cmd->argc < 3)
+ 1331              		.loc 1 309 5 is_stmt 1 view .LVU326
+ 1332              		.loc 1 309 12 is_stmt 0 view .LVU327
+ 1333 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1334              		.loc 1 309 8 view .LVU328
+ 1335 0008 022B     		cmp	r3, #2
+ 1336 000a 31D9     		bls	.L104
+ 1337 000c 0446     		mov	r4, r0
+ 310:Core/Src/mimic_i2c.c ****     {
+ 311:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("Usage: I2C_READ <1-3> <ADDR> <LENGTH>\r\n");
+ 312:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_READ 1 0x68 6\r\n");
+ 313:Core/Src/mimic_i2c.c ****         return;
+ 314:Core/Src/mimic_i2c.c ****     }
+ 315:Core/Src/mimic_i2c.c ****     
+ 316:Core/Src/mimic_i2c.c ****     int idx = atoi(cmd->args[0]) - 1;
+ 1338              		.loc 1 316 5 is_stmt 1 view .LVU329
+ 1339              		.loc 1 316 29 is_stmt 0 view .LVU330
+ 1340 000e 00F12003 		add	r3, r0, #32
+ 1341 0012 1D46     		mov	r5, r3
+ 1342              		.loc 1 316 15 view .LVU331
+ 1343 0014 1846     		mov	r0, r3
+ 1344              	.LVL128:
+ARM GAS  /tmp/cczRQYDV.s 			page 35
+
+
+ 1345              		.loc 1 316 15 view .LVU332
+ 1346 0016 FFF7FEFF 		bl	atoi
+ 1347              	.LVL129:
+ 1348              		.loc 1 316 9 discriminator 1 view .LVU333
+ 1349 001a 431E     		subs	r3, r0, #1
+ 1350 001c 1E46     		mov	r6, r3
+ 1351              	.LVL130:
+ 317:Core/Src/mimic_i2c.c ****     if (idx < 0 || idx > 2)
+ 1352              		.loc 1 317 5 is_stmt 1 view .LVU334
+ 1353              		.loc 1 317 8 is_stmt 0 view .LVU335
+ 1354 001e 022B     		cmp	r3, #2
+ 1355 0020 2ED8     		bhi	.L105
+ 318:Core/Src/mimic_i2c.c ****     {
+ 319:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: Invalid I2C instance\r\n");
+ 320:Core/Src/mimic_i2c.c ****         return;
+ 321:Core/Src/mimic_i2c.c ****     }
+ 322:Core/Src/mimic_i2c.c ****     
+ 323:Core/Src/mimic_i2c.c ****     I2C_HandleTypeDef *hi2c = Mimic_GetI2CHandle(cmd->args[0]);
+ 1356              		.loc 1 323 5 is_stmt 1 view .LVU336
+ 1357              		.loc 1 323 31 is_stmt 0 view .LVU337
+ 1358 0022 2846     		mov	r0, r5
+ 1359 0024 FFF7FEFF 		bl	Mimic_GetI2CHandle
+ 1360              	.LVL131:
+ 324:Core/Src/mimic_i2c.c ****     if (hi2c == NULL || hi2c->Instance == NULL)
+ 1361              		.loc 1 324 5 is_stmt 1 view .LVU338
+ 1362              		.loc 1 324 8 is_stmt 0 view .LVU339
+ 1363 0028 0546     		mov	r5, r0
+ 1364 002a 68B3     		cbz	r0, .L92
+ 1365              		.loc 1 324 29 discriminator 1 view .LVU340
+ 1366 002c 0368     		ldr	r3, [r0]
+ 1367              		.loc 1 324 22 discriminator 1 view .LVU341
+ 1368 002e 5BB3     		cbz	r3, .L92
+ 325:Core/Src/mimic_i2c.c ****     {
+ 326:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: I2C not initialized\r\n");
+ 327:Core/Src/mimic_i2c.c ****         return;
+ 328:Core/Src/mimic_i2c.c ****     }
+ 329:Core/Src/mimic_i2c.c ****     
+ 330:Core/Src/mimic_i2c.c ****     uint16_t addr = (uint16_t)strtol(cmd->args[1], NULL, 16);
+ 1369              		.loc 1 330 5 is_stmt 1 view .LVU342
+ 1370              		.loc 1 330 31 is_stmt 0 view .LVU343
+ 1371 0030 1022     		movs	r2, #16
+ 1372 0032 0021     		movs	r1, #0
+ 1373 0034 04F14000 		add	r0, r4, #64
+ 1374              	.LVL132:
+ 1375              		.loc 1 330 31 view .LVU344
+ 1376 0038 FFF7FEFF 		bl	strtol
+ 1377              	.LVL133:
+ 1378              		.loc 1 330 14 discriminator 1 view .LVU345
+ 1379 003c 83B2     		uxth	r3, r0
+ 1380 003e 1F46     		mov	r7, r3
+ 1381              	.LVL134:
+ 331:Core/Src/mimic_i2c.c ****     uint16_t length = atoi(cmd->args[2]);
+ 1382              		.loc 1 331 5 is_stmt 1 view .LVU346
+ 1383              		.loc 1 331 23 is_stmt 0 view .LVU347
+ 1384 0040 04F16000 		add	r0, r4, #96
+ 1385 0044 FFF7FEFF 		bl	atoi
+ 1386              	.LVL135:
+ARM GAS  /tmp/cczRQYDV.s 			page 36
+
+
+ 1387              		.loc 1 331 14 discriminator 1 view .LVU348
+ 1388 0048 84B2     		uxth	r4, r0
+ 1389              	.LVL136:
+ 332:Core/Src/mimic_i2c.c ****     if (length > 64) length = 64;
+ 1390              		.loc 1 332 5 is_stmt 1 view .LVU349
+ 1391              		.loc 1 332 8 is_stmt 0 view .LVU350
+ 1392 004a 402C     		cmp	r4, #64
+ 1393 004c 00D9     		bls	.L94
+ 1394              		.loc 1 332 29 discriminator 1 view .LVU351
+ 1395 004e 4024     		movs	r4, #64
+ 1396              	.LVL137:
+ 1397              	.L94:
+ 333:Core/Src/mimic_i2c.c ****     
+ 334:Core/Src/mimic_i2c.c ****     uint8_t buffer[65] = {0};
+ 1398              		.loc 1 334 5 is_stmt 1 view .LVU352
+ 1399              		.loc 1 334 13 is_stmt 0 view .LVU353
+ 1400 0050 4122     		movs	r2, #65
+ 1401 0052 0021     		movs	r1, #0
+ 1402 0054 03A8     		add	r0, sp, #12
+ 1403 0056 FFF7FEFF 		bl	memset
+ 1404              	.LVL138:
+ 335:Core/Src/mimic_i2c.c ****     HAL_StatusTypeDef status;
+ 1405              		.loc 1 335 5 is_stmt 1 view .LVU354
+ 336:Core/Src/mimic_i2c.c ****     
+ 337:Core/Src/mimic_i2c.c ****     if (i2c_states[idx].is_slave)
+ 1406              		.loc 1 337 5 view .LVU355
+ 1407              		.loc 1 337 24 is_stmt 0 view .LVU356
+ 1408 005a 224B     		ldr	r3, .L107
+ 1409 005c 9B5D     		ldrb	r3, [r3, r6]	@ zero_extendqisi2
+ 1410              		.loc 1 337 8 view .LVU357
+ 1411 005e DBB1     		cbz	r3, .L95
+ 338:Core/Src/mimic_i2c.c ****     {
+ 339:Core/Src/mimic_i2c.c ****         /* In Slave mode, we listen for Master events */
+ 340:Core/Src/mimic_i2c.c ****         if (HAL_I2C_EnableListen_IT(hi2c) != HAL_OK)
+ 1412              		.loc 1 340 9 is_stmt 1 view .LVU358
+ 1413              		.loc 1 340 13 is_stmt 0 view .LVU359
+ 1414 0060 2846     		mov	r0, r5
+ 1415 0062 FFF7FEFF 		bl	HAL_I2C_EnableListen_IT
+ 1416              	.LVL139:
+ 1417              		.loc 1 340 12 discriminator 1 view .LVU360
+ 1418 0066 98B9     		cbnz	r0, .L106
+ 341:Core/Src/mimic_i2c.c ****         {
+ 342:Core/Src/mimic_i2c.c ****             Mimic_SendResponse("ERROR: I2C listen failed\r\n");
+ 343:Core/Src/mimic_i2c.c ****             return;
+ 344:Core/Src/mimic_i2c.c ****         }
+ 345:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("OK: Slave listening on bus...\r\n");
+ 1419              		.loc 1 345 9 is_stmt 1 view .LVU361
+ 1420 0068 1F48     		ldr	r0, .L107+4
+ 1421 006a FFF7FEFF 		bl	Mimic_SendResponse
+ 1422              	.LVL140:
+ 1423 006e 05E0     		b	.L88
+ 1424              	.LVL141:
+ 1425              	.L104:
+ 311:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_READ 1 0x68 6\r\n");
+ 1426              		.loc 1 311 9 view .LVU362
+ 1427 0070 1E48     		ldr	r0, .L107+8
+ 1428              	.LVL142:
+ARM GAS  /tmp/cczRQYDV.s 			page 37
+
+
+ 311:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_READ 1 0x68 6\r\n");
+ 1429              		.loc 1 311 9 is_stmt 0 view .LVU363
+ 1430 0072 FFF7FEFF 		bl	Mimic_SendResponse
+ 1431              	.LVL143:
+ 312:Core/Src/mimic_i2c.c ****         return;
+ 1432              		.loc 1 312 9 is_stmt 1 view .LVU364
+ 1433 0076 1E48     		ldr	r0, .L107+12
+ 1434 0078 FFF7FEFF 		bl	Mimic_SendResponse
+ 1435              	.LVL144:
+ 313:Core/Src/mimic_i2c.c ****     }
+ 1436              		.loc 1 313 9 view .LVU365
+ 1437              	.L88:
+ 346:Core/Src/mimic_i2c.c ****     }
+ 347:Core/Src/mimic_i2c.c ****     else
+ 348:Core/Src/mimic_i2c.c ****     {
+ 349:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Master_Receive(hi2c, (uint16_t)(addr << 1), buffer, length, 1000);
+ 350:Core/Src/mimic_i2c.c ****         if (status == HAL_OK)
+ 351:Core/Src/mimic_i2c.c ****         {
+ 352:Core/Src/mimic_i2c.c ****             Mimic_SendResponseF("OK: Read %d bytes: ", length);
+ 353:Core/Src/mimic_i2c.c ****             for (int i = 0; i < length; i++)
+ 354:Core/Src/mimic_i2c.c ****             {
+ 355:Core/Src/mimic_i2c.c ****                 Mimic_SendResponseF("%02X ", buffer[i]);
+ 356:Core/Src/mimic_i2c.c ****             }
+ 357:Core/Src/mimic_i2c.c ****             Mimic_SendResponse("\r\n");
+ 358:Core/Src/mimic_i2c.c ****         }
+ 359:Core/Src/mimic_i2c.c ****         else
+ 360:Core/Src/mimic_i2c.c ****         {
+ 361:Core/Src/mimic_i2c.c ****             Mimic_SendResponseF("ERROR: Read failed (Status: %d)\r\n", status);
+ 362:Core/Src/mimic_i2c.c ****         }
+ 363:Core/Src/mimic_i2c.c ****     }
+ 364:Core/Src/mimic_i2c.c **** }
+ 1438              		.loc 1 364 1 is_stmt 0 view .LVU366
+ 1439 007c 15B0     		add	sp, sp, #84
+ 1440              	.LCFI17:
+ 1441              		.cfi_remember_state
+ 1442              		.cfi_def_cfa_offset 20
+ 1443              		@ sp needed
+ 1444 007e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1445              	.LVL145:
+ 1446              	.L105:
+ 1447              	.LCFI18:
+ 1448              		.cfi_restore_state
+ 319:Core/Src/mimic_i2c.c ****         return;
+ 1449              		.loc 1 319 9 is_stmt 1 view .LVU367
+ 1450 0080 1C48     		ldr	r0, .L107+16
+ 1451 0082 FFF7FEFF 		bl	Mimic_SendResponse
+ 1452              	.LVL146:
+ 320:Core/Src/mimic_i2c.c ****     }
+ 1453              		.loc 1 320 9 view .LVU368
+ 1454 0086 F9E7     		b	.L88
+ 1455              	.LVL147:
+ 1456              	.L92:
+ 326:Core/Src/mimic_i2c.c ****         return;
+ 1457              		.loc 1 326 9 view .LVU369
+ 1458 0088 1B48     		ldr	r0, .L107+20
+ 1459              	.LVL148:
+ 326:Core/Src/mimic_i2c.c ****         return;
+ARM GAS  /tmp/cczRQYDV.s 			page 38
+
+
+ 1460              		.loc 1 326 9 is_stmt 0 view .LVU370
+ 1461 008a FFF7FEFF 		bl	Mimic_SendResponse
+ 1462              	.LVL149:
+ 327:Core/Src/mimic_i2c.c ****     }
+ 1463              		.loc 1 327 9 is_stmt 1 view .LVU371
+ 1464 008e F5E7     		b	.L88
+ 1465              	.LVL150:
+ 1466              	.L106:
+ 342:Core/Src/mimic_i2c.c ****             return;
+ 1467              		.loc 1 342 13 view .LVU372
+ 1468 0090 1A48     		ldr	r0, .L107+24
+ 1469 0092 FFF7FEFF 		bl	Mimic_SendResponse
+ 1470              	.LVL151:
+ 343:Core/Src/mimic_i2c.c ****         }
+ 1471              		.loc 1 343 13 view .LVU373
+ 1472 0096 F1E7     		b	.L88
+ 1473              	.L95:
+ 349:Core/Src/mimic_i2c.c ****         if (status == HAL_OK)
+ 1474              		.loc 1 349 9 view .LVU374
+ 349:Core/Src/mimic_i2c.c ****         if (status == HAL_OK)
+ 1475              		.loc 1 349 18 is_stmt 0 view .LVU375
+ 1476 0098 7800     		lsls	r0, r7, #1
+ 1477 009a 81B2     		uxth	r1, r0
+ 1478 009c 4FF47A73 		mov	r3, #1000
+ 1479 00a0 0093     		str	r3, [sp]
+ 1480 00a2 2346     		mov	r3, r4
+ 1481 00a4 03AA     		add	r2, sp, #12
+ 1482 00a6 2846     		mov	r0, r5
+ 1483 00a8 FFF7FEFF 		bl	HAL_I2C_Master_Receive
+ 1484              	.LVL152:
+ 350:Core/Src/mimic_i2c.c ****         {
+ 1485              		.loc 1 350 9 is_stmt 1 view .LVU376
+ 350:Core/Src/mimic_i2c.c ****         {
+ 1486              		.loc 1 350 12 is_stmt 0 view .LVU377
+ 1487 00ac 0146     		mov	r1, r0
+ 1488 00ae A8B9     		cbnz	r0, .L98
+ 352:Core/Src/mimic_i2c.c ****             for (int i = 0; i < length; i++)
+ 1489              		.loc 1 352 13 is_stmt 1 view .LVU378
+ 1490 00b0 2546     		mov	r5, r4
+ 1491              	.LVL153:
+ 352:Core/Src/mimic_i2c.c ****             for (int i = 0; i < length; i++)
+ 1492              		.loc 1 352 13 is_stmt 0 view .LVU379
+ 1493 00b2 2146     		mov	r1, r4
+ 1494 00b4 1248     		ldr	r0, .L107+28
+ 1495              	.LVL154:
+ 352:Core/Src/mimic_i2c.c ****             for (int i = 0; i < length; i++)
+ 1496              		.loc 1 352 13 view .LVU380
+ 1497 00b6 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1498              	.LVL155:
+ 353:Core/Src/mimic_i2c.c ****             {
+ 1499              		.loc 1 353 13 is_stmt 1 view .LVU381
+ 1500              	.LBB12:
+ 353:Core/Src/mimic_i2c.c ****             {
+ 1501              		.loc 1 353 18 view .LVU382
+ 353:Core/Src/mimic_i2c.c ****             {
+ 1502              		.loc 1 353 22 is_stmt 0 view .LVU383
+ 1503 00ba 0024     		movs	r4, #0
+ARM GAS  /tmp/cczRQYDV.s 			page 39
+
+
+ 1504              	.LVL156:
+ 353:Core/Src/mimic_i2c.c ****             {
+ 1505              		.loc 1 353 13 view .LVU384
+ 1506 00bc 08E0     		b	.L99
+ 1507              	.LVL157:
+ 1508              	.L100:
+ 355:Core/Src/mimic_i2c.c ****             }
+ 1509              		.loc 1 355 17 is_stmt 1 view .LVU385
+ 355:Core/Src/mimic_i2c.c ****             }
+ 1510              		.loc 1 355 52 is_stmt 0 view .LVU386
+ 1511 00be 04F15003 		add	r3, r4, #80
+ 1512 00c2 6B44     		add	r3, sp, r3
+ 355:Core/Src/mimic_i2c.c ****             }
+ 1513              		.loc 1 355 17 view .LVU387
+ 1514 00c4 13F8441C 		ldrb	r1, [r3, #-68]	@ zero_extendqisi2
+ 1515 00c8 0E48     		ldr	r0, .L107+32
+ 1516 00ca FFF7FEFF 		bl	Mimic_SendResponseF
+ 1517              	.LVL158:
+ 353:Core/Src/mimic_i2c.c ****             {
+ 1518              		.loc 1 353 42 is_stmt 1 discriminator 3 view .LVU388
+ 1519 00ce 0134     		adds	r4, r4, #1
+ 1520              	.LVL159:
+ 1521              	.L99:
+ 353:Core/Src/mimic_i2c.c ****             {
+ 1522              		.loc 1 353 31 discriminator 1 view .LVU389
+ 1523 00d0 A542     		cmp	r5, r4
+ 1524 00d2 F4DC     		bgt	.L100
+ 1525              	.LBE12:
+ 357:Core/Src/mimic_i2c.c ****         }
+ 1526              		.loc 1 357 13 view .LVU390
+ 1527 00d4 0C48     		ldr	r0, .L107+36
+ 1528 00d6 FFF7FEFF 		bl	Mimic_SendResponse
+ 1529              	.LVL160:
+ 1530 00da CFE7     		b	.L88
+ 1531              	.LVL161:
+ 1532              	.L98:
+ 361:Core/Src/mimic_i2c.c ****         }
+ 1533              		.loc 1 361 13 view .LVU391
+ 1534 00dc 0B48     		ldr	r0, .L107+40
+ 1535              	.LVL162:
+ 361:Core/Src/mimic_i2c.c ****         }
+ 1536              		.loc 1 361 13 is_stmt 0 view .LVU392
+ 1537 00de FFF7FEFF 		bl	Mimic_SendResponseF
+ 1538              	.LVL163:
+ 361:Core/Src/mimic_i2c.c ****         }
+ 1539              		.loc 1 361 13 view .LVU393
+ 1540 00e2 CBE7     		b	.L88
+ 1541              	.L108:
+ 1542              		.align	2
+ 1543              	.L107:
+ 1544 00e4 00000000 		.word	i2c_states
+ 1545 00e8 64000000 		.word	.LC47
+ 1546 00ec 00000000 		.word	.LC44
+ 1547 00f0 28000000 		.word	.LC45
+ 1548 00f4 50000000 		.word	.LC37
+ 1549 00f8 70000000 		.word	.LC38
+ 1550 00fc 48000000 		.word	.LC46
+ARM GAS  /tmp/cczRQYDV.s 			page 40
+
+
+ 1551 0100 84000000 		.word	.LC48
+ 1552 0104 98000000 		.word	.LC49
+ 1553 0108 A0000000 		.word	.LC50
+ 1554 010c A4000000 		.word	.LC51
+ 1555              		.cfi_endproc
+ 1556              	.LFE143:
+ 1558              		.section	.rodata.Mimic_CMD_I2C_REG_SET.str1.4,"aMS",%progbits,1
+ 1559              		.align	2
+ 1560              	.LC52:
+ 1561 0000 55736167 		.ascii	"Usage: I2C_REG_SET <ADDR> <VAL>\015\012\000"
+ 1561      653A2049 
+ 1561      32435F52 
+ 1561      45475F53 
+ 1561      4554203C 
+ 1562 0022 0000     		.align	2
+ 1563              	.LC53:
+ 1564 0024 4F4B3A20 		.ascii	"OK: Reg[0x%02X] = 0x%02X\015\012\000"
+ 1564      5265675B 
+ 1564      30782530 
+ 1564      32585D20 
+ 1564      3D203078 
+ 1565              		.section	.text.Mimic_CMD_I2C_REG_SET,"ax",%progbits
+ 1566              		.align	1
+ 1567              		.global	Mimic_CMD_I2C_REG_SET
+ 1568              		.syntax unified
+ 1569              		.thumb
+ 1570              		.thumb_func
+ 1572              	Mimic_CMD_I2C_REG_SET:
+ 1573              	.LVL164:
+ 1574              	.LFB144:
+ 365:Core/Src/mimic_i2c.c **** 
+ 366:Core/Src/mimic_i2c.c **** /**
+ 367:Core/Src/mimic_i2c.c ****   * @brief  I2C_SLAVE_DATA <INSTANCE> <HEX>
+ 368:Core/Src/mimic_i2c.c ****   *         Pre-load the buffer that will be sent when a Master Reads from us.
+ 369:Core/Src/mimic_i2c.c ****   */
+ 370:Core/Src/mimic_i2c.c **** void Mimic_CMD_I2C_REG_SET(Mimic_Command_t *cmd)
+ 371:Core/Src/mimic_i2c.c **** {
+ 1575              		.loc 1 371 1 is_stmt 1 view -0
+ 1576              		.cfi_startproc
+ 1577              		@ args = 0, pretend = 0, frame = 0
+ 1578              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1579              		.loc 1 371 1 is_stmt 0 view .LVU395
+ 1580 0000 38B5     		push	{r3, r4, r5, lr}
+ 1581              	.LCFI19:
+ 1582              		.cfi_def_cfa_offset 16
+ 1583              		.cfi_offset 3, -16
+ 1584              		.cfi_offset 4, -12
+ 1585              		.cfi_offset 5, -8
+ 1586              		.cfi_offset 14, -4
+ 372:Core/Src/mimic_i2c.c ****     if (cmd->argc < 2)
+ 1587              		.loc 1 372 5 is_stmt 1 view .LVU396
+ 1588              		.loc 1 372 12 is_stmt 0 view .LVU397
+ 1589 0002 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1590              		.loc 1 372 8 view .LVU398
+ 1591 0006 012B     		cmp	r3, #1
+ 1592 0008 14D9     		bls	.L113
+ 1593 000a 0446     		mov	r4, r0
+ARM GAS  /tmp/cczRQYDV.s 			page 41
+
+
+ 373:Core/Src/mimic_i2c.c ****     {
+ 374:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("Usage: I2C_REG_SET <ADDR> <VAL>\r\n");
+ 375:Core/Src/mimic_i2c.c ****         return;
+ 376:Core/Src/mimic_i2c.c ****     }
+ 377:Core/Src/mimic_i2c.c ****     
+ 378:Core/Src/mimic_i2c.c ****     uint8_t addr = (uint8_t)strtoul(cmd->args[0], NULL, 0);
+ 1594              		.loc 1 378 5 is_stmt 1 view .LVU399
+ 1595              		.loc 1 378 29 is_stmt 0 view .LVU400
+ 1596 000c 0022     		movs	r2, #0
+ 1597 000e 1146     		mov	r1, r2
+ 1598 0010 2030     		adds	r0, r0, #32
+ 1599              	.LVL165:
+ 1600              		.loc 1 378 29 view .LVU401
+ 1601 0012 FFF7FEFF 		bl	strtoul
+ 1602              	.LVL166:
+ 1603 0016 0546     		mov	r5, r0
+ 1604              	.LVL167:
+ 379:Core/Src/mimic_i2c.c ****     uint8_t val = (uint8_t)strtoul(cmd->args[1], NULL, 0);
+ 1605              		.loc 1 379 5 is_stmt 1 view .LVU402
+ 1606              		.loc 1 379 28 is_stmt 0 view .LVU403
+ 1607 0018 0022     		movs	r2, #0
+ 1608 001a 1146     		mov	r1, r2
+ 1609 001c 04F14000 		add	r0, r4, #64
+ 1610 0020 FFF7FEFF 		bl	strtoul
+ 1611              	.LVL168:
+ 1612              		.loc 1 379 13 discriminator 1 view .LVU404
+ 1613 0024 C2B2     		uxtb	r2, r0
+ 1614              	.LVL169:
+ 380:Core/Src/mimic_i2c.c ****     
+ 381:Core/Src/mimic_i2c.c ****     i2c_register_map[addr] = val;
+ 1615              		.loc 1 381 5 is_stmt 1 view .LVU405
+ 1616              		.loc 1 381 21 is_stmt 0 view .LVU406
+ 1617 0026 E9B2     		uxtb	r1, r5
+ 1618              		.loc 1 381 28 view .LVU407
+ 1619 0028 044B     		ldr	r3, .L114
+ 1620 002a 5A54     		strb	r2, [r3, r1]
+ 382:Core/Src/mimic_i2c.c ****     Mimic_SendResponseF("OK: Reg[0x%02X] = 0x%02X\r\n", addr, val);
+ 1621              		.loc 1 382 5 is_stmt 1 view .LVU408
+ 1622 002c 0448     		ldr	r0, .L114+4
+ 1623 002e FFF7FEFF 		bl	Mimic_SendResponseF
+ 1624              	.LVL170:
+ 1625              	.L109:
+ 383:Core/Src/mimic_i2c.c **** }
+ 1626              		.loc 1 383 1 is_stmt 0 view .LVU409
+ 1627 0032 38BD     		pop	{r3, r4, r5, pc}
+ 1628              	.LVL171:
+ 1629              	.L113:
+ 374:Core/Src/mimic_i2c.c ****         return;
+ 1630              		.loc 1 374 9 is_stmt 1 view .LVU410
+ 1631 0034 0348     		ldr	r0, .L114+8
+ 1632              	.LVL172:
+ 374:Core/Src/mimic_i2c.c ****         return;
+ 1633              		.loc 1 374 9 is_stmt 0 view .LVU411
+ 1634 0036 FFF7FEFF 		bl	Mimic_SendResponse
+ 1635              	.LVL173:
+ 375:Core/Src/mimic_i2c.c ****     }
+ 1636              		.loc 1 375 9 is_stmt 1 view .LVU412
+ARM GAS  /tmp/cczRQYDV.s 			page 42
+
+
+ 1637 003a FAE7     		b	.L109
+ 1638              	.L115:
+ 1639              		.align	2
+ 1640              	.L114:
+ 1641 003c 00000000 		.word	i2c_register_map
+ 1642 0040 24000000 		.word	.LC53
+ 1643 0044 00000000 		.word	.LC52
+ 1644              		.cfi_endproc
+ 1645              	.LFE144:
+ 1647              		.section	.rodata.Mimic_CMD_I2C_REG_DATA.str1.4,"aMS",%progbits,1
+ 1648              		.align	2
+ 1649              	.LC54:
+ 1650 0000 55736167 		.ascii	"Usage: I2C_REG_DATA <START_ADDR> <HEX>\015\012\000"
+ 1650      653A2049 
+ 1650      32435F52 
+ 1650      45475F44 
+ 1650      41544120 
+ 1651 0029 000000   		.align	2
+ 1652              	.LC55:
+ 1653 002c 4F4B3A20 		.ascii	"OK: Loaded %d bytes starting at 0x%02X\015\012\000"
+ 1653      4C6F6164 
+ 1653      65642025 
+ 1653      64206279 
+ 1653      74657320 
+ 1654              		.section	.text.Mimic_CMD_I2C_REG_DATA,"ax",%progbits
+ 1655              		.align	1
+ 1656              		.global	Mimic_CMD_I2C_REG_DATA
+ 1657              		.syntax unified
+ 1658              		.thumb
+ 1659              		.thumb_func
+ 1661              	Mimic_CMD_I2C_REG_DATA:
+ 1662              	.LVL174:
+ 1663              	.LFB145:
+ 384:Core/Src/mimic_i2c.c **** 
+ 385:Core/Src/mimic_i2c.c **** void Mimic_CMD_I2C_REG_DATA(Mimic_Command_t *cmd)
+ 386:Core/Src/mimic_i2c.c **** {
+ 1664              		.loc 1 386 1 view -0
+ 1665              		.cfi_startproc
+ 1666              		@ args = 0, pretend = 0, frame = 0
+ 1667              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1668              		.loc 1 386 1 is_stmt 0 view .LVU414
+ 1669 0000 38B5     		push	{r3, r4, r5, lr}
+ 1670              	.LCFI20:
+ 1671              		.cfi_def_cfa_offset 16
+ 1672              		.cfi_offset 3, -16
+ 1673              		.cfi_offset 4, -12
+ 1674              		.cfi_offset 5, -8
+ 1675              		.cfi_offset 14, -4
+ 387:Core/Src/mimic_i2c.c ****     if (cmd->argc < 2)
+ 1676              		.loc 1 387 5 is_stmt 1 view .LVU415
+ 1677              		.loc 1 387 12 is_stmt 0 view .LVU416
+ 1678 0002 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1679              		.loc 1 387 8 view .LVU417
+ 1680 0006 012B     		cmp	r3, #1
+ 1681 0008 15D9     		bls	.L120
+ 1682 000a 0446     		mov	r4, r0
+ 388:Core/Src/mimic_i2c.c ****     {
+ARM GAS  /tmp/cczRQYDV.s 			page 43
+
+
+ 389:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("Usage: I2C_REG_DATA <START_ADDR> <HEX>\r\n");
+ 390:Core/Src/mimic_i2c.c ****         return;
+ 391:Core/Src/mimic_i2c.c ****     }
+ 392:Core/Src/mimic_i2c.c ****     
+ 393:Core/Src/mimic_i2c.c ****     uint8_t addr = (uint8_t)strtoul(cmd->args[0], NULL, 0);
+ 1683              		.loc 1 393 5 is_stmt 1 view .LVU418
+ 1684              		.loc 1 393 29 is_stmt 0 view .LVU419
+ 1685 000c 0022     		movs	r2, #0
+ 1686 000e 1146     		mov	r1, r2
+ 1687 0010 2030     		adds	r0, r0, #32
+ 1688              	.LVL175:
+ 1689              		.loc 1 393 29 view .LVU420
+ 1690 0012 FFF7FEFF 		bl	strtoul
+ 1691              	.LVL176:
+ 1692              		.loc 1 393 13 discriminator 1 view .LVU421
+ 1693 0016 C5B2     		uxtb	r5, r0
+ 1694              	.LVL177:
+ 394:Core/Src/mimic_i2c.c ****     uint16_t len = Mimic_ParseHexData(cmd->args[1], &i2c_register_map[addr], 256 - addr);
+ 1695              		.loc 1 394 5 is_stmt 1 view .LVU422
+ 1696              		.loc 1 394 20 is_stmt 0 view .LVU423
+ 1697 0018 C5F58072 		rsb	r2, r5, #256
+ 1698 001c 92B2     		uxth	r2, r2
+ 1699 001e 0849     		ldr	r1, .L121
+ 1700 0020 2944     		add	r1, r1, r5
+ 1701 0022 04F14000 		add	r0, r4, #64
+ 1702 0026 FFF7FEFF 		bl	Mimic_ParseHexData
+ 1703              	.LVL178:
+ 1704 002a 0146     		mov	r1, r0
+ 1705              	.LVL179:
+ 395:Core/Src/mimic_i2c.c ****     
+ 396:Core/Src/mimic_i2c.c ****     Mimic_SendResponseF("OK: Loaded %d bytes starting at 0x%02X\r\n", len, addr);
+ 1706              		.loc 1 396 5 is_stmt 1 view .LVU424
+ 1707 002c 2A46     		mov	r2, r5
+ 1708 002e 0548     		ldr	r0, .L121+4
+ 1709 0030 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1710              	.LVL180:
+ 1711              	.L116:
+ 397:Core/Src/mimic_i2c.c **** }
+ 1712              		.loc 1 397 1 is_stmt 0 view .LVU425
+ 1713 0034 38BD     		pop	{r3, r4, r5, pc}
+ 1714              	.LVL181:
+ 1715              	.L120:
+ 389:Core/Src/mimic_i2c.c ****         return;
+ 1716              		.loc 1 389 9 is_stmt 1 view .LVU426
+ 1717 0036 0448     		ldr	r0, .L121+8
+ 1718              	.LVL182:
+ 389:Core/Src/mimic_i2c.c ****         return;
+ 1719              		.loc 1 389 9 is_stmt 0 view .LVU427
+ 1720 0038 FFF7FEFF 		bl	Mimic_SendResponse
+ 1721              	.LVL183:
+ 390:Core/Src/mimic_i2c.c ****     }
+ 1722              		.loc 1 390 9 is_stmt 1 view .LVU428
+ 1723 003c FAE7     		b	.L116
+ 1724              	.L122:
+ 1725 003e 00BF     		.align	2
+ 1726              	.L121:
+ 1727 0040 00000000 		.word	i2c_register_map
+ARM GAS  /tmp/cczRQYDV.s 			page 44
+
+
+ 1728 0044 2C000000 		.word	.LC55
+ 1729 0048 00000000 		.word	.LC54
+ 1730              		.cfi_endproc
+ 1731              	.LFE145:
+ 1733              		.section	.rodata.Mimic_CMD_I2C_WRITE_READ.str1.4,"aMS",%progbits,1
+ 1734              		.align	2
+ 1735              	.LC56:
+ 1736 0000 55736167 		.ascii	"Usage: I2C_WRITE_READ <1-3> <ADDR> <WRITE_DATA> <RE"
+ 1736      653A2049 
+ 1736      32435F57 
+ 1736      52495445 
+ 1736      5F524541 
+ 1737 0033 41445F4C 		.ascii	"AD_LEN>\015\012\000"
+ 1737      454E3E0D 
+ 1737      0A00
+ 1738 003d 000000   		.align	2
+ 1739              	.LC57:
+ 1740 0040 20204578 		.ascii	"  Example: I2C_WRITE_READ 1 0x68 75 1  (Read WHO_AM"
+ 1740      616D706C 
+ 1740      653A2049 
+ 1740      32435F57 
+ 1740      52495445 
+ 1741 0073 5F49290D 		.ascii	"_I)\015\012\000"
+ 1741      0A00
+ 1742 0079 000000   		.align	2
+ 1743              	.LC58:
+ 1744 007c 4F4B3A20 		.ascii	"OK: Read %d bytes from 0x%02X: \000"
+ 1744      52656164 
+ 1744      20256420 
+ 1744      62797465 
+ 1744      73206672 
+ 1745              		.align	2
+ 1746              	.LC59:
+ 1747 009c 4552524F 		.ascii	"ERROR: Write/Read failed (Status: %d)\015\012\000"
+ 1747      523A2057 
+ 1747      72697465 
+ 1747      2F526561 
+ 1747      64206661 
+ 1748              		.section	.text.Mimic_CMD_I2C_WRITE_READ,"ax",%progbits
+ 1749              		.align	1
+ 1750              		.global	Mimic_CMD_I2C_WRITE_READ
+ 1751              		.syntax unified
+ 1752              		.thumb
+ 1753              		.thumb_func
+ 1755              	Mimic_CMD_I2C_WRITE_READ:
+ 1756              	.LVL184:
+ 1757              	.LFB146:
+ 398:Core/Src/mimic_i2c.c **** 
+ 399:Core/Src/mimic_i2c.c **** /**
+ 400:Core/Src/mimic_i2c.c ****   * @brief  I2C_WRITE_READ <INSTANCE> <ADDR> <WRITE_DATA> <READ_LEN>
+ 401:Core/Src/mimic_i2c.c ****   */
+ 402:Core/Src/mimic_i2c.c **** void Mimic_CMD_I2C_WRITE_READ(Mimic_Command_t *cmd)
+ 403:Core/Src/mimic_i2c.c **** {
+ 1758              		.loc 1 403 1 view -0
+ 1759              		.cfi_startproc
+ 1760              		@ args = 0, pretend = 0, frame = 136
+ 1761              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/cczRQYDV.s 			page 45
+
+
+ 1762              		.loc 1 403 1 is_stmt 0 view .LVU430
+ 1763 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 1764              	.LCFI21:
+ 1765              		.cfi_def_cfa_offset 24
+ 1766              		.cfi_offset 4, -24
+ 1767              		.cfi_offset 5, -20
+ 1768              		.cfi_offset 6, -16
+ 1769              		.cfi_offset 7, -12
+ 1770              		.cfi_offset 8, -8
+ 1771              		.cfi_offset 14, -4
+ 1772 0004 A6B0     		sub	sp, sp, #152
+ 1773              	.LCFI22:
+ 1774              		.cfi_def_cfa_offset 176
+ 404:Core/Src/mimic_i2c.c ****     if (cmd->argc < 4)
+ 1775              		.loc 1 404 5 is_stmt 1 view .LVU431
+ 1776              		.loc 1 404 12 is_stmt 0 view .LVU432
+ 1777 0006 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
+ 1778              		.loc 1 404 8 view .LVU433
+ 1779 000a 032B     		cmp	r3, #3
+ 1780 000c 44D9     		bls	.L139
+ 1781 000e 0446     		mov	r4, r0
+ 405:Core/Src/mimic_i2c.c ****     {
+ 406:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("Usage: I2C_WRITE_READ <1-3> <ADDR> <WRITE_DATA> <READ_LEN>\r\n");
+ 407:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_WRITE_READ 1 0x68 75 1  (Read WHO_AM_I)\r\n");
+ 408:Core/Src/mimic_i2c.c ****         return;
+ 409:Core/Src/mimic_i2c.c ****     }
+ 410:Core/Src/mimic_i2c.c ****     
+ 411:Core/Src/mimic_i2c.c ****     I2C_HandleTypeDef *hi2c = Mimic_GetI2CHandle(cmd->args[0]);
+ 1782              		.loc 1 411 5 is_stmt 1 view .LVU434
+ 1783              		.loc 1 411 31 is_stmt 0 view .LVU435
+ 1784 0010 2030     		adds	r0, r0, #32
+ 1785              	.LVL185:
+ 1786              		.loc 1 411 31 view .LVU436
+ 1787 0012 FFF7FEFF 		bl	Mimic_GetI2CHandle
+ 1788              	.LVL186:
+ 412:Core/Src/mimic_i2c.c ****     if (hi2c == NULL || hi2c->Instance == NULL)
+ 1789              		.loc 1 412 5 is_stmt 1 view .LVU437
+ 1790              		.loc 1 412 8 is_stmt 0 view .LVU438
+ 1791 0016 0546     		mov	r5, r0
+ 1792 0018 0028     		cmp	r0, #0
+ 1793 001a 44D0     		beq	.L126
+ 1794              		.loc 1 412 29 discriminator 1 view .LVU439
+ 1795 001c 0368     		ldr	r3, [r0]
+ 1796              		.loc 1 412 22 discriminator 1 view .LVU440
+ 1797 001e 002B     		cmp	r3, #0
+ 1798 0020 41D0     		beq	.L126
+ 413:Core/Src/mimic_i2c.c ****     {
+ 414:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("ERROR: I2C not initialized\r\n");
+ 415:Core/Src/mimic_i2c.c ****         return;
+ 416:Core/Src/mimic_i2c.c ****     }
+ 417:Core/Src/mimic_i2c.c ****     
+ 418:Core/Src/mimic_i2c.c ****     uint16_t addr = (uint16_t)strtol(cmd->args[1], NULL, 16);
+ 1799              		.loc 1 418 5 is_stmt 1 view .LVU441
+ 1800              		.loc 1 418 31 is_stmt 0 view .LVU442
+ 1801 0022 1022     		movs	r2, #16
+ 1802 0024 0021     		movs	r1, #0
+ 1803 0026 04F14000 		add	r0, r4, #64
+ARM GAS  /tmp/cczRQYDV.s 			page 46
+
+
+ 1804              	.LVL187:
+ 1805              		.loc 1 418 31 view .LVU443
+ 1806 002a FFF7FEFF 		bl	strtol
+ 1807              	.LVL188:
+ 1808 002e 8046     		mov	r8, r0
+ 1809              		.loc 1 418 14 discriminator 1 view .LVU444
+ 1810 0030 83B2     		uxth	r3, r0
+ 1811 0032 1F46     		mov	r7, r3
+ 1812              	.LVL189:
+ 419:Core/Src/mimic_i2c.c ****     
+ 420:Core/Src/mimic_i2c.c ****     /* Parse write data */
+ 421:Core/Src/mimic_i2c.c ****     uint8_t write_data[64];
+ 1813              		.loc 1 421 5 is_stmt 1 view .LVU445
+ 422:Core/Src/mimic_i2c.c ****     uint16_t write_len = Mimic_ParseHexData(cmd->args[2], write_data, sizeof(write_data));
+ 1814              		.loc 1 422 5 view .LVU446
+ 1815              		.loc 1 422 26 is_stmt 0 view .LVU447
+ 1816 0034 4022     		movs	r2, #64
+ 1817 0036 16A9     		add	r1, sp, #88
+ 1818 0038 04F16000 		add	r0, r4, #96
+ 1819 003c FFF7FEFF 		bl	Mimic_ParseHexData
+ 1820              	.LVL190:
+ 1821 0040 0646     		mov	r6, r0
+ 1822              	.LVL191:
+ 423:Core/Src/mimic_i2c.c ****     
+ 424:Core/Src/mimic_i2c.c ****     uint16_t read_len = atoi(cmd->args[3]);
+ 1823              		.loc 1 424 5 is_stmt 1 view .LVU448
+ 1824              		.loc 1 424 25 is_stmt 0 view .LVU449
+ 1825 0042 04F18000 		add	r0, r4, #128
+ 1826 0046 FFF7FEFF 		bl	atoi
+ 1827              	.LVL192:
+ 1828              		.loc 1 424 14 discriminator 1 view .LVU450
+ 1829 004a 84B2     		uxth	r4, r0
+ 1830              	.LVL193:
+ 425:Core/Src/mimic_i2c.c ****     if (read_len > 64) read_len = 64;
+ 1831              		.loc 1 425 5 is_stmt 1 view .LVU451
+ 1832              		.loc 1 425 8 is_stmt 0 view .LVU452
+ 1833 004c 402C     		cmp	r4, #64
+ 1834 004e 00D9     		bls	.L128
+ 1835              		.loc 1 425 33 discriminator 1 view .LVU453
+ 1836 0050 4024     		movs	r4, #64
+ 1837              	.LVL194:
+ 1838              	.L128:
+ 426:Core/Src/mimic_i2c.c ****     
+ 427:Core/Src/mimic_i2c.c ****     /* Write first (without stop if possible, but HAL uses stop) 
+ 428:Core/Src/mimic_i2c.c ****        HAL_I2C_Mem_Read is better for register access */
+ 429:Core/Src/mimic_i2c.c ****     
+ 430:Core/Src/mimic_i2c.c ****     HAL_StatusTypeDef status;
+ 1839              		.loc 1 430 5 is_stmt 1 view .LVU454
+ 431:Core/Src/mimic_i2c.c ****     uint8_t buffer[65] = {0};
+ 1840              		.loc 1 431 5 view .LVU455
+ 1841              		.loc 1 431 13 is_stmt 0 view .LVU456
+ 1842 0052 4122     		movs	r2, #65
+ 1843 0054 0021     		movs	r1, #0
+ 1844 0056 05A8     		add	r0, sp, #20
+ 1845 0058 FFF7FEFF 		bl	memset
+ 1846              	.LVL195:
+ 432:Core/Src/mimic_i2c.c ****     
+ARM GAS  /tmp/cczRQYDV.s 			page 47
+
+
+ 433:Core/Src/mimic_i2c.c ****     /* If write length is 1 or 2 bytes, we can use Mem_Read which does repeated start */
+ 434:Core/Src/mimic_i2c.c ****     if (write_len == 1)
+ 1847              		.loc 1 434 5 is_stmt 1 view .LVU457
+ 1848              		.loc 1 434 8 is_stmt 0 view .LVU458
+ 1849 005c 012E     		cmp	r6, #1
+ 1850 005e 26D0     		beq	.L140
+ 435:Core/Src/mimic_i2c.c ****     {
+ 436:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Mem_Read(hi2c, (uint16_t)(addr << 1), write_data[0], I2C_MEMADD_SIZE_8BIT,
+ 437:Core/Src/mimic_i2c.c ****     }
+ 438:Core/Src/mimic_i2c.c ****     else if (write_len == 2)
+ 1851              		.loc 1 438 10 is_stmt 1 view .LVU459
+ 1852              		.loc 1 438 13 is_stmt 0 view .LVU460
+ 1853 0060 022E     		cmp	r6, #2
+ 1854 0062 34D0     		beq	.L141
+ 439:Core/Src/mimic_i2c.c ****     {
+ 440:Core/Src/mimic_i2c.c ****         uint16_t mem_addr = (write_data[0] << 8) | write_data[1];
+ 441:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Mem_Read(hi2c, (uint16_t)(addr << 1), mem_addr, I2C_MEMADD_SIZE_16BIT, buf
+ 442:Core/Src/mimic_i2c.c ****     }
+ 443:Core/Src/mimic_i2c.c ****     else
+ 444:Core/Src/mimic_i2c.c ****     {
+ 445:Core/Src/mimic_i2c.c ****         /* Fallback for longer writes: Write then Read (two transactions) */
+ 446:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Master_Transmit(hi2c, (uint16_t)(addr << 1), write_data, write_len, 1000);
+ 1855              		.loc 1 446 9 is_stmt 1 view .LVU461
+ 1856              		.loc 1 446 18 is_stmt 0 view .LVU462
+ 1857 0064 7B00     		lsls	r3, r7, #1
+ 1858 0066 9BB2     		uxth	r3, r3
+ 1859 0068 1946     		mov	r1, r3
+ 1860 006a 1F46     		mov	r7, r3
+ 1861              	.LVL196:
+ 1862              		.loc 1 446 18 view .LVU463
+ 1863 006c 4FF47A73 		mov	r3, #1000
+ 1864 0070 0093     		str	r3, [sp]
+ 1865 0072 3346     		mov	r3, r6
+ 1866 0074 16AA     		add	r2, sp, #88
+ 1867 0076 2846     		mov	r0, r5
+ 1868 0078 FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+ 1869              	.LVL197:
+ 447:Core/Src/mimic_i2c.c ****         if (status == HAL_OK)
+ 1870              		.loc 1 447 9 is_stmt 1 view .LVU464
+ 1871              		.loc 1 447 12 is_stmt 0 view .LVU465
+ 1872 007c 0146     		mov	r1, r0
+ 1873 007e 0028     		cmp	r0, #0
+ 1874 0080 39D1     		bne	.L132
+ 448:Core/Src/mimic_i2c.c ****         {
+ 449:Core/Src/mimic_i2c.c ****             status = HAL_I2C_Master_Receive(hi2c, (uint16_t)(addr << 1), buffer, read_len, 1000);
+ 1875              		.loc 1 449 13 is_stmt 1 view .LVU466
+ 1876              		.loc 1 449 22 is_stmt 0 view .LVU467
+ 1877 0082 4FF47A73 		mov	r3, #1000
+ 1878 0086 0093     		str	r3, [sp]
+ 1879 0088 2346     		mov	r3, r4
+ 1880 008a 05AA     		add	r2, sp, #20
+ 1881 008c 3946     		mov	r1, r7
+ 1882 008e 2846     		mov	r0, r5
+ 1883              	.LVL198:
+ 1884              		.loc 1 449 22 view .LVU468
+ 1885 0090 FFF7FEFF 		bl	HAL_I2C_Master_Receive
+ 1886              	.LVL199:
+ARM GAS  /tmp/cczRQYDV.s 			page 48
+
+
+ 1887 0094 0146     		mov	r1, r0
+ 1888 0096 2DE0     		b	.L130
+ 1889              	.LVL200:
+ 1890              	.L139:
+ 406:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_WRITE_READ 1 0x68 75 1  (Read WHO_AM_I)\r\n");
+ 1891              		.loc 1 406 9 is_stmt 1 view .LVU469
+ 1892 0098 2648     		ldr	r0, .L143
+ 1893              	.LVL201:
+ 406:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("  Example: I2C_WRITE_READ 1 0x68 75 1  (Read WHO_AM_I)\r\n");
+ 1894              		.loc 1 406 9 is_stmt 0 view .LVU470
+ 1895 009a FFF7FEFF 		bl	Mimic_SendResponse
+ 1896              	.LVL202:
+ 407:Core/Src/mimic_i2c.c ****         return;
+ 1897              		.loc 1 407 9 is_stmt 1 view .LVU471
+ 1898 009e 2648     		ldr	r0, .L143+4
+ 1899 00a0 FFF7FEFF 		bl	Mimic_SendResponse
+ 1900              	.LVL203:
+ 408:Core/Src/mimic_i2c.c ****     }
+ 1901              		.loc 1 408 9 view .LVU472
+ 1902 00a4 2AE0     		b	.L123
+ 1903              	.LVL204:
+ 1904              	.L126:
+ 414:Core/Src/mimic_i2c.c ****         return;
+ 1905              		.loc 1 414 9 view .LVU473
+ 1906 00a6 2548     		ldr	r0, .L143+8
+ 1907              	.LVL205:
+ 414:Core/Src/mimic_i2c.c ****         return;
+ 1908              		.loc 1 414 9 is_stmt 0 view .LVU474
+ 1909 00a8 FFF7FEFF 		bl	Mimic_SendResponse
+ 1910              	.LVL206:
+ 415:Core/Src/mimic_i2c.c ****     }
+ 1911              		.loc 1 415 9 is_stmt 1 view .LVU475
+ 1912 00ac 26E0     		b	.L123
+ 1913              	.LVL207:
+ 1914              	.L140:
+ 436:Core/Src/mimic_i2c.c ****     }
+ 1915              		.loc 1 436 9 view .LVU476
+ 436:Core/Src/mimic_i2c.c ****     }
+ 1916              		.loc 1 436 18 is_stmt 0 view .LVU477
+ 1917 00ae 7900     		lsls	r1, r7, #1
+ 1918 00b0 89B2     		uxth	r1, r1
+ 1919 00b2 4FF47A73 		mov	r3, #1000
+ 1920 00b6 0293     		str	r3, [sp, #8]
+ 1921 00b8 0194     		str	r4, [sp, #4]
+ 1922 00ba 05AB     		add	r3, sp, #20
+ 1923 00bc 0093     		str	r3, [sp]
+ 1924 00be 0123     		movs	r3, #1
+ 1925 00c0 9DF85820 		ldrb	r2, [sp, #88]	@ zero_extendqisi2
+ 1926 00c4 2846     		mov	r0, r5
+ 1927 00c6 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 1928              	.LVL208:
+ 1929 00ca 0146     		mov	r1, r0
+ 1930              	.LVL209:
+ 436:Core/Src/mimic_i2c.c ****     }
+ 1931              		.loc 1 436 18 view .LVU478
+ 1932 00cc 12E0     		b	.L130
+ 1933              	.LVL210:
+ARM GAS  /tmp/cczRQYDV.s 			page 49
+
+
+ 1934              	.L141:
+ 1935              	.LBB13:
+ 440:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Mem_Read(hi2c, (uint16_t)(addr << 1), mem_addr, I2C_MEMADD_SIZE_16BIT, buf
+ 1936              		.loc 1 440 9 is_stmt 1 view .LVU479
+ 440:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Mem_Read(hi2c, (uint16_t)(addr << 1), mem_addr, I2C_MEMADD_SIZE_16BIT, buf
+ 1937              		.loc 1 440 40 is_stmt 0 view .LVU480
+ 1938 00ce 9DF85800 		ldrb	r0, [sp, #88]	@ zero_extendqisi2
+ 440:Core/Src/mimic_i2c.c ****         status = HAL_I2C_Mem_Read(hi2c, (uint16_t)(addr << 1), mem_addr, I2C_MEMADD_SIZE_16BIT, buf
+ 1939              		.loc 1 440 62 view .LVU481
+ 1940 00d2 9DF85920 		ldrb	r2, [sp, #89]	@ zero_extendqisi2
+ 1941              	.LVL211:
+ 441:Core/Src/mimic_i2c.c ****     }
+ 1942              		.loc 1 441 9 is_stmt 1 view .LVU482
+ 441:Core/Src/mimic_i2c.c ****     }
+ 1943              		.loc 1 441 18 is_stmt 0 view .LVU483
+ 1944 00d6 7900     		lsls	r1, r7, #1
+ 1945 00d8 89B2     		uxth	r1, r1
+ 1946 00da 4FF47A73 		mov	r3, #1000
+ 1947 00de 0293     		str	r3, [sp, #8]
+ 1948 00e0 0194     		str	r4, [sp, #4]
+ 1949 00e2 05AB     		add	r3, sp, #20
+ 1950 00e4 0093     		str	r3, [sp]
+ 1951 00e6 1023     		movs	r3, #16
+ 1952 00e8 42EA0022 		orr	r2, r2, r0, lsl #8
+ 1953              	.LVL212:
+ 441:Core/Src/mimic_i2c.c ****     }
+ 1954              		.loc 1 441 18 view .LVU484
+ 1955 00ec 2846     		mov	r0, r5
+ 1956 00ee FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 1957              	.LVL213:
+ 441:Core/Src/mimic_i2c.c ****     }
+ 1958              		.loc 1 441 18 view .LVU485
+ 1959 00f2 0146     		mov	r1, r0
+ 1960              	.LVL214:
+ 1961              	.L130:
+ 441:Core/Src/mimic_i2c.c ****     }
+ 1962              		.loc 1 441 18 view .LVU486
+ 1963              	.LBE13:
+ 450:Core/Src/mimic_i2c.c ****         }
+ 451:Core/Src/mimic_i2c.c ****     }
+ 452:Core/Src/mimic_i2c.c ****     
+ 453:Core/Src/mimic_i2c.c ****     if (status == HAL_OK)
+ 1964              		.loc 1 453 5 is_stmt 1 view .LVU487
+ 1965              		.loc 1 453 8 is_stmt 0 view .LVU488
+ 1966 00f4 29B1     		cbz	r1, .L142
+ 1967              	.LVL215:
+ 1968              	.L132:
+ 454:Core/Src/mimic_i2c.c ****     {
+ 455:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("OK: Read %d bytes from 0x%02X: ", read_len, addr);
+ 456:Core/Src/mimic_i2c.c ****         for (int i = 0; i < read_len; i++)
+ 457:Core/Src/mimic_i2c.c ****         {
+ 458:Core/Src/mimic_i2c.c ****             Mimic_SendResponseF("%02X ", buffer[i]);
+ 459:Core/Src/mimic_i2c.c ****         }
+ 460:Core/Src/mimic_i2c.c ****         Mimic_SendResponse("\r\n");
+ 461:Core/Src/mimic_i2c.c ****     }
+ 462:Core/Src/mimic_i2c.c ****     else
+ 463:Core/Src/mimic_i2c.c ****     {
+ARM GAS  /tmp/cczRQYDV.s 			page 50
+
+
+ 464:Core/Src/mimic_i2c.c ****         Mimic_SendResponseF("ERROR: Write/Read failed (Status: %d)\r\n", status);
+ 1969              		.loc 1 464 9 is_stmt 1 view .LVU489
+ 1970 00f6 1248     		ldr	r0, .L143+12
+ 1971 00f8 FFF7FEFF 		bl	Mimic_SendResponseF
+ 1972              	.LVL216:
+ 1973              	.L123:
+ 465:Core/Src/mimic_i2c.c ****     }
+ 466:Core/Src/mimic_i2c.c **** }
+ 1974              		.loc 1 466 1 is_stmt 0 view .LVU490
+ 1975 00fc 26B0     		add	sp, sp, #152
+ 1976              	.LCFI23:
+ 1977              		.cfi_remember_state
+ 1978              		.cfi_def_cfa_offset 24
+ 1979              		@ sp needed
+ 1980 00fe BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 1981              	.LVL217:
+ 1982              	.L142:
+ 1983              	.LCFI24:
+ 1984              		.cfi_restore_state
+ 455:Core/Src/mimic_i2c.c ****         for (int i = 0; i < read_len; i++)
+ 1985              		.loc 1 455 9 is_stmt 1 view .LVU491
+ 1986 0102 2546     		mov	r5, r4
+ 1987              	.LVL218:
+ 455:Core/Src/mimic_i2c.c ****         for (int i = 0; i < read_len; i++)
+ 1988              		.loc 1 455 9 is_stmt 0 view .LVU492
+ 1989 0104 1FFA88F2 		uxth	r2, r8
+ 1990 0108 2146     		mov	r1, r4
+ 1991              	.LVL219:
+ 455:Core/Src/mimic_i2c.c ****         for (int i = 0; i < read_len; i++)
+ 1992              		.loc 1 455 9 view .LVU493
+ 1993 010a 0E48     		ldr	r0, .L143+16
+ 1994 010c FFF7FEFF 		bl	Mimic_SendResponseF
+ 1995              	.LVL220:
+ 456:Core/Src/mimic_i2c.c ****         {
+ 1996              		.loc 1 456 9 is_stmt 1 view .LVU494
+ 1997              	.LBB14:
+ 456:Core/Src/mimic_i2c.c ****         {
+ 1998              		.loc 1 456 14 view .LVU495
+ 456:Core/Src/mimic_i2c.c ****         {
+ 1999              		.loc 1 456 18 is_stmt 0 view .LVU496
+ 2000 0110 0024     		movs	r4, #0
+ 2001              	.LVL221:
+ 456:Core/Src/mimic_i2c.c ****         {
+ 2002              		.loc 1 456 9 view .LVU497
+ 2003 0112 08E0     		b	.L133
+ 2004              	.LVL222:
+ 2005              	.L134:
+ 458:Core/Src/mimic_i2c.c ****         }
+ 2006              		.loc 1 458 13 is_stmt 1 view .LVU498
+ 458:Core/Src/mimic_i2c.c ****         }
+ 2007              		.loc 1 458 48 is_stmt 0 view .LVU499
+ 2008 0114 04F19803 		add	r3, r4, #152
+ 2009 0118 6B44     		add	r3, sp, r3
+ 458:Core/Src/mimic_i2c.c ****         }
+ 2010              		.loc 1 458 13 view .LVU500
+ 2011 011a 13F8841C 		ldrb	r1, [r3, #-132]	@ zero_extendqisi2
+ 2012 011e 0A48     		ldr	r0, .L143+20
+ARM GAS  /tmp/cczRQYDV.s 			page 51
+
+
+ 2013 0120 FFF7FEFF 		bl	Mimic_SendResponseF
+ 2014              	.LVL223:
+ 456:Core/Src/mimic_i2c.c ****         {
+ 2015              		.loc 1 456 40 is_stmt 1 discriminator 3 view .LVU501
+ 2016 0124 0134     		adds	r4, r4, #1
+ 2017              	.LVL224:
+ 2018              	.L133:
+ 456:Core/Src/mimic_i2c.c ****         {
+ 2019              		.loc 1 456 27 discriminator 1 view .LVU502
+ 2020 0126 A542     		cmp	r5, r4
+ 2021 0128 F4DC     		bgt	.L134
+ 2022              	.LBE14:
+ 460:Core/Src/mimic_i2c.c ****     }
+ 2023              		.loc 1 460 9 view .LVU503
+ 2024 012a 0848     		ldr	r0, .L143+24
+ 2025 012c FFF7FEFF 		bl	Mimic_SendResponse
+ 2026              	.LVL225:
+ 2027 0130 E4E7     		b	.L123
+ 2028              	.L144:
+ 2029 0132 00BF     		.align	2
+ 2030              	.L143:
+ 2031 0134 00000000 		.word	.LC56
+ 2032 0138 40000000 		.word	.LC57
+ 2033 013c 70000000 		.word	.LC38
+ 2034 0140 9C000000 		.word	.LC59
+ 2035 0144 7C000000 		.word	.LC58
+ 2036 0148 98000000 		.word	.LC49
+ 2037 014c A0000000 		.word	.LC50
+ 2038              		.cfi_endproc
+ 2039              	.LFE146:
+ 2041              		.section	.rodata.Mimic_CMD_I2C_STATUS.str1.4,"aMS",%progbits,1
+ 2042              		.align	2
+ 2043              	.LC60:
+ 2044 0000 31302D62 		.ascii	"10-bit\000"
+ 2044      697400
+ 2045 0007 00       		.align	2
+ 2046              	.LC61:
+ 2047 0008 372D6269 		.ascii	"7-bit\000"
+ 2047      7400
+ 2048 000e 0000     		.align	2
+ 2049              	.LC62:
+ 2050 0010 49324320 		.ascii	"I2C Status:\015\012\000"
+ 2050      53746174 
+ 2050      75733A0D 
+ 2050      0A00
+ 2051 001e 0000     		.align	2
+ 2052              	.LC65:
+ 2053 0020 20202573 		.ascii	"  %s: Initialized (%s)\015\012\000"
+ 2053      3A20496E 
+ 2053      69746961 
+ 2053      6C697A65 
+ 2053      64202825 
+ 2054 0039 000000   		.align	2
+ 2055              	.LC66:
+ 2056 003c 20202020 		.ascii	"       Addr: 0x%02X, Mode: %s\015\012\000"
+ 2056      20202041 
+ 2056      6464723A 
+ARM GAS  /tmp/cczRQYDV.s 			page 52
+
+
+ 2056      20307825 
+ 2056      3032582C 
+ 2057              		.align	2
+ 2058              	.LC67:
+ 2059 005c 20202020 		.ascii	"       Speed: %lu Hz, Mode: %s\015\012\000"
+ 2059      20202053 
+ 2059      70656564 
+ 2059      3A20256C 
+ 2059      7520487A 
+ 2060 007d 000000   		.align	2
+ 2061              	.LC68:
+ 2062 0080 20202020 		.ascii	"       Pins: %s, %s\015\012\000"
+ 2062      20202050 
+ 2062      696E733A 
+ 2062      2025732C 
+ 2062      2025730D 
+ 2063 0096 0000     		.align	2
+ 2064              	.LC69:
+ 2065 0098 20202573 		.ascii	"  %s: Not initialized\015\012\000"
+ 2065      3A204E6F 
+ 2065      7420696E 
+ 2065      69746961 
+ 2065      6C697A65 
+ 2066              		.section	.text.Mimic_CMD_I2C_STATUS,"ax",%progbits
+ 2067              		.align	1
+ 2068              		.global	Mimic_CMD_I2C_STATUS
+ 2069              		.syntax unified
+ 2070              		.thumb
+ 2071              		.thumb_func
+ 2073              	Mimic_CMD_I2C_STATUS:
+ 2074              	.LVL226:
+ 2075              	.LFB147:
+ 467:Core/Src/mimic_i2c.c **** 
+ 468:Core/Src/mimic_i2c.c **** void Mimic_CMD_I2C_STATUS(Mimic_Command_t *cmd)
+ 469:Core/Src/mimic_i2c.c **** {
+ 2076              		.loc 1 469 1 view -0
+ 2077              		.cfi_startproc
+ 2078              		@ args = 0, pretend = 0, frame = 48
+ 2079              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2080              		.loc 1 469 1 is_stmt 0 view .LVU505
+ 2081 0000 70B5     		push	{r4, r5, r6, lr}
+ 2082              	.LCFI25:
+ 2083              		.cfi_def_cfa_offset 16
+ 2084              		.cfi_offset 4, -16
+ 2085              		.cfi_offset 5, -12
+ 2086              		.cfi_offset 6, -8
+ 2087              		.cfi_offset 14, -4
+ 2088 0002 8CB0     		sub	sp, sp, #48
+ 2089              	.LCFI26:
+ 2090              		.cfi_def_cfa_offset 64
+ 470:Core/Src/mimic_i2c.c ****     Mimic_SendResponse("I2C Status:\r\n");
+ 2091              		.loc 1 470 5 is_stmt 1 view .LVU506
+ 2092 0004 2F48     		ldr	r0, .L162
+ 2093              	.LVL227:
+ 2094              		.loc 1 470 5 is_stmt 0 view .LVU507
+ 2095 0006 FFF7FEFF 		bl	Mimic_SendResponse
+ 2096              	.LVL228:
+ARM GAS  /tmp/cczRQYDV.s 			page 53
+
+
+ 471:Core/Src/mimic_i2c.c ****     
+ 472:Core/Src/mimic_i2c.c ****     const char *i2c_names[] = {"I2C1", "I2C2", "I2C3"};
+ 2097              		.loc 1 472 5 is_stmt 1 view .LVU508
+ 2098              		.loc 1 472 17 is_stmt 0 view .LVU509
+ 2099 000a 2F4C     		ldr	r4, .L162+4
+ 2100 000c 94E80700 		ldm	r4, {r0, r1, r2}
+ 2101 0010 0CAB     		add	r3, sp, #48
+ 2102 0012 03E90700 		stmdb	r3, {r0, r1, r2}
+ 473:Core/Src/mimic_i2c.c ****     I2C_HandleTypeDef *i2c_handles[] = {&hi2c1, &hi2c2, &hi2c3};
+ 2103              		.loc 1 473 5 is_stmt 1 view .LVU510
+ 2104              		.loc 1 473 24 is_stmt 0 view .LVU511
+ 2105 0016 06AB     		add	r3, sp, #24
+ 2106 0018 04F10C02 		add	r2, r4, #12
+ 2107 001c 07CA     		ldm	r2, {r0, r1, r2}
+ 2108 001e 83E80700 		stm	r3, {r0, r1, r2}
+ 474:Core/Src/mimic_i2c.c ****     const char *i2c_pins[][2] = {
+ 2109              		.loc 1 474 5 is_stmt 1 view .LVU512
+ 2110              		.loc 1 474 17 is_stmt 0 view .LVU513
+ 2111 0022 6D46     		mov	r5, sp
+ 2112 0024 1834     		adds	r4, r4, #24
+ 2113 0026 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 2114 0028 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 2115 002a 94E80300 		ldm	r4, {r0, r1}
+ 2116 002e 85E80300 		stm	r5, {r0, r1}
+ 475:Core/Src/mimic_i2c.c ****         {"PB6(SCL)", "PB7(SDA)"},
+ 476:Core/Src/mimic_i2c.c ****         {"PB10(SCL)", "PB11(SDA)"},
+ 477:Core/Src/mimic_i2c.c ****         {"PA8(SCL)", "PC9(SDA)"}
+ 478:Core/Src/mimic_i2c.c ****     };
+ 479:Core/Src/mimic_i2c.c ****     
+ 480:Core/Src/mimic_i2c.c ****     for (int i = 0; i < 3; i++)
+ 2117              		.loc 1 480 5 is_stmt 1 view .LVU514
+ 2118              	.LBB15:
+ 2119              		.loc 1 480 10 view .LVU515
+ 2120              	.LVL229:
+ 2121              		.loc 1 480 14 is_stmt 0 view .LVU516
+ 2122 0032 0024     		movs	r4, #0
+ 2123              		.loc 1 480 5 view .LVU517
+ 2124 0034 10E0     		b	.L146
+ 2125              	.LVL230:
+ 2126              	.L155:
+ 2127              	.LBB16:
+ 481:Core/Src/mimic_i2c.c ****     {
+ 482:Core/Src/mimic_i2c.c ****         if (i2c_handles[i]->Instance != NULL)
+ 483:Core/Src/mimic_i2c.c ****         {
+ 484:Core/Src/mimic_i2c.c ****             uint8_t is_slave = i2c_states[i].is_slave;
+ 485:Core/Src/mimic_i2c.c ****             
+ 486:Core/Src/mimic_i2c.c ****             Mimic_SendResponseF("  %s: Initialized (%s)\r\n", 
+ 2128              		.loc 1 486 13 discriminator 2 view .LVU518
+ 2129 0036 254A     		ldr	r2, .L162+8
+ 2130 0038 21E0     		b	.L148
+ 2131              	.L160:
+ 487:Core/Src/mimic_i2c.c ****                                 i2c_names[i], is_slave ? "SLAVE" : "MASTER");
+ 488:Core/Src/mimic_i2c.c ****             
+ 489:Core/Src/mimic_i2c.c ****             if (is_slave) {
+ 490:Core/Src/mimic_i2c.c ****                 Mimic_SendResponseF("       Addr: 0x%02X, Mode: %s\r\n", 
+ 2132              		.loc 1 490 17 discriminator 1 view .LVU519
+ 2133 003a 254A     		ldr	r2, .L162+12
+ARM GAS  /tmp/cczRQYDV.s 			page 54
+
+
+ 2134              	.L150:
+ 2135              		.loc 1 490 17 discriminator 4 view .LVU520
+ 2136 003c 2548     		ldr	r0, .L162+16
+ 2137 003e FFF7FEFF 		bl	Mimic_SendResponseF
+ 2138              	.LVL231:
+ 2139              	.L151:
+ 491:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.OwnAddress1 >> 1,
+ 492:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.AddressingMode == I2C_ADDRESSINGMODE_10BIT
+ 493:Core/Src/mimic_i2c.c ****             } else {
+ 494:Core/Src/mimic_i2c.c ****                 Mimic_SendResponseF("       Speed: %lu Hz, Mode: %s\r\n", 
+ 495:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.ClockSpeed,
+ 496:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.AddressingMode == I2C_ADDRESSINGMODE_10BIT
+ 497:Core/Src/mimic_i2c.c ****             }
+ 498:Core/Src/mimic_i2c.c ****             
+ 499:Core/Src/mimic_i2c.c ****             Mimic_SendResponseF("       Pins: %s, %s\r\n", i2c_pins[i][0], i2c_pins[i][1]);
+ 2140              		.loc 1 499 13 is_stmt 1 view .LVU521
+ 2141 0042 0CAB     		add	r3, sp, #48
+ 2142 0044 03EBC403 		add	r3, r3, r4, lsl #3
+ 2143 0048 53F82C2C 		ldr	r2, [r3, #-44]
+ 2144 004c 53F8301C 		ldr	r1, [r3, #-48]
+ 2145 0050 2148     		ldr	r0, .L162+20
+ 2146 0052 FFF7FEFF 		bl	Mimic_SendResponseF
+ 2147              	.LVL232:
+ 2148              	.L153:
+ 2149              		.loc 1 499 13 is_stmt 0 view .LVU522
+ 2150              	.LBE16:
+ 480:Core/Src/mimic_i2c.c ****     {
+ 2151              		.loc 1 480 29 is_stmt 1 discriminator 2 view .LVU523
+ 2152 0056 0134     		adds	r4, r4, #1
+ 2153              	.LVL233:
+ 2154              	.L146:
+ 480:Core/Src/mimic_i2c.c ****     {
+ 2155              		.loc 1 480 23 discriminator 1 view .LVU524
+ 2156 0058 022C     		cmp	r4, #2
+ 2157 005a 31DC     		bgt	.L159
+ 482:Core/Src/mimic_i2c.c ****         {
+ 2158              		.loc 1 482 9 view .LVU525
+ 482:Core/Src/mimic_i2c.c ****         {
+ 2159              		.loc 1 482 24 is_stmt 0 view .LVU526
+ 2160 005c 0CAB     		add	r3, sp, #48
+ 2161 005e 03EB8403 		add	r3, r3, r4, lsl #2
+ 2162 0062 53F8185C 		ldr	r5, [r3, #-24]
+ 482:Core/Src/mimic_i2c.c ****         {
+ 2163              		.loc 1 482 27 view .LVU527
+ 2164 0066 2B68     		ldr	r3, [r5]
+ 482:Core/Src/mimic_i2c.c ****         {
+ 2165              		.loc 1 482 12 view .LVU528
+ 2166 0068 0BB3     		cbz	r3, .L147
+ 2167              	.LBB17:
+ 484:Core/Src/mimic_i2c.c ****             
+ 2168              		.loc 1 484 13 is_stmt 1 view .LVU529
+ 484:Core/Src/mimic_i2c.c ****             
+ 2169              		.loc 1 484 21 is_stmt 0 view .LVU530
+ 2170 006a 1C4B     		ldr	r3, .L162+24
+ 2171 006c 1E5D     		ldrb	r6, [r3, r4]	@ zero_extendqisi2
+ 2172              	.LVL234:
+ 486:Core/Src/mimic_i2c.c ****                                 i2c_names[i], is_slave ? "SLAVE" : "MASTER");
+ARM GAS  /tmp/cczRQYDV.s 			page 55
+
+
+ 2173              		.loc 1 486 13 is_stmt 1 view .LVU531
+ 2174 006e 0CAB     		add	r3, sp, #48
+ 2175 0070 03EB8403 		add	r3, r3, r4, lsl #2
+ 2176 0074 53F80C1C 		ldr	r1, [r3, #-12]
+ 2177 0078 002E     		cmp	r6, #0
+ 2178 007a DCD0     		beq	.L155
+ 486:Core/Src/mimic_i2c.c ****                                 i2c_names[i], is_slave ? "SLAVE" : "MASTER");
+ 2179              		.loc 1 486 13 is_stmt 0 discriminator 1 view .LVU532
+ 2180 007c 184A     		ldr	r2, .L162+28
+ 2181              	.L148:
+ 486:Core/Src/mimic_i2c.c ****                                 i2c_names[i], is_slave ? "SLAVE" : "MASTER");
+ 2182              		.loc 1 486 13 discriminator 4 view .LVU533
+ 2183 007e 1948     		ldr	r0, .L162+32
+ 2184 0080 FFF7FEFF 		bl	Mimic_SendResponseF
+ 2185              	.LVL235:
+ 489:Core/Src/mimic_i2c.c ****                 Mimic_SendResponseF("       Addr: 0x%02X, Mode: %s\r\n", 
+ 2186              		.loc 1 489 13 is_stmt 1 view .LVU534
+ 489:Core/Src/mimic_i2c.c ****                 Mimic_SendResponseF("       Addr: 0x%02X, Mode: %s\r\n", 
+ 2187              		.loc 1 489 16 is_stmt 0 view .LVU535
+ 2188 0084 3EB1     		cbz	r6, .L149
+ 490:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.OwnAddress1 >> 1,
+ 2189              		.loc 1 490 17 is_stmt 1 view .LVU536
+ 491:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.AddressingMode == I2C_ADDRESSINGMODE_10BIT
+ 2190              		.loc 1 491 57 is_stmt 0 view .LVU537
+ 2191 0086 E968     		ldr	r1, [r5, #12]
+ 490:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.OwnAddress1 >> 1,
+ 2192              		.loc 1 490 17 view .LVU538
+ 2193 0088 4908     		lsrs	r1, r1, #1
+ 492:Core/Src/mimic_i2c.c ****             } else {
+ 2194              		.loc 1 492 57 view .LVU539
+ 2195 008a 2B69     		ldr	r3, [r5, #16]
+ 490:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.OwnAddress1 >> 1,
+ 2196              		.loc 1 490 17 view .LVU540
+ 2197 008c B3F5404F 		cmp	r3, #49152
+ 2198 0090 D3D0     		beq	.L160
+ 490:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.OwnAddress1 >> 1,
+ 2199              		.loc 1 490 17 discriminator 2 view .LVU541
+ 2200 0092 154A     		ldr	r2, .L162+36
+ 2201 0094 D2E7     		b	.L150
+ 2202              	.L149:
+ 494:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.ClockSpeed,
+ 2203              		.loc 1 494 17 is_stmt 1 view .LVU542
+ 2204 0096 6968     		ldr	r1, [r5, #4]
+ 496:Core/Src/mimic_i2c.c ****             }
+ 2205              		.loc 1 496 57 is_stmt 0 view .LVU543
+ 2206 0098 2B69     		ldr	r3, [r5, #16]
+ 494:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.ClockSpeed,
+ 2207              		.loc 1 494 17 view .LVU544
+ 2208 009a B3F5404F 		cmp	r3, #49152
+ 2209 009e 04D0     		beq	.L161
+ 494:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.ClockSpeed,
+ 2210              		.loc 1 494 17 discriminator 2 view .LVU545
+ 2211 00a0 114A     		ldr	r2, .L162+36
+ 2212              	.L152:
+ 494:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.ClockSpeed,
+ 2213              		.loc 1 494 17 discriminator 4 view .LVU546
+ 2214 00a2 1248     		ldr	r0, .L162+40
+ARM GAS  /tmp/cczRQYDV.s 			page 56
+
+
+ 2215 00a4 FFF7FEFF 		bl	Mimic_SendResponseF
+ 2216              	.LVL236:
+ 2217 00a8 CBE7     		b	.L151
+ 2218              	.L161:
+ 494:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.ClockSpeed,
+ 2219              		.loc 1 494 17 discriminator 1 view .LVU547
+ 2220 00aa 094A     		ldr	r2, .L162+12
+ 2221 00ac F9E7     		b	.L152
+ 2222              	.LVL237:
+ 2223              	.L147:
+ 494:Core/Src/mimic_i2c.c ****                                     i2c_handles[i]->Init.ClockSpeed,
+ 2224              		.loc 1 494 17 discriminator 1 view .LVU548
+ 2225              	.LBE17:
+ 500:Core/Src/mimic_i2c.c ****         }
+ 501:Core/Src/mimic_i2c.c ****         else
+ 502:Core/Src/mimic_i2c.c ****         {
+ 503:Core/Src/mimic_i2c.c ****             Mimic_SendResponseF("  %s: Not initialized\r\n", i2c_names[i]);
+ 2226              		.loc 1 503 13 is_stmt 1 view .LVU549
+ 2227 00ae 0CAB     		add	r3, sp, #48
+ 2228 00b0 03EB8403 		add	r3, r3, r4, lsl #2
+ 2229 00b4 53F80C1C 		ldr	r1, [r3, #-12]
+ 2230 00b8 0D48     		ldr	r0, .L162+44
+ 2231 00ba FFF7FEFF 		bl	Mimic_SendResponseF
+ 2232              	.LVL238:
+ 2233 00be CAE7     		b	.L153
+ 2234              	.L159:
+ 2235              		.loc 1 503 13 is_stmt 0 view .LVU550
+ 2236              	.LBE15:
+ 504:Core/Src/mimic_i2c.c ****         }
+ 505:Core/Src/mimic_i2c.c ****     }
+ 506:Core/Src/mimic_i2c.c **** }
+ 2237              		.loc 1 506 1 view .LVU551
+ 2238 00c0 0CB0     		add	sp, sp, #48
+ 2239              	.LCFI27:
+ 2240              		.cfi_def_cfa_offset 16
+ 2241              		@ sp needed
+ 2242 00c2 70BD     		pop	{r4, r5, r6, pc}
+ 2243              	.LVL239:
+ 2244              	.L163:
+ 2245              		.loc 1 506 1 view .LVU552
+ 2246              		.align	2
+ 2247              	.L162:
+ 2248 00c4 10000000 		.word	.LC62
+ 2249 00c8 00000000 		.word	.LANCHOR0
+ 2250 00cc 08000000 		.word	.LC16
+ 2251 00d0 00000000 		.word	.LC60
+ 2252 00d4 3C000000 		.word	.LC66
+ 2253 00d8 80000000 		.word	.LC68
+ 2254 00dc 00000000 		.word	i2c_states
+ 2255 00e0 00000000 		.word	.LC15
+ 2256 00e4 20000000 		.word	.LC65
+ 2257 00e8 08000000 		.word	.LC61
+ 2258 00ec 5C000000 		.word	.LC67
+ 2259 00f0 98000000 		.word	.LC69
+ 2260              		.cfi_endproc
+ 2261              	.LFE147:
+ 2263              		.section	.text.HAL_I2C_AddrCallback,"ax",%progbits
+ARM GAS  /tmp/cczRQYDV.s 			page 57
+
+
+ 2264              		.align	1
+ 2265              		.global	HAL_I2C_AddrCallback
+ 2266              		.syntax unified
+ 2267              		.thumb
+ 2268              		.thumb_func
+ 2270              	HAL_I2C_AddrCallback:
+ 2271              	.LVL240:
+ 2272              	.LFB148:
+ 507:Core/Src/mimic_i2c.c **** 
+ 508:Core/Src/mimic_i2c.c **** /* ========================== I2C CALLBACKS ================================ */
+ 509:Core/Src/mimic_i2c.c **** 
+ 510:Core/Src/mimic_i2c.c **** static uint8_t i2c_first_byte_received = 0;
+ 511:Core/Src/mimic_i2c.c **** 
+ 512:Core/Src/mimic_i2c.c **** void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCod
+ 513:Core/Src/mimic_i2c.c **** {
+ 2273              		.loc 1 513 1 is_stmt 1 view -0
+ 2274              		.cfi_startproc
+ 2275              		@ args = 0, pretend = 0, frame = 0
+ 2276              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2277              		.loc 1 513 1 is_stmt 0 view .LVU554
+ 2278 0000 08B5     		push	{r3, lr}
+ 2279              	.LCFI28:
+ 2280              		.cfi_def_cfa_offset 8
+ 2281              		.cfi_offset 3, -8
+ 2282              		.cfi_offset 14, -4
+ 514:Core/Src/mimic_i2c.c ****     if (TransferDirection == I2C_DIRECTION_TRANSMIT)
+ 2283              		.loc 1 514 5 is_stmt 1 view .LVU555
+ 2284              		.loc 1 514 8 is_stmt 0 view .LVU556
+ 2285 0002 0129     		cmp	r1, #1
+ 2286 0004 0BD0     		beq	.L168
+ 2287              	.LBB18:
+ 515:Core/Src/mimic_i2c.c ****     {
+ 516:Core/Src/mimic_i2c.c ****         /* Master is writing. Prepare to receive the register pointer. */
+ 517:Core/Src/mimic_i2c.c ****         i2c_first_byte_received = 0;
+ 518:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Receive_IT(hi2c, i2c_slave_rx_buffer, 1, I2C_FIRST_FRAME);
+ 519:Core/Src/mimic_i2c.c ****     }
+ 520:Core/Src/mimic_i2c.c ****     else
+ 521:Core/Src/mimic_i2c.c ****     {
+ 522:Core/Src/mimic_i2c.c ****         /* Master is reading. Send from the register map. */
+ 523:Core/Src/mimic_i2c.c ****         uint16_t len = 256 - current_reg_addr;
+ 2288              		.loc 1 523 9 is_stmt 1 view .LVU557
+ 2289              		.loc 1 523 28 is_stmt 0 view .LVU558
+ 2290 0006 0A4B     		ldr	r3, .L169
+ 2291 0008 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2292              	.LVL241:
+ 2293              		.loc 1 523 18 view .LVU559
+ 2294 000a C1F58072 		rsb	r2, r1, #256
+ 2295              	.LVL242:
+ 524:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Transmit_IT(hi2c, &i2c_register_map[current_reg_addr], len, I2C_LA
+ 2296              		.loc 1 524 9 is_stmt 1 view .LVU560
+ 2297 000e 2023     		movs	r3, #32
+ 2298 0010 92B2     		uxth	r2, r2
+ 2299              		.loc 1 524 9 is_stmt 0 view .LVU561
+ 2300 0012 DFF828C0 		ldr	ip, .L169+12
+ 2301 0016 6144     		add	r1, r1, ip
+ 2302 0018 FFF7FEFF 		bl	HAL_I2C_Slave_Seq_Transmit_IT
+ 2303              	.LVL243:
+ARM GAS  /tmp/cczRQYDV.s 			page 58
+
+
+ 2304              	.L164:
+ 2305              		.loc 1 524 9 view .LVU562
+ 2306              	.LBE18:
+ 525:Core/Src/mimic_i2c.c ****     }
+ 526:Core/Src/mimic_i2c.c **** }
+ 2307              		.loc 1 526 1 view .LVU563
+ 2308 001c 08BD     		pop	{r3, pc}
+ 2309              	.LVL244:
+ 2310              	.L168:
+ 517:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Receive_IT(hi2c, i2c_slave_rx_buffer, 1, I2C_FIRST_FRAME);
+ 2311              		.loc 1 517 9 is_stmt 1 view .LVU564
+ 517:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Receive_IT(hi2c, i2c_slave_rx_buffer, 1, I2C_FIRST_FRAME);
+ 2312              		.loc 1 517 33 is_stmt 0 view .LVU565
+ 2313 001e 054B     		ldr	r3, .L169+4
+ 2314 0020 0022     		movs	r2, #0
+ 2315              	.LVL245:
+ 517:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Receive_IT(hi2c, i2c_slave_rx_buffer, 1, I2C_FIRST_FRAME);
+ 2316              		.loc 1 517 33 view .LVU566
+ 2317 0022 1A70     		strb	r2, [r3]
+ 518:Core/Src/mimic_i2c.c ****     }
+ 2318              		.loc 1 518 9 is_stmt 1 view .LVU567
+ 2319 0024 0123     		movs	r3, #1
+ 2320 0026 1A46     		mov	r2, r3
+ 2321 0028 0349     		ldr	r1, .L169+8
+ 2322              	.LVL246:
+ 518:Core/Src/mimic_i2c.c ****     }
+ 2323              		.loc 1 518 9 is_stmt 0 view .LVU568
+ 2324 002a FFF7FEFF 		bl	HAL_I2C_Slave_Seq_Receive_IT
+ 2325              	.LVL247:
+ 518:Core/Src/mimic_i2c.c ****     }
+ 2326              		.loc 1 518 9 view .LVU569
+ 2327 002e F5E7     		b	.L164
+ 2328              	.L170:
+ 2329              		.align	2
+ 2330              	.L169:
+ 2331 0030 00000000 		.word	current_reg_addr
+ 2332 0034 00000000 		.word	i2c_first_byte_received
+ 2333 0038 00000000 		.word	i2c_slave_rx_buffer
+ 2334 003c 00000000 		.word	i2c_register_map
+ 2335              		.cfi_endproc
+ 2336              	.LFE148:
+ 2338              		.section	.text.HAL_I2C_SlaveRxCpltCallback,"ax",%progbits
+ 2339              		.align	1
+ 2340              		.global	HAL_I2C_SlaveRxCpltCallback
+ 2341              		.syntax unified
+ 2342              		.thumb
+ 2343              		.thumb_func
+ 2345              	HAL_I2C_SlaveRxCpltCallback:
+ 2346              	.LVL248:
+ 2347              	.LFB149:
+ 527:Core/Src/mimic_i2c.c **** 
+ 528:Core/Src/mimic_i2c.c **** void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
+ 529:Core/Src/mimic_i2c.c **** {
+ 2348              		.loc 1 529 1 is_stmt 1 view -0
+ 2349              		.cfi_startproc
+ 2350              		@ args = 0, pretend = 0, frame = 0
+ 2351              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/cczRQYDV.s 			page 59
+
+
+ 2352              		.loc 1 529 1 is_stmt 0 view .LVU571
+ 2353 0000 08B5     		push	{r3, lr}
+ 2354              	.LCFI29:
+ 2355              		.cfi_def_cfa_offset 8
+ 2356              		.cfi_offset 3, -8
+ 2357              		.cfi_offset 14, -4
+ 530:Core/Src/mimic_i2c.c ****     if (i2c_first_byte_received == 0)
+ 2358              		.loc 1 530 5 is_stmt 1 view .LVU572
+ 2359              		.loc 1 530 33 is_stmt 0 view .LVU573
+ 2360 0002 0F4B     		ldr	r3, .L175
+ 2361 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2362              		.loc 1 530 8 view .LVU574
+ 2363 0006 6BB9     		cbnz	r3, .L172
+ 531:Core/Src/mimic_i2c.c ****     {
+ 532:Core/Src/mimic_i2c.c ****         /* Capture register address and move to data reception */
+ 533:Core/Src/mimic_i2c.c ****         current_reg_addr = i2c_slave_rx_buffer[0];
+ 2364              		.loc 1 533 9 is_stmt 1 view .LVU575
+ 2365              		.loc 1 533 47 is_stmt 0 view .LVU576
+ 2366 0008 0E4B     		ldr	r3, .L175+4
+ 2367 000a 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2368              		.loc 1 533 26 view .LVU577
+ 2369 000c 0E4B     		ldr	r3, .L175+8
+ 2370 000e 1970     		strb	r1, [r3]
+ 534:Core/Src/mimic_i2c.c ****         i2c_first_byte_received = 1;
+ 2371              		.loc 1 534 9 is_stmt 1 view .LVU578
+ 2372              		.loc 1 534 33 is_stmt 0 view .LVU579
+ 2373 0010 0122     		movs	r2, #1
+ 2374 0012 0B4B     		ldr	r3, .L175
+ 2375 0014 1A70     		strb	r2, [r3]
+ 535:Core/Src/mimic_i2c.c ****         
+ 536:Core/Src/mimic_i2c.c ****         // Prepare to receive data if the master continues to write
+ 537:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Receive_IT(hi2c, &i2c_register_map[current_reg_addr], 1, I2C_NEXT_
+ 2376              		.loc 1 537 9 is_stmt 1 view .LVU580
+ 2377 0016 0423     		movs	r3, #4
+ 2378 0018 DFF830C0 		ldr	ip, .L175+12
+ 2379 001c 6144     		add	r1, r1, ip
+ 2380 001e FFF7FEFF 		bl	HAL_I2C_Slave_Seq_Receive_IT
+ 2381              	.LVL249:
+ 2382              	.L171:
+ 538:Core/Src/mimic_i2c.c ****     }
+ 539:Core/Src/mimic_i2c.c ****     else
+ 540:Core/Src/mimic_i2c.c ****     {
+ 541:Core/Src/mimic_i2c.c ****         /* Continuing data write: update map and increment pointer */
+ 542:Core/Src/mimic_i2c.c ****         current_reg_addr++;
+ 543:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Receive_IT(hi2c, &i2c_register_map[current_reg_addr], 1, I2C_NEXT_
+ 544:Core/Src/mimic_i2c.c ****     }
+ 545:Core/Src/mimic_i2c.c **** }
+ 2383              		.loc 1 545 1 is_stmt 0 view .LVU581
+ 2384 0022 08BD     		pop	{r3, pc}
+ 2385              	.LVL250:
+ 2386              	.L172:
+ 542:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Receive_IT(hi2c, &i2c_register_map[current_reg_addr], 1, I2C_NEXT_
+ 2387              		.loc 1 542 9 is_stmt 1 view .LVU582
+ 542:Core/Src/mimic_i2c.c ****         HAL_I2C_Slave_Sequential_Receive_IT(hi2c, &i2c_register_map[current_reg_addr], 1, I2C_NEXT_
+ 2388              		.loc 1 542 25 is_stmt 0 view .LVU583
+ 2389 0024 084B     		ldr	r3, .L175+8
+ 2390 0026 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ARM GAS  /tmp/cczRQYDV.s 			page 60
+
+
+ 2391 0028 0131     		adds	r1, r1, #1
+ 2392 002a C9B2     		uxtb	r1, r1
+ 2393 002c 1970     		strb	r1, [r3]
+ 543:Core/Src/mimic_i2c.c ****     }
+ 2394              		.loc 1 543 9 is_stmt 1 view .LVU584
+ 2395 002e 0423     		movs	r3, #4
+ 2396 0030 0122     		movs	r2, #1
+ 2397 0032 DFF818C0 		ldr	ip, .L175+12
+ 2398 0036 6144     		add	r1, r1, ip
+ 2399 0038 FFF7FEFF 		bl	HAL_I2C_Slave_Seq_Receive_IT
+ 2400              	.LVL251:
+ 2401              		.loc 1 545 1 is_stmt 0 view .LVU585
+ 2402 003c F1E7     		b	.L171
+ 2403              	.L176:
+ 2404 003e 00BF     		.align	2
+ 2405              	.L175:
+ 2406 0040 00000000 		.word	i2c_first_byte_received
+ 2407 0044 00000000 		.word	i2c_slave_rx_buffer
+ 2408 0048 00000000 		.word	current_reg_addr
+ 2409 004c 00000000 		.word	i2c_register_map
+ 2410              		.cfi_endproc
+ 2411              	.LFE149:
+ 2413              		.section	.text.HAL_I2C_SlaveTxCpltCallback,"ax",%progbits
+ 2414              		.align	1
+ 2415              		.global	HAL_I2C_SlaveTxCpltCallback
+ 2416              		.syntax unified
+ 2417              		.thumb
+ 2418              		.thumb_func
+ 2420              	HAL_I2C_SlaveTxCpltCallback:
+ 2421              	.LVL252:
+ 2422              	.LFB150:
+ 546:Core/Src/mimic_i2c.c **** 
+ 547:Core/Src/mimic_i2c.c **** void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
+ 548:Core/Src/mimic_i2c.c **** {
+ 2423              		.loc 1 548 1 is_stmt 1 view -0
+ 2424              		.cfi_startproc
+ 2425              		@ args = 0, pretend = 0, frame = 0
+ 2426              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2427              		@ link register save eliminated.
+ 549:Core/Src/mimic_i2c.c ****     /* Transmission complete. I2C peripheral is automatically ready for next AddrCallback. */
+ 550:Core/Src/mimic_i2c.c **** }
+ 2428              		.loc 1 550 1 view .LVU587
+ 2429 0000 7047     		bx	lr
+ 2430              		.cfi_endproc
+ 2431              	.LFE150:
+ 2433              		.section	.text.HAL_I2C_ListenCpltCallback,"ax",%progbits
+ 2434              		.align	1
+ 2435              		.global	HAL_I2C_ListenCpltCallback
+ 2436              		.syntax unified
+ 2437              		.thumb
+ 2438              		.thumb_func
+ 2440              	HAL_I2C_ListenCpltCallback:
+ 2441              	.LVL253:
+ 2442              	.LFB151:
+ 551:Core/Src/mimic_i2c.c **** 
+ 552:Core/Src/mimic_i2c.c **** void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
+ 553:Core/Src/mimic_i2c.c **** {
+ARM GAS  /tmp/cczRQYDV.s 			page 61
+
+
+ 2443              		.loc 1 553 1 view -0
+ 2444              		.cfi_startproc
+ 2445              		@ args = 0, pretend = 0, frame = 0
+ 2446              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2447              		.loc 1 553 1 is_stmt 0 view .LVU589
+ 2448 0000 08B5     		push	{r3, lr}
+ 2449              	.LCFI30:
+ 2450              		.cfi_def_cfa_offset 8
+ 2451              		.cfi_offset 3, -8
+ 2452              		.cfi_offset 14, -4
+ 554:Core/Src/mimic_i2c.c ****     HAL_I2C_EnableListen_IT(hi2c);
+ 2453              		.loc 1 554 5 is_stmt 1 view .LVU590
+ 2454 0002 FFF7FEFF 		bl	HAL_I2C_EnableListen_IT
+ 2455              	.LVL254:
+ 555:Core/Src/mimic_i2c.c **** }
+ 2456              		.loc 1 555 1 is_stmt 0 view .LVU591
+ 2457 0006 08BD     		pop	{r3, pc}
+ 2458              		.cfi_endproc
+ 2459              	.LFE151:
+ 2461              		.section	.text.HAL_I2C_ErrorCallback,"ax",%progbits
+ 2462              		.align	1
+ 2463              		.global	HAL_I2C_ErrorCallback
+ 2464              		.syntax unified
+ 2465              		.thumb
+ 2466              		.thumb_func
+ 2468              	HAL_I2C_ErrorCallback:
+ 2469              	.LVL255:
+ 2470              	.LFB152:
+ 556:Core/Src/mimic_i2c.c **** 
+ 557:Core/Src/mimic_i2c.c **** void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
+ 558:Core/Src/mimic_i2c.c **** {
+ 2471              		.loc 1 558 1 is_stmt 1 view -0
+ 2472              		.cfi_startproc
+ 2473              		@ args = 0, pretend = 0, frame = 0
+ 2474              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2475              		.loc 1 558 1 is_stmt 0 view .LVU593
+ 2476 0000 08B5     		push	{r3, lr}
+ 2477              	.LCFI31:
+ 2478              		.cfi_def_cfa_offset 8
+ 2479              		.cfi_offset 3, -8
+ 2480              		.cfi_offset 14, -4
+ 559:Core/Src/mimic_i2c.c ****     HAL_I2C_EnableListen_IT(hi2c);
+ 2481              		.loc 1 559 5 is_stmt 1 view .LVU594
+ 2482 0002 FFF7FEFF 		bl	HAL_I2C_EnableListen_IT
+ 2483              	.LVL256:
+ 560:Core/Src/mimic_i2c.c **** }
+ 2484              		.loc 1 560 1 is_stmt 0 view .LVU595
+ 2485 0006 08BD     		pop	{r3, pc}
+ 2486              		.cfi_endproc
+ 2487              	.LFE152:
+ 2489              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 2490              		.align	2
+ 2491              	.LC5:
+ 2492 0000 50423628 		.ascii	"PB6(SCL)\000"
+ 2492      53434C29 
+ 2492      00
+ 2493 0009 000000   		.align	2
+ARM GAS  /tmp/cczRQYDV.s 			page 62
+
+
+ 2494              	.LC6:
+ 2495 000c 50423728 		.ascii	"PB7(SDA)\000"
+ 2495      53444129 
+ 2495      00
+ 2496 0015 000000   		.align	2
+ 2497              	.LC7:
+ 2498 0018 50423130 		.ascii	"PB10(SCL)\000"
+ 2498      2853434C 
+ 2498      2900
+ 2499 0022 0000     		.align	2
+ 2500              	.LC8:
+ 2501 0024 50423131 		.ascii	"PB11(SDA)\000"
+ 2501      28534441 
+ 2501      2900
+ 2502 002e 0000     		.align	2
+ 2503              	.LC9:
+ 2504 0030 50413828 		.ascii	"PA8(SCL)\000"
+ 2504      53434C29 
+ 2504      00
+ 2505 0039 000000   		.align	2
+ 2506              	.LC10:
+ 2507 003c 50433928 		.ascii	"PC9(SDA)\000"
+ 2507      53444129 
+ 2507      00
+ 2508 0045 000000   		.align	2
+ 2509              	.LC0:
+ 2510 0048 49324331 		.ascii	"I2C1\000"
+ 2510      00
+ 2511 004d 000000   		.align	2
+ 2512              	.LC1:
+ 2513 0050 49324332 		.ascii	"I2C2\000"
+ 2513      00
+ 2514 0055 000000   		.align	2
+ 2515              	.LC2:
+ 2516 0058 49324333 		.ascii	"I2C3\000"
+ 2516      00
+ 2517              		.section	.bss.i2c_first_byte_received,"aw",%nobits
+ 2520              	i2c_first_byte_received:
+ 2521 0000 00       		.space	1
+ 2522              		.global	current_reg_addr
+ 2523              		.section	.bss.current_reg_addr,"aw",%nobits
+ 2526              	current_reg_addr:
+ 2527 0000 00       		.space	1
+ 2528              		.global	i2c_register_map
+ 2529              		.section	.bss.i2c_register_map,"aw",%nobits
+ 2530              		.align	2
+ 2533              	i2c_register_map:
+ 2534 0000 00000000 		.space	256
+ 2534      00000000 
+ 2534      00000000 
+ 2534      00000000 
+ 2534      00000000 
+ 2535              		.section	.bss.i2c_slave_rx_buffer,"aw",%nobits
+ 2536              		.align	2
+ 2539              	i2c_slave_rx_buffer:
+ 2540 0000 00000000 		.space	64
+ 2540      00000000 
+ARM GAS  /tmp/cczRQYDV.s 			page 63
+
+
+ 2540      00000000 
+ 2540      00000000 
+ 2540      00000000 
+ 2541              		.section	.bss.i2c_states,"aw",%nobits
+ 2542              		.align	2
+ 2545              	i2c_states:
+ 2546 0000 000000   		.space	3
+ 2547              		.global	hi2c3
+ 2548              		.section	.bss.hi2c3,"aw",%nobits
+ 2549              		.align	2
+ 2552              	hi2c3:
+ 2553 0000 00000000 		.space	84
+ 2553      00000000 
+ 2553      00000000 
+ 2553      00000000 
+ 2553      00000000 
+ 2554              		.global	hi2c2
+ 2555              		.section	.bss.hi2c2,"aw",%nobits
+ 2556              		.align	2
+ 2559              	hi2c2:
+ 2560 0000 00000000 		.space	84
+ 2560      00000000 
+ 2560      00000000 
+ 2560      00000000 
+ 2560      00000000 
+ 2561              		.global	hi2c1
+ 2562              		.section	.bss.hi2c1,"aw",%nobits
+ 2563              		.align	2
+ 2566              	hi2c1:
+ 2567 0000 00000000 		.space	84
+ 2567      00000000 
+ 2567      00000000 
+ 2567      00000000 
+ 2567      00000000 
+ 2568              		.section	.rodata
+ 2569              		.align	2
+ 2570              		.set	.LANCHOR0,. + 0
+ 2571              	.LC63:
+ 2572 0000 48000000 		.word	.LC0
+ 2573 0004 50000000 		.word	.LC1
+ 2574 0008 58000000 		.word	.LC2
+ 2575              	.LC4:
+ 2576 000c 00000000 		.word	hi2c1
+ 2577 0010 00000000 		.word	hi2c2
+ 2578 0014 00000000 		.word	hi2c3
+ 2579              	.LC64:
+ 2580 0018 00000000 		.word	.LC5
+ 2581 001c 0C000000 		.word	.LC6
+ 2582 0020 18000000 		.word	.LC7
+ 2583 0024 24000000 		.word	.LC8
+ 2584 0028 30000000 		.word	.LC9
+ 2585 002c 3C000000 		.word	.LC10
+ 2586              		.text
+ 2587              	.Letext0:
+ 2588              		.file 2 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+ 2589              		.file 3 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 2590              		.file 4 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ARM GAS  /tmp/cczRQYDV.s 			page 64
+
+
+ 2591              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 2592              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 2593              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 2594              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h"
+ 2595              		.file 9 "Core/Inc/mimic.h"
+ 2596              		.file 10 "/usr/arm-none-eabi/include/stdlib.h"
+ 2597              		.file 11 "/usr/arm-none-eabi/include/string.h"
+ 2598              		.file 12 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h"
+ 2599              		.file 13 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h"
+ 2600              		.file 14 "/usr/arm-none-eabi/include/strings.h"
+ 2601              		.file 15 "<built-in>"
+ARM GAS  /tmp/cczRQYDV.s 			page 65
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 mimic_i2c.c
+     /tmp/cczRQYDV.s:21     .rodata.Mimic_GetI2CHandle.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:31     .text.Mimic_GetI2CHandle:00000000 $t
+     /tmp/cczRQYDV.s:37     .text.Mimic_GetI2CHandle:00000000 Mimic_GetI2CHandle
+     /tmp/cczRQYDV.s:95     .text.Mimic_GetI2CHandle:00000030 $d
+     /tmp/cczRQYDV.s:2552   .bss.hi2c3:00000000 hi2c3
+     /tmp/cczRQYDV.s:2566   .bss.hi2c1:00000000 hi2c1
+     /tmp/cczRQYDV.s:2559   .bss.hi2c2:00000000 hi2c2
+     /tmp/cczRQYDV.s:105    .text.Mimic_ConfigureI2CGPIO:00000000 $t
+     /tmp/cczRQYDV.s:111    .text.Mimic_ConfigureI2CGPIO:00000000 Mimic_ConfigureI2CGPIO
+     /tmp/cczRQYDV.s:211    .text.Mimic_ConfigureI2CGPIO:00000060 $d
+     /tmp/cczRQYDV.s:219    .text.Mimic_InitMPU6050Registers:00000000 $t
+     /tmp/cczRQYDV.s:225    .text.Mimic_InitMPU6050Registers:00000000 Mimic_InitMPU6050Registers
+     /tmp/cczRQYDV.s:264    .text.Mimic_InitMPU6050Registers:00000028 $d
+     /tmp/cczRQYDV.s:2533   .bss.i2c_register_map:00000000 i2c_register_map
+     /tmp/cczRQYDV.s:269    .rodata.Mimic_CMD_I2C_INIT.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:315    .text.Mimic_CMD_I2C_INIT:00000000 $t
+     /tmp/cczRQYDV.s:321    .text.Mimic_CMD_I2C_INIT:00000000 Mimic_CMD_I2C_INIT
+     /tmp/cczRQYDV.s:772    .text.Mimic_CMD_I2C_INIT:00000200 $d
+     /tmp/cczRQYDV.s:2545   .bss.i2c_states:00000000 i2c_states
+     /tmp/cczRQYDV.s:801    .rodata.Mimic_CMD_I2C_SCAN.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:821    .text.Mimic_CMD_I2C_SCAN:00000000 $t
+     /tmp/cczRQYDV.s:827    .text.Mimic_CMD_I2C_SCAN:00000000 Mimic_CMD_I2C_SCAN
+     /tmp/cczRQYDV.s:970    .text.Mimic_CMD_I2C_SCAN:00000074 $d
+     /tmp/cczRQYDV.s:980    .rodata.Mimic_CMD_I2C_WRITE.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:1008   .text.Mimic_CMD_I2C_WRITE:00000000 $t
+     /tmp/cczRQYDV.s:1014   .text.Mimic_CMD_I2C_WRITE:00000000 Mimic_CMD_I2C_WRITE
+     /tmp/cczRQYDV.s:1267   .text.Mimic_CMD_I2C_WRITE:000000f8 $d
+     /tmp/cczRQYDV.s:1281   .rodata.Mimic_CMD_I2C_READ.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:1306   .text.Mimic_CMD_I2C_READ:00000000 $t
+     /tmp/cczRQYDV.s:1312   .text.Mimic_CMD_I2C_READ:00000000 Mimic_CMD_I2C_READ
+     /tmp/cczRQYDV.s:1544   .text.Mimic_CMD_I2C_READ:000000e4 $d
+     /tmp/cczRQYDV.s:1559   .rodata.Mimic_CMD_I2C_REG_SET.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:1566   .text.Mimic_CMD_I2C_REG_SET:00000000 $t
+     /tmp/cczRQYDV.s:1572   .text.Mimic_CMD_I2C_REG_SET:00000000 Mimic_CMD_I2C_REG_SET
+     /tmp/cczRQYDV.s:1641   .text.Mimic_CMD_I2C_REG_SET:0000003c $d
+     /tmp/cczRQYDV.s:1648   .rodata.Mimic_CMD_I2C_REG_DATA.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:1655   .text.Mimic_CMD_I2C_REG_DATA:00000000 $t
+     /tmp/cczRQYDV.s:1661   .text.Mimic_CMD_I2C_REG_DATA:00000000 Mimic_CMD_I2C_REG_DATA
+     /tmp/cczRQYDV.s:1727   .text.Mimic_CMD_I2C_REG_DATA:00000040 $d
+     /tmp/cczRQYDV.s:1734   .rodata.Mimic_CMD_I2C_WRITE_READ.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:1749   .text.Mimic_CMD_I2C_WRITE_READ:00000000 $t
+     /tmp/cczRQYDV.s:1755   .text.Mimic_CMD_I2C_WRITE_READ:00000000 Mimic_CMD_I2C_WRITE_READ
+     /tmp/cczRQYDV.s:2031   .text.Mimic_CMD_I2C_WRITE_READ:00000134 $d
+     /tmp/cczRQYDV.s:2042   .rodata.Mimic_CMD_I2C_STATUS.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:2067   .text.Mimic_CMD_I2C_STATUS:00000000 $t
+     /tmp/cczRQYDV.s:2073   .text.Mimic_CMD_I2C_STATUS:00000000 Mimic_CMD_I2C_STATUS
+     /tmp/cczRQYDV.s:2248   .text.Mimic_CMD_I2C_STATUS:000000c4 $d
+     /tmp/cczRQYDV.s:2264   .text.HAL_I2C_AddrCallback:00000000 $t
+     /tmp/cczRQYDV.s:2270   .text.HAL_I2C_AddrCallback:00000000 HAL_I2C_AddrCallback
+     /tmp/cczRQYDV.s:2331   .text.HAL_I2C_AddrCallback:00000030 $d
+     /tmp/cczRQYDV.s:2526   .bss.current_reg_addr:00000000 current_reg_addr
+     /tmp/cczRQYDV.s:2520   .bss.i2c_first_byte_received:00000000 i2c_first_byte_received
+     /tmp/cczRQYDV.s:2539   .bss.i2c_slave_rx_buffer:00000000 i2c_slave_rx_buffer
+     /tmp/cczRQYDV.s:2339   .text.HAL_I2C_SlaveRxCpltCallback:00000000 $t
+     /tmp/cczRQYDV.s:2345   .text.HAL_I2C_SlaveRxCpltCallback:00000000 HAL_I2C_SlaveRxCpltCallback
+ARM GAS  /tmp/cczRQYDV.s 			page 66
+
+
+     /tmp/cczRQYDV.s:2406   .text.HAL_I2C_SlaveRxCpltCallback:00000040 $d
+     /tmp/cczRQYDV.s:2414   .text.HAL_I2C_SlaveTxCpltCallback:00000000 $t
+     /tmp/cczRQYDV.s:2420   .text.HAL_I2C_SlaveTxCpltCallback:00000000 HAL_I2C_SlaveTxCpltCallback
+     /tmp/cczRQYDV.s:2434   .text.HAL_I2C_ListenCpltCallback:00000000 $t
+     /tmp/cczRQYDV.s:2440   .text.HAL_I2C_ListenCpltCallback:00000000 HAL_I2C_ListenCpltCallback
+     /tmp/cczRQYDV.s:2462   .text.HAL_I2C_ErrorCallback:00000000 $t
+     /tmp/cczRQYDV.s:2468   .text.HAL_I2C_ErrorCallback:00000000 HAL_I2C_ErrorCallback
+     /tmp/cczRQYDV.s:2490   .rodata.str1.4:00000000 $d
+     /tmp/cczRQYDV.s:2521   .bss.i2c_first_byte_received:00000000 $d
+     /tmp/cczRQYDV.s:2527   .bss.current_reg_addr:00000000 $d
+     /tmp/cczRQYDV.s:2530   .bss.i2c_register_map:00000000 $d
+     /tmp/cczRQYDV.s:2536   .bss.i2c_slave_rx_buffer:00000000 $d
+     /tmp/cczRQYDV.s:2542   .bss.i2c_states:00000000 $d
+     /tmp/cczRQYDV.s:2549   .bss.hi2c3:00000000 $d
+     /tmp/cczRQYDV.s:2556   .bss.hi2c2:00000000 $d
+     /tmp/cczRQYDV.s:2563   .bss.hi2c1:00000000 $d
+     /tmp/cczRQYDV.s:2569   .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+strcmp
+HAL_GPIO_Init
+memset
+atoi
+strcasecmp
+HAL_I2C_DeInit
+HAL_I2C_Init
+HAL_I2C_EnableListen_IT
+Mimic_SendResponseF
+HAL_I2CEx_ConfigAnalogFilter
+HAL_I2CEx_ConfigDigitalFilter
+Mimic_SendResponse
+strtol
+HAL_NVIC_SetPriority
+HAL_NVIC_EnableIRQ
+HAL_I2C_IsDeviceReady
+strlen
+strcat
+Mimic_ParseHexData
+HAL_I2C_Slave_Transmit
+HAL_I2C_Master_Transmit
+HAL_I2C_Master_Receive
+strtoul
+HAL_I2C_Mem_Read
+HAL_I2C_Slave_Seq_Transmit_IT
+HAL_I2C_Slave_Seq_Receive_IT

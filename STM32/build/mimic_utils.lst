@@ -1,0 +1,580 @@
+ARM GAS  /tmp/ccZtotVr.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"mimic_utils.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/mimic_utils.c"
+  20              		.section	.text.Mimic_GetPort,"ax",%progbits
+  21              		.align	1
+  22              		.global	Mimic_GetPort
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	Mimic_GetPort:
+  28              	.LVL0:
+  29              	.LFB137:
+   1:Core/Src/mimic_utils.c **** #include "mimic.h"
+   2:Core/Src/mimic_utils.c **** 
+   3:Core/Src/mimic_utils.c **** static const Mimic_PortMap_t port_map[] = {
+   4:Core/Src/mimic_utils.c ****     {'A', GPIOA},
+   5:Core/Src/mimic_utils.c ****     {'B', GPIOB},
+   6:Core/Src/mimic_utils.c ****     {'C', GPIOC},
+   7:Core/Src/mimic_utils.c ****     {'H', GPIOH},
+   8:Core/Src/mimic_utils.c ****     {0, NULL}
+   9:Core/Src/mimic_utils.c **** };
+  10:Core/Src/mimic_utils.c **** 
+  11:Core/Src/mimic_utils.c **** /* ========================== HELPER FUNCTIONS ============================== */
+  12:Core/Src/mimic_utils.c **** 
+  13:Core/Src/mimic_utils.c **** /**
+  14:Core/Src/mimic_utils.c ****   * @brief  Get GPIO port from character
+  15:Core/Src/mimic_utils.c ****   */
+  16:Core/Src/mimic_utils.c **** GPIO_TypeDef* Mimic_GetPort(char port_char)
+  17:Core/Src/mimic_utils.c **** {
+  30              		.loc 1 17 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+  35              		.loc 1 17 1 is_stmt 0 view .LVU1
+  36 0000 0146     		mov	r1, r0
+  18:Core/Src/mimic_utils.c ****     char upper = (port_char >= 'a' && port_char <= 'z') ? port_char - 32 : port_char;
+  37              		.loc 1 18 5 is_stmt 1 view .LVU2
+  38              		.loc 1 18 36 is_stmt 0 view .LVU3
+  39 0002 A0F16103 		sub	r3, r0, #97
+  40 0006 DBB2     		uxtb	r3, r3
+ARM GAS  /tmp/ccZtotVr.s 			page 2
+
+
+  41              		.loc 1 18 10 view .LVU4
+  42 0008 192B     		cmp	r3, #25
+  43 000a 02D8     		bhi	.L2
+  44              		.loc 1 18 10 discriminator 1 view .LVU5
+  45 000c A0F12001 		sub	r1, r0, #32
+  46 0010 C9B2     		uxtb	r1, r1
+  47              	.L2:
+  48              	.LVL1:
+  19:Core/Src/mimic_utils.c ****     
+  20:Core/Src/mimic_utils.c ****     for (int i = 0; port_map[i].port != NULL; i++)
+  49              		.loc 1 20 5 is_stmt 1 view .LVU6
+  50              	.LBB2:
+  51              		.loc 1 20 10 view .LVU7
+  52              		.loc 1 20 14 is_stmt 0 view .LVU8
+  53 0012 0022     		movs	r2, #0
+  54              		.loc 1 20 5 view .LVU9
+  55 0014 00E0     		b	.L3
+  56              	.LVL2:
+  57              	.L6:
+  58              		.loc 1 20 48 is_stmt 1 discriminator 2 view .LVU10
+  59 0016 0132     		adds	r2, r2, #1
+  60              	.LVL3:
+  61              	.L3:
+  62              		.loc 1 20 38 discriminator 1 view .LVU11
+  63              		.loc 1 20 32 is_stmt 0 discriminator 1 view .LVU12
+  64 0018 054B     		ldr	r3, .L7
+  65 001a 03EBC203 		add	r3, r3, r2, lsl #3
+  66 001e 5868     		ldr	r0, [r3, #4]
+  67              		.loc 1 20 38 discriminator 1 view .LVU13
+  68 0020 20B1     		cbz	r0, .L1
+  21:Core/Src/mimic_utils.c ****     {
+  22:Core/Src/mimic_utils.c ****         if (port_map[i].name == upper)
+  69              		.loc 1 22 9 is_stmt 1 view .LVU14
+  70              		.loc 1 22 24 is_stmt 0 view .LVU15
+  71 0022 034B     		ldr	r3, .L7
+  72 0024 13F83230 		ldrb	r3, [r3, r2, lsl #3]	@ zero_extendqisi2
+  73              		.loc 1 22 12 view .LVU16
+  74 0028 8B42     		cmp	r3, r1
+  75 002a F4D1     		bne	.L6
+  76              	.L1:
+  77              	.LBE2:
+  23:Core/Src/mimic_utils.c ****         {
+  24:Core/Src/mimic_utils.c ****             return port_map[i].port;
+  25:Core/Src/mimic_utils.c ****         }
+  26:Core/Src/mimic_utils.c ****     }
+  27:Core/Src/mimic_utils.c ****     return NULL;
+  28:Core/Src/mimic_utils.c **** }
+  78              		.loc 1 28 1 view .LVU17
+  79 002c 7047     		bx	lr
+  80              	.L8:
+  81 002e 00BF     		.align	2
+  82              	.L7:
+  83 0030 00000000 		.word	port_map
+  84              		.cfi_endproc
+  85              	.LFE137:
+  87              		.section	.text.Mimic_GetPin,"ax",%progbits
+  88              		.align	1
+ARM GAS  /tmp/ccZtotVr.s 			page 3
+
+
+  89              		.global	Mimic_GetPin
+  90              		.syntax unified
+  91              		.thumb
+  92              		.thumb_func
+  94              	Mimic_GetPin:
+  95              	.LVL4:
+  96              	.LFB138:
+  29:Core/Src/mimic_utils.c **** 
+  30:Core/Src/mimic_utils.c **** /**
+  31:Core/Src/mimic_utils.c ****   * @brief  Get GPIO pin mask from number
+  32:Core/Src/mimic_utils.c ****   */
+  33:Core/Src/mimic_utils.c **** uint16_t Mimic_GetPin(uint8_t pin_num)
+  34:Core/Src/mimic_utils.c **** {
+  97              		.loc 1 34 1 is_stmt 1 view -0
+  98              		.cfi_startproc
+  99              		@ args = 0, pretend = 0, frame = 0
+ 100              		@ frame_needed = 0, uses_anonymous_args = 0
+ 101              		@ link register save eliminated.
+  35:Core/Src/mimic_utils.c ****     if (pin_num > 15) return 0;
+ 102              		.loc 1 35 5 view .LVU19
+ 103              		.loc 1 35 8 is_stmt 0 view .LVU20
+ 104 0000 0F28     		cmp	r0, #15
+ 105 0002 04D8     		bhi	.L11
+  36:Core/Src/mimic_utils.c ****     return (1 << pin_num);
+ 106              		.loc 1 36 5 is_stmt 1 view .LVU21
+ 107              		.loc 1 36 15 is_stmt 0 view .LVU22
+ 108 0004 0123     		movs	r3, #1
+ 109 0006 03FA00F0 		lsl	r0, r3, r0
+ 110              	.LVL5:
+ 111              		.loc 1 36 15 view .LVU23
+ 112 000a 80B2     		uxth	r0, r0
+ 113 000c 7047     		bx	lr
+ 114              	.LVL6:
+ 115              	.L11:
+  35:Core/Src/mimic_utils.c ****     if (pin_num > 15) return 0;
+ 116              		.loc 1 35 30 discriminator 1 view .LVU24
+ 117 000e 0020     		movs	r0, #0
+ 118              	.LVL7:
+  37:Core/Src/mimic_utils.c **** }
+ 119              		.loc 1 37 1 view .LVU25
+ 120 0010 7047     		bx	lr
+ 121              		.cfi_endproc
+ 122              	.LFE138:
+ 124              		.section	.text.Mimic_ParsePin,"ax",%progbits
+ 125              		.align	1
+ 126              		.global	Mimic_ParsePin
+ 127              		.syntax unified
+ 128              		.thumb
+ 129              		.thumb_func
+ 131              	Mimic_ParsePin:
+ 132              	.LVL8:
+ 133              	.LFB139:
+  38:Core/Src/mimic_utils.c **** 
+  39:Core/Src/mimic_utils.c **** /**
+  40:Core/Src/mimic_utils.c ****   * @brief  Parse pin string like "A5" or "D12"
+  41:Core/Src/mimic_utils.c ****   */
+  42:Core/Src/mimic_utils.c **** uint8_t Mimic_ParsePin(const char *pin_str, GPIO_TypeDef **port, uint16_t *pin)
+ARM GAS  /tmp/ccZtotVr.s 			page 4
+
+
+  43:Core/Src/mimic_utils.c **** {
+ 134              		.loc 1 43 1 is_stmt 1 view -0
+ 135              		.cfi_startproc
+ 136              		@ args = 0, pretend = 0, frame = 0
+ 137              		@ frame_needed = 0, uses_anonymous_args = 0
+ 138              		.loc 1 43 1 is_stmt 0 view .LVU27
+ 139 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 140              	.LCFI0:
+ 141              		.cfi_def_cfa_offset 24
+ 142              		.cfi_offset 3, -24
+ 143              		.cfi_offset 4, -20
+ 144              		.cfi_offset 5, -16
+ 145              		.cfi_offset 6, -12
+ 146              		.cfi_offset 7, -8
+ 147              		.cfi_offset 14, -4
+ 148 0002 0446     		mov	r4, r0
+ 149 0004 0546     		mov	r5, r0
+ 150 0006 0E46     		mov	r6, r1
+ 151 0008 1746     		mov	r7, r2
+  44:Core/Src/mimic_utils.c ****     if (strlen(pin_str) < 2) return 0;
+ 152              		.loc 1 44 5 is_stmt 1 view .LVU28
+ 153              		.loc 1 44 9 is_stmt 0 view .LVU29
+ 154 000a FFF7FEFF 		bl	strlen
+ 155              	.LVL9:
+ 156              		.loc 1 44 8 discriminator 1 view .LVU30
+ 157 000e 0128     		cmp	r0, #1
+ 158 0010 20D9     		bls	.L16
+  45:Core/Src/mimic_utils.c ****     
+  46:Core/Src/mimic_utils.c ****     // Support "PA4" style by skipping the 'P' prefix if present
+  47:Core/Src/mimic_utils.c ****     const char *ptr = pin_str;
+ 159              		.loc 1 47 5 is_stmt 1 view .LVU31
+ 160              	.LVL10:
+  48:Core/Src/mimic_utils.c ****     if ((*ptr == 'P' || *ptr == 'p') && strlen(ptr) >= 3) {
+ 161              		.loc 1 48 5 view .LVU32
+ 162              		.loc 1 48 10 is_stmt 0 view .LVU33
+ 163 0012 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 164              		.loc 1 48 8 view .LVU34
+ 165 0014 502B     		cmp	r3, #80
+ 166 0016 16D0     		beq	.L14
+ 167              		.loc 1 48 22 discriminator 2 view .LVU35
+ 168 0018 702B     		cmp	r3, #112
+ 169 001a 14D0     		beq	.L14
+  47:Core/Src/mimic_utils.c ****     if ((*ptr == 'P' || *ptr == 'p') && strlen(ptr) >= 3) {
+ 170              		.loc 1 47 17 view .LVU36
+ 171 001c 2346     		mov	r3, r4
+ 172              	.LVL11:
+ 173              	.L15:
+  49:Core/Src/mimic_utils.c ****         ptr++;
+  50:Core/Src/mimic_utils.c ****     }
+  51:Core/Src/mimic_utils.c ****     
+  52:Core/Src/mimic_utils.c ****     *port = Mimic_GetPort(*ptr);
+ 174              		.loc 1 52 5 is_stmt 1 view .LVU37
+ 175              		.loc 1 52 13 is_stmt 0 view .LVU38
+ 176 001e 1C46     		mov	r4, r3
+ 177              	.LVL12:
+ 178              		.loc 1 52 13 view .LVU39
+ 179 0020 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ARM GAS  /tmp/ccZtotVr.s 			page 5
+
+
+ 180 0022 FFF7FEFF 		bl	Mimic_GetPort
+ 181              	.LVL13:
+ 182              		.loc 1 52 11 discriminator 1 view .LVU40
+ 183 0026 3060     		str	r0, [r6]
+  53:Core/Src/mimic_utils.c ****     if (*port == NULL) return 0;
+ 184              		.loc 1 53 5 is_stmt 1 view .LVU41
+ 185              		.loc 1 53 8 is_stmt 0 view .LVU42
+ 186 0028 A8B1     		cbz	r0, .L13
+  54:Core/Src/mimic_utils.c ****     
+  55:Core/Src/mimic_utils.c ****     uint8_t pin_num = atoi(ptr + 1);
+ 187              		.loc 1 55 5 is_stmt 1 view .LVU43
+ 188              		.loc 1 55 23 is_stmt 0 view .LVU44
+ 189 002a 2046     		mov	r0, r4
+ 190 002c 0130     		adds	r0, r0, #1
+ 191 002e FFF7FEFF 		bl	atoi
+ 192              	.LVL14:
+  56:Core/Src/mimic_utils.c ****     *pin = Mimic_GetPin(pin_num);
+ 193              		.loc 1 56 5 is_stmt 1 view .LVU45
+ 194              		.loc 1 56 12 is_stmt 0 view .LVU46
+ 195 0032 C0B2     		uxtb	r0, r0
+ 196              		.loc 1 56 12 view .LVU47
+ 197 0034 FFF7FEFF 		bl	Mimic_GetPin
+ 198              	.LVL15:
+ 199              		.loc 1 56 10 discriminator 1 view .LVU48
+ 200 0038 3880     		strh	r0, [r7]	@ movhi
+  57:Core/Src/mimic_utils.c ****     if (*pin == 0 && pin_str[1] != '0') return 0;
+ 201              		.loc 1 57 5 is_stmt 1 view .LVU49
+ 202              		.loc 1 57 8 is_stmt 0 view .LVU50
+ 203 003a 68B9     		cbnz	r0, .L20
+ 204              		.loc 1 57 29 discriminator 1 view .LVU51
+ 205 003c 6B78     		ldrb	r3, [r5, #1]	@ zero_extendqisi2
+ 206              		.loc 1 57 19 discriminator 1 view .LVU52
+ 207 003e 302B     		cmp	r3, #48
+ 208 0040 0CD1     		bne	.L21
+  58:Core/Src/mimic_utils.c ****     
+  59:Core/Src/mimic_utils.c ****     return 1;
+ 209              		.loc 1 59 12 view .LVU53
+ 210 0042 0120     		movs	r0, #1
+ 211 0044 07E0     		b	.L13
+ 212              	.LVL16:
+ 213              	.L14:
+  48:Core/Src/mimic_utils.c ****         ptr++;
+ 214              		.loc 1 48 38 discriminator 4 view .LVU54
+ 215 0046 0228     		cmp	r0, #2
+ 216 0048 02D9     		bls	.L18
+  49:Core/Src/mimic_utils.c ****     }
+ 217              		.loc 1 49 9 is_stmt 1 view .LVU55
+  49:Core/Src/mimic_utils.c ****     }
+ 218              		.loc 1 49 12 is_stmt 0 view .LVU56
+ 219 004a 2B46     		mov	r3, r5
+ 220 004c 0133     		adds	r3, r3, #1
+ 221              	.LVL17:
+  49:Core/Src/mimic_utils.c ****     }
+ 222              		.loc 1 49 12 view .LVU57
+ 223 004e E6E7     		b	.L15
+ 224              	.LVL18:
+ 225              	.L18:
+ARM GAS  /tmp/ccZtotVr.s 			page 6
+
+
+  47:Core/Src/mimic_utils.c ****     if ((*ptr == 'P' || *ptr == 'p') && strlen(ptr) >= 3) {
+ 226              		.loc 1 47 17 view .LVU58
+ 227 0050 2B46     		mov	r3, r5
+ 228 0052 E4E7     		b	.L15
+ 229              	.LVL19:
+ 230              	.L16:
+  44:Core/Src/mimic_utils.c ****     
+ 231              		.loc 1 44 37 discriminator 2 view .LVU59
+ 232 0054 0020     		movs	r0, #0
+ 233              	.LVL20:
+ 234              	.L13:
+  60:Core/Src/mimic_utils.c **** }
+ 235              		.loc 1 60 1 view .LVU60
+ 236 0056 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 237              	.LVL21:
+ 238              	.L20:
+  59:Core/Src/mimic_utils.c **** }
+ 239              		.loc 1 59 12 view .LVU61
+ 240 0058 0120     		movs	r0, #1
+ 241 005a FCE7     		b	.L13
+ 242              	.L21:
+  57:Core/Src/mimic_utils.c ****     
+ 243              		.loc 1 57 48 discriminator 2 view .LVU62
+ 244 005c 0020     		movs	r0, #0
+ 245 005e FAE7     		b	.L13
+ 246              		.cfi_endproc
+ 247              	.LFE139:
+ 249              		.section	.text.Mimic_ParseHexData,"ax",%progbits
+ 250              		.align	1
+ 251              		.global	Mimic_ParseHexData
+ 252              		.syntax unified
+ 253              		.thumb
+ 254              		.thumb_func
+ 256              	Mimic_ParseHexData:
+ 257              	.LVL22:
+ 258              	.LFB140:
+  61:Core/Src/mimic_utils.c **** 
+  62:Core/Src/mimic_utils.c **** 
+  63:Core/Src/mimic_utils.c **** uint16_t Mimic_ParseHexData(const char *hex_str, uint8_t *data, uint16_t max_len)
+  64:Core/Src/mimic_utils.c **** {
+ 259              		.loc 1 64 1 is_stmt 1 view -0
+ 260              		.cfi_startproc
+ 261              		@ args = 0, pretend = 0, frame = 8
+ 262              		@ frame_needed = 0, uses_anonymous_args = 0
+ 263              		.loc 1 64 1 is_stmt 0 view .LVU64
+ 264 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 265              	.LCFI1:
+ 266              		.cfi_def_cfa_offset 20
+ 267              		.cfi_offset 4, -20
+ 268              		.cfi_offset 5, -16
+ 269              		.cfi_offset 6, -12
+ 270              		.cfi_offset 7, -8
+ 271              		.cfi_offset 14, -4
+ 272 0002 83B0     		sub	sp, sp, #12
+ 273              	.LCFI2:
+ 274              		.cfi_def_cfa_offset 32
+ 275 0004 0446     		mov	r4, r0
+ARM GAS  /tmp/ccZtotVr.s 			page 7
+
+
+ 276 0006 0F46     		mov	r7, r1
+ 277 0008 1646     		mov	r6, r2
+  65:Core/Src/mimic_utils.c ****     uint16_t count = 0;
+ 278              		.loc 1 65 5 is_stmt 1 view .LVU65
+ 279              	.LVL23:
+  66:Core/Src/mimic_utils.c ****     const char *ptr = hex_str;
+ 280              		.loc 1 66 5 view .LVU66
+  67:Core/Src/mimic_utils.c ****     
+  68:Core/Src/mimic_utils.c ****     while (*ptr && count < max_len)
+ 281              		.loc 1 68 5 view .LVU67
+  65:Core/Src/mimic_utils.c ****     const char *ptr = hex_str;
+ 282              		.loc 1 65 14 is_stmt 0 view .LVU68
+ 283 000a 0025     		movs	r5, #0
+ 284              		.loc 1 68 11 view .LVU69
+ 285 000c 34E0     		b	.L24
+ 286              	.LVL24:
+ 287              	.L25:
+ 288              	.LBB3:
+  69:Core/Src/mimic_utils.c ****     {
+  70:Core/Src/mimic_utils.c ****         // Skip whitespace
+  71:Core/Src/mimic_utils.c ****         while (*ptr == ' ' || *ptr == '	') ptr++;
+ 289              		.loc 1 71 44 is_stmt 1 discriminator 4 view .LVU70
+ 290              		.loc 1 71 47 is_stmt 0 discriminator 4 view .LVU71
+ 291 000e 0134     		adds	r4, r4, #1
+ 292              	.LVL25:
+ 293              	.L31:
+ 294              		.loc 1 71 28 is_stmt 1 discriminator 1 view .LVU72
+ 295              		.loc 1 71 16 is_stmt 0 discriminator 1 view .LVU73
+ 296 0010 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 297              		.loc 1 71 28 discriminator 1 view .LVU74
+ 298 0012 202B     		cmp	r3, #32
+ 299 0014 FBD0     		beq	.L25
+ 300              		.loc 1 71 28 discriminator 3 view .LVU75
+ 301 0016 092B     		cmp	r3, #9
+ 302 0018 F9D0     		beq	.L25
+  72:Core/Src/mimic_utils.c ****         if (!*ptr) break;
+ 303              		.loc 1 72 9 is_stmt 1 view .LVU76
+ 304              		.loc 1 72 12 is_stmt 0 view .LVU77
+ 305 001a 8BB3     		cbz	r3, .L30
+  73:Core/Src/mimic_utils.c ****         
+  74:Core/Src/mimic_utils.c ****         // Parse hex byte
+  75:Core/Src/mimic_utils.c ****         char hex_byte[3] = {0};
+ 306              		.loc 1 75 9 is_stmt 1 view .LVU78
+ 307              		.loc 1 75 14 is_stmt 0 view .LVU79
+ 308 001c 0023     		movs	r3, #0
+ 309 001e ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 310 0022 4FF00002 		mov	r2, #0	@ movhi
+ 311 0026 8DF80620 		strb	r2, [sp, #6]
+  76:Core/Src/mimic_utils.c ****         if (*ptr && ((*(ptr+1) >= '0' && *(ptr+1) <= '9') || 
+ 312              		.loc 1 76 9 is_stmt 1 view .LVU80
+ 313              		.loc 1 76 13 is_stmt 0 view .LVU81
+ 314 002a 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 315              		.loc 1 76 12 view .LVU82
+ 316 002c ABB1     		cbz	r3, .L27
+ 317              		.loc 1 76 23 discriminator 1 view .LVU83
+ 318 002e 6178     		ldrb	r1, [r4, #1]	@ zero_extendqisi2
+ 319              		.loc 1 76 39 discriminator 1 view .LVU84
+ARM GAS  /tmp/ccZtotVr.s 			page 8
+
+
+ 320 0030 A1F13002 		sub	r2, r1, #48
+ 321 0034 D2B2     		uxtb	r2, r2
+ 322              		.loc 1 76 18 discriminator 1 view .LVU85
+ 323 0036 092A     		cmp	r2, #9
+ 324 0038 09D9     		bls	.L28
+  77:Core/Src/mimic_utils.c ****                      (*(ptr+1) >= 'A' && *(ptr+1) <= 'F') ||
+ 325              		.loc 1 77 39 view .LVU86
+ 326 003a A1F14102 		sub	r2, r1, #65
+ 327 003e D2B2     		uxtb	r2, r2
+  76:Core/Src/mimic_utils.c ****         if (*ptr && ((*(ptr+1) >= '0' && *(ptr+1) <= '9') || 
+ 328              		.loc 1 76 59 discriminator 2 view .LVU87
+ 329 0040 052A     		cmp	r2, #5
+ 330 0042 04D9     		bls	.L28
+  78:Core/Src/mimic_utils.c ****                      (*(ptr+1) >= 'a' && *(ptr+1) <= 'f')))
+ 331              		.loc 1 78 39 view .LVU88
+ 332 0044 A1F16102 		sub	r2, r1, #97
+ 333 0048 D2B2     		uxtb	r2, r2
+  77:Core/Src/mimic_utils.c ****                      (*(ptr+1) >= 'A' && *(ptr+1) <= 'F') ||
+ 334              		.loc 1 77 59 view .LVU89
+ 335 004a 052A     		cmp	r2, #5
+ 336 004c 05D8     		bhi	.L27
+ 337              	.L28:
+  79:Core/Src/mimic_utils.c ****         {
+  80:Core/Src/mimic_utils.c ****             hex_byte[0] = *ptr++;
+ 338              		.loc 1 80 13 is_stmt 1 view .LVU90
+ 339              	.LVL26:
+ 340              		.loc 1 80 25 is_stmt 0 view .LVU91
+ 341 004e 8DF80430 		strb	r3, [sp, #4]
+  81:Core/Src/mimic_utils.c ****             hex_byte[1] = *ptr++;
+ 342              		.loc 1 81 13 is_stmt 1 view .LVU92
+ 343              		.loc 1 81 31 is_stmt 0 view .LVU93
+ 344 0052 0234     		adds	r4, r4, #2
+ 345              	.LVL27:
+ 346              		.loc 1 81 25 view .LVU94
+ 347 0054 8DF80510 		strb	r1, [sp, #5]
+ 348 0058 06E0     		b	.L29
+ 349              	.L27:
+  82:Core/Src/mimic_utils.c ****         }
+  83:Core/Src/mimic_utils.c ****         else
+  84:Core/Src/mimic_utils.c ****         {
+  85:Core/Src/mimic_utils.c ****             hex_byte[0] = '0';
+ 350              		.loc 1 85 13 is_stmt 1 view .LVU95
+ 351              		.loc 1 85 25 is_stmt 0 view .LVU96
+ 352 005a 3023     		movs	r3, #48
+ 353 005c 8DF80430 		strb	r3, [sp, #4]
+  86:Core/Src/mimic_utils.c ****             hex_byte[1] = *ptr++;
+ 354              		.loc 1 86 13 is_stmt 1 view .LVU97
+ 355              	.LVL28:
+ 356              		.loc 1 86 27 is_stmt 0 view .LVU98
+ 357 0060 14F8013B 		ldrb	r3, [r4], #1	@ zero_extendqisi2
+ 358              	.LVL29:
+ 359              		.loc 1 86 25 view .LVU99
+ 360 0064 8DF80530 		strb	r3, [sp, #5]
+ 361              	.L29:
+  87:Core/Src/mimic_utils.c ****         }
+  88:Core/Src/mimic_utils.c ****         
+  89:Core/Src/mimic_utils.c ****         data[count++] = (uint8_t)strtol(hex_byte, NULL, 16);
+ARM GAS  /tmp/ccZtotVr.s 			page 9
+
+
+ 362              		.loc 1 89 9 is_stmt 1 view .LVU100
+ 363              		.loc 1 89 34 is_stmt 0 view .LVU101
+ 364 0068 1022     		movs	r2, #16
+ 365 006a 0021     		movs	r1, #0
+ 366 006c 01A8     		add	r0, sp, #4
+ 367 006e FFF7FEFF 		bl	strtol
+ 368              	.LVL30:
+ 369              		.loc 1 89 19 discriminator 1 view .LVU102
+ 370 0072 6B1C     		adds	r3, r5, #1
+ 371              	.LVL31:
+ 372              		.loc 1 89 23 discriminator 1 view .LVU103
+ 373 0074 7855     		strb	r0, [r7, r5]
+ 374              		.loc 1 89 19 discriminator 1 view .LVU104
+ 375 0076 9DB2     		uxth	r5, r3
+ 376              	.LVL32:
+ 377              	.L24:
+ 378              		.loc 1 89 19 discriminator 1 view .LVU105
+ 379              	.LBE3:
+  68:Core/Src/mimic_utils.c ****     {
+ 380              		.loc 1 68 17 is_stmt 1 view .LVU106
+  68:Core/Src/mimic_utils.c ****     {
+ 381              		.loc 1 68 12 is_stmt 0 view .LVU107
+ 382 0078 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+  68:Core/Src/mimic_utils.c ****     {
+ 383              		.loc 1 68 17 view .LVU108
+ 384 007a 0BB1     		cbz	r3, .L30
+  68:Core/Src/mimic_utils.c ****     {
+ 385              		.loc 1 68 17 discriminator 1 view .LVU109
+ 386 007c B542     		cmp	r5, r6
+ 387 007e C7D3     		bcc	.L31
+ 388              	.L30:
+  90:Core/Src/mimic_utils.c ****     }
+  91:Core/Src/mimic_utils.c ****     
+  92:Core/Src/mimic_utils.c ****     return count;
+ 389              		.loc 1 92 5 is_stmt 1 view .LVU110
+  93:Core/Src/mimic_utils.c **** }
+ 390              		.loc 1 93 1 is_stmt 0 view .LVU111
+ 391 0080 2846     		mov	r0, r5
+ 392 0082 03B0     		add	sp, sp, #12
+ 393              	.LCFI3:
+ 394              		.cfi_def_cfa_offset 20
+ 395              		@ sp needed
+ 396 0084 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 397              		.loc 1 93 1 view .LVU112
+ 398              		.cfi_endproc
+ 399              	.LFE140:
+ 401              		.section	.rodata.port_map,"a"
+ 402              		.align	2
+ 405              	port_map:
+ 406 0000 41       		.byte	65
+ 407 0001 000000   		.space	3
+ 408 0004 00000240 		.word	1073872896
+ 409 0008 42       		.byte	66
+ 410 0009 000000   		.space	3
+ 411 000c 00040240 		.word	1073873920
+ 412 0010 43       		.byte	67
+ 413 0011 000000   		.space	3
+ARM GAS  /tmp/ccZtotVr.s 			page 10
+
+
+ 414 0014 00080240 		.word	1073874944
+ 415 0018 48       		.byte	72
+ 416 0019 000000   		.space	3
+ 417 001c 001C0240 		.word	1073880064
+ 418 0020 00       		.byte	0
+ 419 0021 000000   		.space	3
+ 420 0024 00000000 		.word	0
+ 421              		.text
+ 422              	.Letext0:
+ 423              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 424              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 425              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h"
+ 426              		.file 5 "/usr/lib/gcc/arm-none-eabi/15.2.0/include/stddef.h"
+ 427              		.file 6 "Core/Inc/mimic.h"
+ 428              		.file 7 "/usr/arm-none-eabi/include/stdlib.h"
+ 429              		.file 8 "/usr/arm-none-eabi/include/string.h"
+ARM GAS  /tmp/ccZtotVr.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 mimic_utils.c
+     /tmp/ccZtotVr.s:21     .text.Mimic_GetPort:00000000 $t
+     /tmp/ccZtotVr.s:27     .text.Mimic_GetPort:00000000 Mimic_GetPort
+     /tmp/ccZtotVr.s:83     .text.Mimic_GetPort:00000030 $d
+     /tmp/ccZtotVr.s:405    .rodata.port_map:00000000 port_map
+     /tmp/ccZtotVr.s:88     .text.Mimic_GetPin:00000000 $t
+     /tmp/ccZtotVr.s:94     .text.Mimic_GetPin:00000000 Mimic_GetPin
+     /tmp/ccZtotVr.s:125    .text.Mimic_ParsePin:00000000 $t
+     /tmp/ccZtotVr.s:131    .text.Mimic_ParsePin:00000000 Mimic_ParsePin
+     /tmp/ccZtotVr.s:250    .text.Mimic_ParseHexData:00000000 $t
+     /tmp/ccZtotVr.s:256    .text.Mimic_ParseHexData:00000000 Mimic_ParseHexData
+     /tmp/ccZtotVr.s:402    .rodata.port_map:00000000 $d
+
+UNDEFINED SYMBOLS
+strlen
+atoi
+strtol

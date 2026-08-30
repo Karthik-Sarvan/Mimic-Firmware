@@ -39,7 +39,13 @@ C_SOURCES =  \
 Core/Src/main.c \
 Core/Src/gpio.c \
 Core/Src/usart.c \
-Core/Src/mimic.c \
+Core/Src/mimic_core.c \
+Core/Src/mimic_gpio.c \
+Core/Src/mimic_i2c.c \
+Core/Src/mimic_spi.c \
+Core/Src/mimic_sys.c \
+Core/Src/mimic_uart.c \
+Core/Src/mimic_utils.c \
 Core/Src/stm32f4xx_it.c \
 Core/Src/stm32f4xx_hal_msp.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
