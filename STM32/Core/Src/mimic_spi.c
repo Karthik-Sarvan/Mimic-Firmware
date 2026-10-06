@@ -226,8 +226,27 @@ void Mimic_CMD_SPI_INIT(Mimic_Command_t *cmd)
     /* MASTER MODE CONFIG (Regular SPI) */
     hspi->Init.Direction = SPI_DIRECTION_2LINES;
     hspi->Init.DataSize = SPI_DATASIZE_8BIT;
-    hspi->Init.CLKPolarity = SPI_POLARITY_LOW;
-    hspi->Init.CLKPhase = SPI_PHASE_1EDGE;
+
+    /* Parse CPOL (0: LOW, 1: HIGH, default 0) */
+    if (cmd->argc >= 4 && strcmp(cmd->args[3], "1") == 0)
+    {
+        hspi->Init.CLKPolarity = SPI_POLARITY_HIGH;
+    }
+    else
+    {
+        hspi->Init.CLKPolarity = SPI_POLARITY_LOW;
+    }
+
+    /* Parse CPHA (0: 1EDGE, 1: 2EDGE, default 0) */
+    if (cmd->argc >= 5 && strcmp(cmd->args[4], "1") == 0)
+    {
+        hspi->Init.CLKPhase = SPI_PHASE_2EDGE;
+    }
+    else
+    {
+        hspi->Init.CLKPhase = SPI_PHASE_1EDGE;
+    }
+
     hspi->Init.FirstBit = SPI_FIRSTBIT_MSB;
 
     uint32_t pclk = (hspi->Instance == SPI1) ? HAL_RCC_GetPCLK2Freq() : HAL_RCC_GetPCLK1Freq();
