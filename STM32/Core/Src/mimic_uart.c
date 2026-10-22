@@ -16,11 +16,11 @@ static Mimic_UART_RS485_t uart_rs485_config[3] = {0}; // Index: 0=USART1, 1=USAR
   */
 static UART_HandleTypeDef* Mimic_GetUARTHandle(const char *instance)
 {
-    if (strcmp(instance, "UART2") == 0 || strcmp(instance, "USART2") == 0 || strcmp(instance, "2") == 0)
-        return &huart2;
+    if (strcmp(instance, "UART1") == 0 || strcmp(instance, "USART1") == 0 || strcmp(instance, "1") == 0)
+        return &huart1;
     else if (strcmp(instance, "UART6") == 0 || strcmp(instance, "USART6") == 0 || strcmp(instance, "6") == 0)
         return &huart6;
-    return NULL;  /* UART1 is reserved for host */
+    return NULL;  /* UART2 is reserved for host */
 }
 
 /**

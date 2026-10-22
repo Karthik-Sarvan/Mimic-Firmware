@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccwODkKJ.s 			page 1
+ARM GAS  /tmp/ccwQK8bF.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
   50 0038 3500     		.ascii	"5\000"
   51              		.section	.text.Mimic_GetSPIHandle,"ax",%progbits
   52              		.align	1
-ARM GAS  /tmp/ccwODkKJ.s 			page 2
+ARM GAS  /tmp/ccwQK8bF.s 			page 2
 
 
   53              		.syntax unified
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
   84 0014 68B3     		cbz	r0, .L4
   25:Core/Src/mimic_spi.c ****         return &hspi1;
   26:Core/Src/mimic_spi.c ****     else if (strcmp(instance, "SPI2") == 0 || strcmp(instance, "2") == 0)
-ARM GAS  /tmp/ccwODkKJ.s 			page 3
+ARM GAS  /tmp/ccwQK8bF.s 			page 3
 
 
   85              		.loc 1 26 10 is_stmt 1 view .LVU7
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  133 0054 2046     		mov	r0, r4
  134 0056 FFF7FEFF 		bl	strcmp
  135              	.LVL9:
-ARM GAS  /tmp/ccwODkKJ.s 			page 4
+ARM GAS  /tmp/ccwQK8bF.s 			page 4
 
 
  136              		.loc 1 32 13 discriminator 1 view .LVU24
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  182 008a 1048     		ldr	r0, .L15+56
  183 008c F0E7     		b	.L1
  184              	.L11:
-ARM GAS  /tmp/ccwODkKJ.s 			page 5
+ARM GAS  /tmp/ccwQK8bF.s 			page 5
 
 
   33:Core/Src/mimic_spi.c ****     return NULL;
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  233 0006 0393     		str	r3, [sp, #12]
  234 0008 0493     		str	r3, [sp, #16]
  235 000a 0593     		str	r3, [sp, #20]
-ARM GAS  /tmp/ccwODkKJ.s 			page 6
+ARM GAS  /tmp/ccwQK8bF.s 			page 6
 
 
  236 000c 0693     		str	r3, [sp, #24]
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  264 0020 0023     		movs	r3, #0
  265 0022 0193     		str	r3, [sp, #4]
   47:Core/Src/mimic_spi.c ****         GPIO_InitStruct.Pin = GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
-ARM GAS  /tmp/ccwODkKJ.s 			page 7
+ARM GAS  /tmp/ccwQK8bF.s 			page 7
 
 
  266              		.loc 1 47 9 view .LVU47
@@ -418,7 +418,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
   58:Core/Src/mimic_spi.c ****         GPIO_InitStruct.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14;
  306              		.loc 1 58 9 is_stmt 1 view .LVU62
  307              	.LBB3:
-ARM GAS  /tmp/ccwODkKJ.s 			page 8
+ARM GAS  /tmp/ccwQK8bF.s 			page 8
 
 
   58:Core/Src/mimic_spi.c ****         GPIO_InitStruct.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14;
@@ -478,7 +478,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  346 0080 FFF7FEFF 		bl	HAL_GPIO_Init
  347              	.LVL19:
  348              		.loc 1 66 1 view .LVU79
-ARM GAS  /tmp/ccwODkKJ.s 			page 9
+ARM GAS  /tmp/ccwQK8bF.s 			page 9
 
 
  349 0084 CAE7     		b	.L17
@@ -538,7 +538,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  380 011c 00       		.ascii	"\000"
  381 011d 000000   		.align	2
  382              	.LC17:
-ARM GAS  /tmp/ccwODkKJ.s 			page 10
+ARM GAS  /tmp/ccwQK8bF.s 			page 10
 
 
  383 0120 20204441 		.ascii	"  DATASIZE: 8|16 (default 8), BITORDER: MSB|LSB (de"
@@ -598,7 +598,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  406      455200
  407 024b 00       		.align	2
  408              	.LC26:
-ARM GAS  /tmp/ccwODkKJ.s 			page 11
+ARM GAS  /tmp/ccwQK8bF.s 			page 11
 
 
  409 024c 4552524F 		.ascii	"ERROR: Mode must be MASTER or SLAVE\015\012\000"
@@ -658,7 +658,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  442 0004 93B0     		sub	sp, sp, #76
  443              	.LCFI6:
  444              		.cfi_def_cfa_offset 104
-ARM GAS  /tmp/ccwODkKJ.s 			page 12
+ARM GAS  /tmp/ccwQK8bF.s 			page 12
 
 
   76:Core/Src/mimic_spi.c ****     if (cmd->argc < 3)
@@ -718,7 +718,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  476 002a FFF7FEFF 		bl	atoi
  477              	.LVL25:
  478 002e 0746     		mov	r7, r0
-ARM GAS  /tmp/ccwODkKJ.s 			page 13
+ARM GAS  /tmp/ccwQK8bF.s 			page 13
 
 
  479              	.LVL26:
@@ -778,7 +778,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  125:Core/Src/mimic_spi.c ****     {
  126:Core/Src/mimic_spi.c ****         __HAL_RCC_SPI4_CLK_ENABLE();
  127:Core/Src/mimic_spi.c ****         hspi->Instance = SPI4;
-ARM GAS  /tmp/ccwODkKJ.s 			page 14
+ARM GAS  /tmp/ccwQK8bF.s 			page 14
 
 
  128:Core/Src/mimic_spi.c ****         Mimic_ConfigureSPIGPIO(SPI4);
@@ -838,7 +838,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  540 0086 2A68     		ldr	r2, [r5]
  541              		.loc 1 148 12 view .LVU120
  542 0088 A04B     		ldr	r3, .L68+28
-ARM GAS  /tmp/ccwODkKJ.s 			page 15
+ARM GAS  /tmp/ccwQK8bF.s 			page 15
 
 
  543 008a 9A42     		cmp	r2, r3
@@ -898,7 +898,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  201:Core/Src/mimic_spi.c ****             HAL_NVIC_EnableIRQ(EXTI4_IRQn);
  202:Core/Src/mimic_spi.c **** 
  203:Core/Src/mimic_spi.c ****             // Chamber the ID immediately for zero latency
-ARM GAS  /tmp/ccwODkKJ.s 			page 16
+ARM GAS  /tmp/ccwQK8bF.s 			page 16
 
 
  204:Core/Src/mimic_spi.c ****             spi_tx_buf[0] = 0x58;
@@ -958,7 +958,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  571              	.LVL29:
  572              		.loc 1 231 24 discriminator 2 view .LVU133
  573 00b4 0028     		cmp	r0, #0
-ARM GAS  /tmp/ccwODkKJ.s 			page 17
+ARM GAS  /tmp/ccwQK8bF.s 			page 17
 
 
  574 00b6 40F05D81 		bne	.L43
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  616              		.loc 1 91 9 view .LVU145
  617 00ec 9048     		ldr	r0, .L68+64
  618              	.LVL40:
-ARM GAS  /tmp/ccwODkKJ.s 			page 18
+ARM GAS  /tmp/ccwQK8bF.s 			page 18
 
 
   91:Core/Src/mimic_spi.c ****         return;
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  659 0116 2860     		str	r0, [r5]
  110:Core/Src/mimic_spi.c ****     }
  660              		.loc 1 110 9 is_stmt 1 view .LVU160
-ARM GAS  /tmp/ccwODkKJ.s 			page 19
+ARM GAS  /tmp/ccwQK8bF.s 			page 19
 
 
  661 0118 FFF7FEFF 		bl	Mimic_ConfigureSPIGPIO
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  702 0144 7C4B     		ldr	r3, .L68+72
  703 0146 1A6C     		ldr	r2, [r3, #64]
  704 0148 42F40042 		orr	r2, r2, #32768
-ARM GAS  /tmp/ccwODkKJ.s 			page 20
+ARM GAS  /tmp/ccwQK8bF.s 			page 20
 
 
  705 014c 1A64     		str	r2, [r3, #64]
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  127:Core/Src/mimic_spi.c ****         Mimic_ConfigureSPIGPIO(SPI4);
  745              		.loc 1 127 24 is_stmt 0 view .LVU188
  746 017a 7248     		ldr	r0, .L68+84
-ARM GAS  /tmp/ccwODkKJ.s 			page 21
+ARM GAS  /tmp/ccwQK8bF.s 			page 21
 
 
  747              	.LVL55:
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  788              	.LVL60:
  141:Core/Src/mimic_spi.c ****     }
  789              		.loc 1 141 9 view .LVU202
-ARM GAS  /tmp/ccwODkKJ.s 			page 22
+ARM GAS  /tmp/ccwQK8bF.s 			page 22
 
 
  790 01ac 1EE1     		b	.L25
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  830 01de 0890     		str	r0, [sp, #32]
  831 01e0 0990     		str	r0, [sp, #36]
  832 01e2 0A90     		str	r0, [sp, #40]
-ARM GAS  /tmp/ccwODkKJ.s 			page 23
+ARM GAS  /tmp/ccwQK8bF.s 			page 23
 
 
  833 01e4 0B90     		str	r0, [sp, #44]
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  869              		.loc 1 166 13 is_stmt 1 view .LVU234
  870 0208 3146     		mov	r1, r6
  871 020a 5148     		ldr	r0, .L68+96
-ARM GAS  /tmp/ccwODkKJ.s 			page 24
+ARM GAS  /tmp/ccwQK8bF.s 			page 24
 
 
  872 020c FFF7FEFF 		bl	HAL_GPIO_Init
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  907 023a 83F85020 		strb	r2, [r3, #80]
  184:Core/Src/mimic_spi.c ****                 0x70, 0x6B, 0x43, 0x67, 0x18, 0xFC, // T1-T3
  908              		.loc 1 184 13 is_stmt 1 view .LVU254
-ARM GAS  /tmp/ccwODkKJ.s 			page 25
+ARM GAS  /tmp/ccwQK8bF.s 			page 25
 
 
  184:Core/Src/mimic_spi.c ****                 0x70, 0x6B, 0x43, 0x67, 0x18, 0xFC, // T1-T3
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  950 026e 394B     		ldr	r3, .L68+100
  951 0270 5022     		movs	r2, #80
  952 0272 83F87720 		strb	r2, [r3, #119]
-ARM GAS  /tmp/ccwODkKJ.s 			page 26
+ARM GAS  /tmp/ccwQK8bF.s 			page 26
 
 
  193:Core/Src/mimic_spi.c ****             i2c_register_map[0x7A] = 0x80; i2c_register_map[0x7B] = 0x00; i2c_register_map[0x7C] = 
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  201:Core/Src/mimic_spi.c **** 
  992              		.loc 1 201 13 view .LVU283
  993 02b0 0A20     		movs	r0, #10
-ARM GAS  /tmp/ccwODkKJ.s 			page 27
+ARM GAS  /tmp/ccwQK8bF.s 			page 27
 
 
  994 02b2 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  222:Core/Src/mimic_spi.c ****         return;
  1035              		.loc 1 222 9 is_stmt 1 view .LVU297
  1036 02e6 2248     		ldr	r0, .L68+128
-ARM GAS  /tmp/ccwODkKJ.s 			page 28
+ARM GAS  /tmp/ccwQK8bF.s 			page 28
 
 
  1037 02e8 FFF7FEFF 		bl	Mimic_SendResponse
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  241:Core/Src/mimic_spi.c ****     if (cmd->argc >= 5 && strcmp(cmd->args[4], "1") == 0)
  1083              		.loc 1 241 5 is_stmt 1 view .LVU301
  1084              		.loc 1 241 12 is_stmt 0 view .LVU302
-ARM GAS  /tmp/ccwODkKJ.s 			page 29
+ARM GAS  /tmp/ccwQK8bF.s 			page 29
 
 
  1085 0378 94F82031 		ldrb	r3, [r4, #288]	@ zero_extendqisi2
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1126 03aa 16D9     		bls	.L50
  255:Core/Src/mimic_spi.c ****     else if (pclk / 128 >= speed) prescaler = SPI_BAUDRATEPRESCALER_128;
  1127              		.loc 1 255 10 is_stmt 1 view .LVU319
-ARM GAS  /tmp/ccwODkKJ.s 			page 30
+ARM GAS  /tmp/ccwQK8bF.s 			page 30
 
 
  1128              		.loc 1 255 13 is_stmt 0 view .LVU320
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1170              		.loc 1 264 5 is_stmt 1 view .LVU337
  1171 03de 2846     		mov	r0, r5
  1172              	.LVL85:
-ARM GAS  /tmp/ccwODkKJ.s 			page 31
+ARM GAS  /tmp/ccwQK8bF.s 			page 31
 
 
  1173              		.loc 1 264 5 is_stmt 0 view .LVU338
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1219 040c 08000000 		.word	.LC7
  1220 0410 00300140 		.word	1073819648
  1221 0414 74020000 		.word	.LC27
-ARM GAS  /tmp/ccwODkKJ.s 			page 32
+ARM GAS  /tmp/ccwQK8bF.s 			page 32
 
 
  1222              		.cfi_endproc
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1250              	.LC35:
  1251 010c 4F4B3A20 		.ascii	"OK: Sent %d bytes: \000"
  1251      53656E74 
-ARM GAS  /tmp/ccwODkKJ.s 			page 33
+ARM GAS  /tmp/ccwQK8bF.s 			page 33
 
 
  1251      20256420 
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1292 000a 012B     		cmp	r3, #1
  1293 000c 16D9     		bls	.L89
  1294 000e 0546     		mov	r5, r0
-ARM GAS  /tmp/ccwODkKJ.s 			page 34
+ARM GAS  /tmp/ccwQK8bF.s 			page 34
 
 
  274:Core/Src/mimic_spi.c ****     {
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1330 0034 FFF7FEFF 		bl	memset
  1331              	.LVL95:
  293:Core/Src/mimic_spi.c ****     for (int i = 1; i < cmd->argc; i++)
-ARM GAS  /tmp/ccwODkKJ.s 			page 35
+ARM GAS  /tmp/ccwQK8bF.s 			page 35
 
 
  1332              		.loc 1 293 5 is_stmt 1 view .LVU367
@@ -2098,7 +2098,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  298:Core/Src/mimic_spi.c ****     
  299:Core/Src/mimic_spi.c ****     uint8_t data[64];
  300:Core/Src/mimic_spi.c ****     uint16_t len = Mimic_ParseHexData(hex_str, data, sizeof(data));
-ARM GAS  /tmp/ccwODkKJ.s 			page 36
+ARM GAS  /tmp/ccwQK8bF.s 			page 36
 
 
  301:Core/Src/mimic_spi.c ****     
@@ -2158,7 +2158,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1389              		.loc 1 296 9 view .LVU384
  1390 0064 05EB4411 		add	r1, r5, r4, lsl #5
  1391 0068 10A8     		add	r0, sp, #64
-ARM GAS  /tmp/ccwODkKJ.s 			page 37
+ARM GAS  /tmp/ccwQK8bF.s 			page 37
 
 
  1392 006a FFF7FEFF 		bl	strcat
@@ -2218,7 +2218,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  309:Core/Src/mimic_spi.c ****     {
  1432              		.loc 1 309 5 is_stmt 1 view .LVU399
  309:Core/Src/mimic_spi.c ****     {
-ARM GAS  /tmp/ccwODkKJ.s 			page 38
+ARM GAS  /tmp/ccwQK8bF.s 			page 38
 
 
  1433              		.loc 1 309 29 is_stmt 0 view .LVU400
@@ -2278,7 +2278,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1474              		.loc 1 327 13 view .LVU413
  327:Core/Src/mimic_spi.c ****         }
  1475              		.loc 1 327 46 is_stmt 0 view .LVU414
-ARM GAS  /tmp/ccwODkKJ.s 			page 39
+ARM GAS  /tmp/ccwQK8bF.s 			page 39
 
 
  1476 00cc 04F1C003 		add	r3, r4, #192
@@ -2338,7 +2338,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1520 0106 53F83700 		ldr	r0, [r3, r7, lsl #3]
  1521 010a FFF7FEFF 		bl	HAL_GPIO_WritePin
  1522              	.LVL124:
-ARM GAS  /tmp/ccwODkKJ.s 			page 40
+ARM GAS  /tmp/ccwQK8bF.s 			page 40
 
 
  1523 010e D6E7     		b	.L82
@@ -2398,7 +2398,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1566      69766564 
  1566      20256420 
  1566      62797465 
-ARM GAS  /tmp/ccwODkKJ.s 			page 41
+ARM GAS  /tmp/ccwQK8bF.s 			page 41
 
 
  1567              		.align	2
@@ -2458,7 +2458,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  344:Core/Src/mimic_spi.c ****         Mimic_SendResponse("Usage: SPI_RECV <1-5> <LENGTH> [TIMEOUT_MS]\r\n");
  345:Core/Src/mimic_spi.c ****         Mimic_SendResponse("  Example: SPI_RECV 1 4 500\r\n");
  346:Core/Src/mimic_spi.c ****         Mimic_SendResponse("  Note: CS is automatically controlled if configured in SPI_INIT\r\n");
-ARM GAS  /tmp/ccwODkKJ.s 			page 42
+ARM GAS  /tmp/ccwQK8bF.s 			page 42
 
 
  347:Core/Src/mimic_spi.c ****         return;
@@ -2518,7 +2518,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  360:Core/Src/mimic_spi.c ****     if (length > 64) length = 64;
  1647              		.loc 1 360 5 is_stmt 1 view .LVU448
  1648              		.loc 1 360 8 is_stmt 0 view .LVU449
-ARM GAS  /tmp/ccwODkKJ.s 			page 43
+ARM GAS  /tmp/ccwQK8bF.s 			page 43
 
 
  1649 003c 402B     		cmp	r3, #64
@@ -2578,7 +2578,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1686 0064 2346     		mov	r3, r4
  1687 0066 3A46     		mov	r2, r7
  1688 0068 01A9     		add	r1, sp, #4
-ARM GAS  /tmp/ccwODkKJ.s 			page 44
+ARM GAS  /tmp/ccwQK8bF.s 			page 44
 
 
  1689 006a 3046     		mov	r0, r6
@@ -2638,7 +2638,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  344:Core/Src/mimic_spi.c ****         Mimic_SendResponse("  Example: SPI_RECV 1 4 500\r\n");
  1719              		.loc 1 344 9 is_stmt 0 view .LVU473
  1720 008c FFF7FEFF 		bl	Mimic_SendResponse
-ARM GAS  /tmp/ccwODkKJ.s 			page 45
+ARM GAS  /tmp/ccwQK8bF.s 			page 45
 
 
  1721              	.LVL146:
@@ -2698,7 +2698,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  373:Core/Src/mimic_spi.c ****     }
  1764              		.loc 1 373 9 is_stmt 1 view .LVU484
  1765 00b4 154B     		ldr	r3, .L122
-ARM GAS  /tmp/ccwODkKJ.s 			page 46
+ARM GAS  /tmp/ccwQK8bF.s 			page 46
 
 
  1766 00b6 1146     		mov	r1, r2
@@ -2758,7 +2758,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1810 00f8 0134     		adds	r4, r4, #1
  1811              	.LVL162:
  387:Core/Src/mimic_spi.c ****         {
-ARM GAS  /tmp/ccwODkKJ.s 			page 47
+ARM GAS  /tmp/ccwQK8bF.s 			page 47
 
 
  1812              		.loc 1 387 38 is_stmt 0 discriminator 3 view .LVU495
@@ -2818,7 +2818,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1855      6C6C2D64 
  1855      75706C65 
  1855      783A2073 
-ARM GAS  /tmp/ccwODkKJ.s 			page 48
+ARM GAS  /tmp/ccwQK8bF.s 			page 48
 
 
  1855      656E6473 
@@ -2878,7 +2878,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1893 0004 C2B0     		sub	sp, sp, #264
  1894              	.LCFI18:
  1895              		.cfi_def_cfa_offset 288
-ARM GAS  /tmp/ccwODkKJ.s 			page 49
+ARM GAS  /tmp/ccwQK8bF.s 			page 49
 
 
  408:Core/Src/mimic_spi.c ****     if (cmd->argc < 2)
@@ -2938,7 +2938,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  425:Core/Src/mimic_spi.c ****     
  426:Core/Src/mimic_spi.c ****     /* Combine all args as hex data */
  427:Core/Src/mimic_spi.c ****     char hex_str[MIMIC_MAX_CMD_LEN] = {0};
-ARM GAS  /tmp/ccwODkKJ.s 			page 50
+ARM GAS  /tmp/ccwQK8bF.s 			page 50
 
 
  1933              		.loc 1 427 5 is_stmt 1 view .LVU517
@@ -2998,7 +2998,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1978              	.LVL182:
  421:Core/Src/mimic_spi.c ****     }
  1979              		.loc 1 421 9 is_stmt 1 view .LVU532
-ARM GAS  /tmp/ccwODkKJ.s 			page 51
+ARM GAS  /tmp/ccwQK8bF.s 			page 51
 
 
  1980              	.L124:
@@ -3058,7 +3058,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  1985              		.cfi_def_cfa_offset 24
  1986              		@ sp needed
  1987 005e BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
-ARM GAS  /tmp/ccwODkKJ.s 			page 52
+ARM GAS  /tmp/ccwQK8bF.s 			page 52
 
 
  1988              	.LVL183:
@@ -3118,7 +3118,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2028              		.loc 1 435 13 is_stmt 0 view .LVU547
  2029 008a 4024     		movs	r4, #64
  2030              	.LVL187:
-ARM GAS  /tmp/ccwODkKJ.s 			page 53
+ARM GAS  /tmp/ccwQK8bF.s 			page 53
 
 
  435:Core/Src/mimic_spi.c ****     uint16_t len = Mimic_ParseHexData(hex_str, tx_data, sizeof(tx_data));
@@ -3178,7 +3178,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2072              		.loc 1 453 29 is_stmt 0 view .LVU560
  2073 00c2 294B     		ldr	r3, .L150+24
  2074 00c4 03EBC703 		add	r3, r3, r7, lsl #3
-ARM GAS  /tmp/ccwODkKJ.s 			page 54
+ARM GAS  /tmp/ccwQK8bF.s 			page 54
 
 
  2075 00c8 9B79     		ldrb	r3, [r3, #6]	@ zero_extendqisi2
@@ -3238,7 +3238,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2115              		.loc 1 462 35 discriminator 3 view .LVU574
  2116              	.LBE19:
  440:Core/Src/mimic_spi.c ****         return;
-ARM GAS  /tmp/ccwODkKJ.s 			page 55
+ARM GAS  /tmp/ccwQK8bF.s 			page 55
 
 
  2117              		.loc 1 440 9 is_stmt 1 view .LVU575
@@ -3298,7 +3298,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  467:Core/Src/mimic_spi.c ****         {
  2162              		.loc 1 467 27 is_stmt 1 discriminator 1 view .LVU585
  2163 012e A542     		cmp	r5, r4
-ARM GAS  /tmp/ccwODkKJ.s 			page 56
+ARM GAS  /tmp/ccwQK8bF.s 			page 56
 
 
  2164 0130 06DD     		ble	.L149
@@ -3358,7 +3358,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2213              		.align	2
  2214              	.LC51:
  2215 0000 55736167 		.ascii	"Usage: SPI_CS <PIN> <HIGH|LOW>\015\012\000"
-ARM GAS  /tmp/ccwODkKJ.s 			page 57
+ARM GAS  /tmp/ccwQK8bF.s 			page 57
 
 
  2215      653A2053 
@@ -3418,7 +3418,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2241              		.align	1
  2242              		.global	Mimic_CMD_SPI_CS
  2243              		.syntax unified
-ARM GAS  /tmp/ccwODkKJ.s 			page 58
+ARM GAS  /tmp/ccwQK8bF.s 			page 58
 
 
  2244              		.thumb
@@ -3478,7 +3478,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2281              	.LVL216:
  2282              		.loc 1 495 10 view .LVU602
  2283 001c FFF7FEFF 		bl	Mimic_ParsePin
-ARM GAS  /tmp/ccwODkKJ.s 			page 59
+ARM GAS  /tmp/ccwQK8bF.s 			page 59
 
 
  2284              	.LVL217:
@@ -3538,7 +3538,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2327 0050 1B6B     		ldr	r3, [r3, #48]
  2328 0052 03F01003 		and	r3, r3, #16
  2329 0056 0493     		str	r3, [sp, #16]
-ARM GAS  /tmp/ccwODkKJ.s 			page 60
+ARM GAS  /tmp/ccwQK8bF.s 			page 60
 
 
  2330              		.loc 1 506 29 is_stmt 1 view .LVU621
@@ -3598,7 +3598,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2356              	.LCFI23:
  2357              		.cfi_remember_state
  2358              		.cfi_def_cfa_offset 12
-ARM GAS  /tmp/ccwODkKJ.s 			page 61
+ARM GAS  /tmp/ccwQK8bF.s 			page 61
 
 
  2359              		@ sp needed
@@ -3658,7 +3658,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2399 0096 0023     		movs	r3, #0
  2400 0098 0593     		str	r3, [sp, #20]
  2401 009a 4B60     		str	r3, [r1, #4]
-ARM GAS  /tmp/ccwODkKJ.s 			page 62
+ARM GAS  /tmp/ccwQK8bF.s 			page 62
 
 
  2402 009c 8B60     		str	r3, [r1, #8]
@@ -3718,7 +3718,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2441 00cc 3CD1     		bne	.L163
  522:Core/Src/mimic_spi.c ****         Mimic_SendResponseF("OK: CS %s = LOW (asserted)\r\n", cmd->args[0]);
  2442              		.loc 1 522 9 is_stmt 1 view .LVU659
-ARM GAS  /tmp/ccwODkKJ.s 			page 63
+ARM GAS  /tmp/ccwQK8bF.s 			page 63
 
 
  2443 00ce 0246     		mov	r2, r0
@@ -3778,7 +3778,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2484              		.loc 1 504 29 view .LVU672
  504:Core/Src/mimic_spi.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
  2485              		.loc 1 504 29 is_stmt 0 discriminator 1 view .LVU673
-ARM GAS  /tmp/ccwODkKJ.s 			page 64
+ARM GAS  /tmp/ccwQK8bF.s 			page 64
 
 
  2486 0102 184B     		ldr	r3, .L173+20
@@ -3838,7 +3838,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  517:Core/Src/mimic_spi.c ****         Mimic_SendResponseF("OK: CS %s = HIGH (deasserted)\r\n", cmd->args[0]);
  2526              		.loc 1 517 9 view .LVU688
  2527 0132 0122     		movs	r2, #1
-ARM GAS  /tmp/ccwODkKJ.s 			page 65
+ARM GAS  /tmp/ccwQK8bF.s 			page 65
 
 
  2528 0134 BDF82A10 		ldrh	r1, [sp, #42]
@@ -3898,7 +3898,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2576              	.LC64:
  2577 0020 5041352F 		.ascii	"PA5/PA6/PA7\000"
  2577      5041362F 
-ARM GAS  /tmp/ccwODkKJ.s 			page 66
+ARM GAS  /tmp/ccwQK8bF.s 			page 66
 
 
  2577      50413700 
@@ -3958,7 +3958,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2610      6C697A65 
  2611              		.section	.text.Mimic_CMD_SPI_STATUS,"ax",%progbits
  2612              		.align	1
-ARM GAS  /tmp/ccwODkKJ.s 			page 67
+ARM GAS  /tmp/ccwQK8bF.s 			page 67
 
 
  2613              		.global	Mimic_CMD_SPI_STATUS
@@ -4018,7 +4018,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  540:Core/Src/mimic_spi.c ****     const char *spi_pins[][3] = {
  2658              		.loc 1 540 5 is_stmt 1 view .LVU699
  2659              		.loc 1 540 17 is_stmt 0 view .LVU700
-ARM GAS  /tmp/ccwODkKJ.s 			page 68
+ARM GAS  /tmp/ccwQK8bF.s 			page 68
 
 
  2660 0028 3C22     		movs	r2, #60
@@ -4078,7 +4078,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2701              		.loc 1 553 22 is_stmt 0 view .LVU707
  2702 0062 EB69     		ldr	r3, [r5, #28]
  2703              	.LVL243:
-ARM GAS  /tmp/ccwODkKJ.s 			page 69
+ARM GAS  /tmp/ccwQK8bF.s 			page 69
 
 
  554:Core/Src/mimic_spi.c ****             uint32_t div = 2 << ((prescaler >> 3) & 0x07);
@@ -4138,7 +4138,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2743 009a B5F5006F 		cmp	r5, #2048
  2744 009e 19D0     		beq	.L188
  557:Core/Src/mimic_spi.c ****                                 spi_names[i],
-ARM GAS  /tmp/ccwODkKJ.s 			page 70
+ARM GAS  /tmp/ccwQK8bF.s 			page 70
 
 
  2745              		.loc 1 557 13 discriminator 6 view .LVU723
@@ -4198,7 +4198,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2787              	.L187:
  557:Core/Src/mimic_spi.c ****                                 spi_names[i],
  2788              		.loc 1 557 13 discriminator 1 view .LVU736
-ARM GAS  /tmp/ccwODkKJ.s 			page 71
+ARM GAS  /tmp/ccwQK8bF.s 			page 71
 
 
  2789 00ce DFF864C0 		ldr	ip, .L191+68
@@ -4258,7 +4258,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2834 0120 08000000 		.word	.LC61
  2835 0124 84000000 		.word	.LC74
  2836 0128 00000000 		.word	.LC60
-ARM GAS  /tmp/ccwODkKJ.s 			page 72
+ARM GAS  /tmp/ccwQK8bF.s 			page 72
 
 
  2837 012c A4000000 		.word	.LC75
@@ -4318,7 +4318,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  592:Core/Src/mimic_spi.c ****         else // Data Byte (Master is reading or writing)
  593:Core/Src/mimic_spi.c ****         {
  594:Core/Src/mimic_spi.c ****             // Auto-increment for burst reads
-ARM GAS  /tmp/ccwODkKJ.s 			page 73
+ARM GAS  /tmp/ccwQK8bF.s 			page 73
 
 
  595:Core/Src/mimic_spi.c ****             current_reg_addr = (current_reg_addr + 1) & 0x7F;
@@ -4378,7 +4378,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2902 0026 D25C     		ldrb	r2, [r2, r3]	@ zero_extendqisi2
  590:Core/Src/mimic_spi.c ****         }
  2903              		.loc 1 590 27 view .LVU761
-ARM GAS  /tmp/ccwODkKJ.s 			page 74
+ARM GAS  /tmp/ccwQK8bF.s 			page 74
 
 
  2904 0028 124B     		ldr	r3, .L199+20
@@ -4438,7 +4438,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2943              		.loc 1 600 33 is_stmt 0 view .LVU777
  2944 0050 074A     		ldr	r2, .L199+16
  2945 0052 92F87A30 		ldrb	r3, [r2, #122]	@ zero_extendqisi2
-ARM GAS  /tmp/ccwODkKJ.s 			page 75
+ARM GAS  /tmp/ccwQK8bF.s 			page 75
 
 
  600:Core/Src/mimic_spi.c ****             }
@@ -4498,7 +4498,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  2993              		.loc 1 613 12 view .LVU785
  2994 000c 13F0100F 		tst	r3, #16
  2995 0010 00D0     		beq	.L208
-ARM GAS  /tmp/ccwODkKJ.s 			page 76
+ARM GAS  /tmp/ccwQK8bF.s 			page 76
 
 
  2996              	.LVL266:
@@ -4558,7 +4558,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  3035              	.LFE146:
  3037              		.section	.text.Mimic_SPI_Sync,"ax",%progbits
  3038              		.align	1
-ARM GAS  /tmp/ccwODkKJ.s 			page 77
+ARM GAS  /tmp/ccwQK8bF.s 			page 77
 
 
  3039              		.global	Mimic_SPI_Sync
@@ -4618,7 +4618,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  3084              		.align	1
  3085              		.global	HAL_SPI_ErrorCallback
  3086              		.syntax unified
-ARM GAS  /tmp/ccwODkKJ.s 			page 78
+ARM GAS  /tmp/ccwQK8bF.s 			page 78
 
 
  3087              		.thumb
@@ -4678,7 +4678,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  3131 0024 00000000 		.word	spi_rx_buf
  3132 0028 00000000 		.word	spi_tx_buf
  3133              		.cfi_endproc
-ARM GAS  /tmp/ccwODkKJ.s 			page 79
+ARM GAS  /tmp/ccwQK8bF.s 			page 79
 
 
  3134              	.LFE148:
@@ -4738,7 +4738,7 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  3189              		.align	2
  3192              	hspi2:
  3193 0000 00000000 		.space	88
-ARM GAS  /tmp/ccwODkKJ.s 			page 80
+ARM GAS  /tmp/ccwQK8bF.s 			page 80
 
 
  3193      00000000 
@@ -4784,80 +4784,80 @@ ARM GAS  /tmp/ccwODkKJ.s 			page 1
  3228              		.file 12 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h"
  3229              		.file 13 "/usr/arm-none-eabi/include/stdlib.h"
  3230              		.file 14 "<built-in>"
-ARM GAS  /tmp/ccwODkKJ.s 			page 81
+ARM GAS  /tmp/ccwQK8bF.s 			page 81
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 mimic_spi.c
-     /tmp/ccwODkKJ.s:21     .rodata.Mimic_GetSPIHandle.str1.4:00000000 $d
-     /tmp/ccwODkKJ.s:52     .text.Mimic_GetSPIHandle:00000000 $t
-     /tmp/ccwODkKJ.s:57     .text.Mimic_GetSPIHandle:00000000 Mimic_GetSPIHandle
-     /tmp/ccwODkKJ.s:191    .text.Mimic_GetSPIHandle:00000094 $d
-     /tmp/ccwODkKJ.s:3171   .bss.hspi5:00000000 hspi5
-     /tmp/ccwODkKJ.s:3199   .bss.hspi1:00000000 hspi1
-     /tmp/ccwODkKJ.s:3192   .bss.hspi2:00000000 hspi2
-     /tmp/ccwODkKJ.s:3185   .bss.hspi3:00000000 hspi3
-     /tmp/ccwODkKJ.s:3178   .bss.hspi4:00000000 hspi4
-     /tmp/ccwODkKJ.s:210    .text.Mimic_ConfigureSPIGPIO:00000000 $t
-     /tmp/ccwODkKJ.s:215    .text.Mimic_ConfigureSPIGPIO:00000000 Mimic_ConfigureSPIGPIO
-     /tmp/ccwODkKJ.s:353    .text.Mimic_ConfigureSPIGPIO:00000088 $d
-     /tmp/ccwODkKJ.s:362    .rodata.Mimic_CMD_SPI_INIT.str1.4:00000000 $d
-     /tmp/ccwODkKJ.s:418    .text.Mimic_CMD_SPI_INIT:00000000 $t
-     /tmp/ccwODkKJ.s:424    .text.Mimic_CMD_SPI_INIT:00000000 Mimic_CMD_SPI_INIT
-     /tmp/ccwODkKJ.s:1044   .text.Mimic_CMD_SPI_INIT:000002f0 $d
-     /tmp/ccwODkKJ.s:3140   .bss.spi_active:00000000 spi_active
-     /tmp/ccwODkKJ.s:3158   .bss.spi_tx_buf:00000000 spi_tx_buf
-     /tmp/ccwODkKJ.s:3152   .bss.spi_rx_buf:00000000 spi_rx_buf
-     /tmp/ccwODkKJ.s:1080   .text.Mimic_CMD_SPI_INIT:00000374 $t
-     /tmp/ccwODkKJ.s:1219   .text.Mimic_CMD_SPI_INIT:0000040c $d
-     /tmp/ccwODkKJ.s:1226   .rodata.Mimic_CMD_SPI_SEND.str1.4:00000000 $d
-     /tmp/ccwODkKJ.s:1262   .text.Mimic_CMD_SPI_SEND:00000000 $t
-     /tmp/ccwODkKJ.s:1268   .text.Mimic_CMD_SPI_SEND:00000000 Mimic_CMD_SPI_SEND
-     /tmp/ccwODkKJ.s:1541   .text.Mimic_CMD_SPI_SEND:00000120 $d
-     /tmp/ccwODkKJ.s:3164   .rodata.spi_cs_pins:00000000 spi_cs_pins
-     /tmp/ccwODkKJ.s:1557   .rodata.Mimic_CMD_SPI_RECV.str1.4:00000000 $d
-     /tmp/ccwODkKJ.s:1574   .text.Mimic_CMD_SPI_RECV:00000000 $t
-     /tmp/ccwODkKJ.s:1580   .text.Mimic_CMD_SPI_RECV:00000000 Mimic_CMD_SPI_RECV
-     /tmp/ccwODkKJ.s:1833   .text.Mimic_CMD_SPI_RECV:0000010c $d
-     /tmp/ccwODkKJ.s:1847   .rodata.Mimic_CMD_SPI_TRANSFER.str1.4:00000000 $d
-     /tmp/ccwODkKJ.s:1870   .text.Mimic_CMD_SPI_TRANSFER:00000000 $t
-     /tmp/ccwODkKJ.s:1876   .text.Mimic_CMD_SPI_TRANSFER:00000000 Mimic_CMD_SPI_TRANSFER
-     /tmp/ccwODkKJ.s:2195   .text.Mimic_CMD_SPI_TRANSFER:00000150 $d
-     /tmp/ccwODkKJ.s:2213   .rodata.Mimic_CMD_SPI_CS.str1.4:00000000 $d
-     /tmp/ccwODkKJ.s:2241   .text.Mimic_CMD_SPI_CS:00000000 $t
-     /tmp/ccwODkKJ.s:2247   .text.Mimic_CMD_SPI_CS:00000000 Mimic_CMD_SPI_CS
-     /tmp/ccwODkKJ.s:2547   .text.Mimic_CMD_SPI_CS:00000150 $d
-     /tmp/ccwODkKJ.s:2566   .rodata.Mimic_CMD_SPI_STATUS.str1.4:00000000 $d
-     /tmp/ccwODkKJ.s:2612   .text.Mimic_CMD_SPI_STATUS:00000000 $t
-     /tmp/ccwODkKJ.s:2618   .text.Mimic_CMD_SPI_STATUS:00000000 Mimic_CMD_SPI_STATUS
-     /tmp/ccwODkKJ.s:2822   .text.Mimic_CMD_SPI_STATUS:000000f0 $d
-     /tmp/ccwODkKJ.s:2844   .text.HAL_SPI_TxRxCpltCallback:00000000 $t
-     /tmp/ccwODkKJ.s:2850   .text.HAL_SPI_TxRxCpltCallback:00000000 HAL_SPI_TxRxCpltCallback
-     /tmp/ccwODkKJ.s:2953   .text.HAL_SPI_TxRxCpltCallback:00000060 $d
-     /tmp/ccwODkKJ.s:3146   .bss.spi_state:00000000 spi_state
-     /tmp/ccwODkKJ.s:2964   .text.HAL_GPIO_EXTI_Callback:00000000 $t
-     /tmp/ccwODkKJ.s:2970   .text.HAL_GPIO_EXTI_Callback:00000000 HAL_GPIO_EXTI_Callback
-     /tmp/ccwODkKJ.s:3029   .text.HAL_GPIO_EXTI_Callback:00000034 $d
-     /tmp/ccwODkKJ.s:3038   .text.Mimic_SPI_Sync:00000000 $t
-     /tmp/ccwODkKJ.s:3044   .text.Mimic_SPI_Sync:00000000 Mimic_SPI_Sync
-     /tmp/ccwODkKJ.s:3076   .text.Mimic_SPI_Sync:0000001c $d
-     /tmp/ccwODkKJ.s:3084   .text.HAL_SPI_ErrorCallback:00000000 $t
-     /tmp/ccwODkKJ.s:3090   .text.HAL_SPI_ErrorCallback:00000000 HAL_SPI_ErrorCallback
-     /tmp/ccwODkKJ.s:3130   .text.HAL_SPI_ErrorCallback:00000020 $d
-ARM GAS  /tmp/ccwODkKJ.s 			page 82
+     /tmp/ccwQK8bF.s:21     .rodata.Mimic_GetSPIHandle.str1.4:00000000 $d
+     /tmp/ccwQK8bF.s:52     .text.Mimic_GetSPIHandle:00000000 $t
+     /tmp/ccwQK8bF.s:57     .text.Mimic_GetSPIHandle:00000000 Mimic_GetSPIHandle
+     /tmp/ccwQK8bF.s:191    .text.Mimic_GetSPIHandle:00000094 $d
+     /tmp/ccwQK8bF.s:3171   .bss.hspi5:00000000 hspi5
+     /tmp/ccwQK8bF.s:3199   .bss.hspi1:00000000 hspi1
+     /tmp/ccwQK8bF.s:3192   .bss.hspi2:00000000 hspi2
+     /tmp/ccwQK8bF.s:3185   .bss.hspi3:00000000 hspi3
+     /tmp/ccwQK8bF.s:3178   .bss.hspi4:00000000 hspi4
+     /tmp/ccwQK8bF.s:210    .text.Mimic_ConfigureSPIGPIO:00000000 $t
+     /tmp/ccwQK8bF.s:215    .text.Mimic_ConfigureSPIGPIO:00000000 Mimic_ConfigureSPIGPIO
+     /tmp/ccwQK8bF.s:353    .text.Mimic_ConfigureSPIGPIO:00000088 $d
+     /tmp/ccwQK8bF.s:362    .rodata.Mimic_CMD_SPI_INIT.str1.4:00000000 $d
+     /tmp/ccwQK8bF.s:418    .text.Mimic_CMD_SPI_INIT:00000000 $t
+     /tmp/ccwQK8bF.s:424    .text.Mimic_CMD_SPI_INIT:00000000 Mimic_CMD_SPI_INIT
+     /tmp/ccwQK8bF.s:1044   .text.Mimic_CMD_SPI_INIT:000002f0 $d
+     /tmp/ccwQK8bF.s:3140   .bss.spi_active:00000000 spi_active
+     /tmp/ccwQK8bF.s:3158   .bss.spi_tx_buf:00000000 spi_tx_buf
+     /tmp/ccwQK8bF.s:3152   .bss.spi_rx_buf:00000000 spi_rx_buf
+     /tmp/ccwQK8bF.s:1080   .text.Mimic_CMD_SPI_INIT:00000374 $t
+     /tmp/ccwQK8bF.s:1219   .text.Mimic_CMD_SPI_INIT:0000040c $d
+     /tmp/ccwQK8bF.s:1226   .rodata.Mimic_CMD_SPI_SEND.str1.4:00000000 $d
+     /tmp/ccwQK8bF.s:1262   .text.Mimic_CMD_SPI_SEND:00000000 $t
+     /tmp/ccwQK8bF.s:1268   .text.Mimic_CMD_SPI_SEND:00000000 Mimic_CMD_SPI_SEND
+     /tmp/ccwQK8bF.s:1541   .text.Mimic_CMD_SPI_SEND:00000120 $d
+     /tmp/ccwQK8bF.s:3164   .rodata.spi_cs_pins:00000000 spi_cs_pins
+     /tmp/ccwQK8bF.s:1557   .rodata.Mimic_CMD_SPI_RECV.str1.4:00000000 $d
+     /tmp/ccwQK8bF.s:1574   .text.Mimic_CMD_SPI_RECV:00000000 $t
+     /tmp/ccwQK8bF.s:1580   .text.Mimic_CMD_SPI_RECV:00000000 Mimic_CMD_SPI_RECV
+     /tmp/ccwQK8bF.s:1833   .text.Mimic_CMD_SPI_RECV:0000010c $d
+     /tmp/ccwQK8bF.s:1847   .rodata.Mimic_CMD_SPI_TRANSFER.str1.4:00000000 $d
+     /tmp/ccwQK8bF.s:1870   .text.Mimic_CMD_SPI_TRANSFER:00000000 $t
+     /tmp/ccwQK8bF.s:1876   .text.Mimic_CMD_SPI_TRANSFER:00000000 Mimic_CMD_SPI_TRANSFER
+     /tmp/ccwQK8bF.s:2195   .text.Mimic_CMD_SPI_TRANSFER:00000150 $d
+     /tmp/ccwQK8bF.s:2213   .rodata.Mimic_CMD_SPI_CS.str1.4:00000000 $d
+     /tmp/ccwQK8bF.s:2241   .text.Mimic_CMD_SPI_CS:00000000 $t
+     /tmp/ccwQK8bF.s:2247   .text.Mimic_CMD_SPI_CS:00000000 Mimic_CMD_SPI_CS
+     /tmp/ccwQK8bF.s:2547   .text.Mimic_CMD_SPI_CS:00000150 $d
+     /tmp/ccwQK8bF.s:2566   .rodata.Mimic_CMD_SPI_STATUS.str1.4:00000000 $d
+     /tmp/ccwQK8bF.s:2612   .text.Mimic_CMD_SPI_STATUS:00000000 $t
+     /tmp/ccwQK8bF.s:2618   .text.Mimic_CMD_SPI_STATUS:00000000 Mimic_CMD_SPI_STATUS
+     /tmp/ccwQK8bF.s:2822   .text.Mimic_CMD_SPI_STATUS:000000f0 $d
+     /tmp/ccwQK8bF.s:2844   .text.HAL_SPI_TxRxCpltCallback:00000000 $t
+     /tmp/ccwQK8bF.s:2850   .text.HAL_SPI_TxRxCpltCallback:00000000 HAL_SPI_TxRxCpltCallback
+     /tmp/ccwQK8bF.s:2953   .text.HAL_SPI_TxRxCpltCallback:00000060 $d
+     /tmp/ccwQK8bF.s:3146   .bss.spi_state:00000000 spi_state
+     /tmp/ccwQK8bF.s:2964   .text.HAL_GPIO_EXTI_Callback:00000000 $t
+     /tmp/ccwQK8bF.s:2970   .text.HAL_GPIO_EXTI_Callback:00000000 HAL_GPIO_EXTI_Callback
+     /tmp/ccwQK8bF.s:3029   .text.HAL_GPIO_EXTI_Callback:00000034 $d
+     /tmp/ccwQK8bF.s:3038   .text.Mimic_SPI_Sync:00000000 $t
+     /tmp/ccwQK8bF.s:3044   .text.Mimic_SPI_Sync:00000000 Mimic_SPI_Sync
+     /tmp/ccwQK8bF.s:3076   .text.Mimic_SPI_Sync:0000001c $d
+     /tmp/ccwQK8bF.s:3084   .text.HAL_SPI_ErrorCallback:00000000 $t
+     /tmp/ccwQK8bF.s:3090   .text.HAL_SPI_ErrorCallback:00000000 HAL_SPI_ErrorCallback
+     /tmp/ccwQK8bF.s:3130   .text.HAL_SPI_ErrorCallback:00000020 $d
+ARM GAS  /tmp/ccwQK8bF.s 			page 82
 
 
-     /tmp/ccwODkKJ.s:3141   .bss.spi_active:00000000 $d
-     /tmp/ccwODkKJ.s:3147   .bss.spi_state:00000000 $d
-     /tmp/ccwODkKJ.s:3149   .bss.spi_rx_buf:00000000 $d
-     /tmp/ccwODkKJ.s:3155   .bss.spi_tx_buf:00000000 $d
-     /tmp/ccwODkKJ.s:3161   .rodata.spi_cs_pins:00000000 $d
-     /tmp/ccwODkKJ.s:3168   .bss.hspi5:00000000 $d
-     /tmp/ccwODkKJ.s:3175   .bss.hspi4:00000000 $d
-     /tmp/ccwODkKJ.s:3182   .bss.hspi3:00000000 $d
-     /tmp/ccwODkKJ.s:3189   .bss.hspi2:00000000 $d
-     /tmp/ccwODkKJ.s:3196   .bss.hspi1:00000000 $d
-     /tmp/ccwODkKJ.s:3202   .rodata:00000000 $d
+     /tmp/ccwQK8bF.s:3141   .bss.spi_active:00000000 $d
+     /tmp/ccwQK8bF.s:3147   .bss.spi_state:00000000 $d
+     /tmp/ccwQK8bF.s:3149   .bss.spi_rx_buf:00000000 $d
+     /tmp/ccwQK8bF.s:3155   .bss.spi_tx_buf:00000000 $d
+     /tmp/ccwQK8bF.s:3161   .rodata.spi_cs_pins:00000000 $d
+     /tmp/ccwQK8bF.s:3168   .bss.hspi5:00000000 $d
+     /tmp/ccwQK8bF.s:3175   .bss.hspi4:00000000 $d
+     /tmp/ccwQK8bF.s:3182   .bss.hspi3:00000000 $d
+     /tmp/ccwQK8bF.s:3189   .bss.hspi2:00000000 $d
+     /tmp/ccwQK8bF.s:3196   .bss.hspi1:00000000 $d
+     /tmp/ccwQK8bF.s:3202   .rodata:00000000 $d
 
 UNDEFINED SYMBOLS
 strcmp

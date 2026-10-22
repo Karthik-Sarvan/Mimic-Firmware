@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccU8KOoq.s 			page 1
+ARM GAS  /tmp/ccNHYrZS.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
   41              	.LC26:
   42 0074 20205479 		.ascii	"  Type:   %s\015\012\000"
   42      70653A20 
-ARM GAS  /tmp/ccU8KOoq.s 			page 2
+ARM GAS  /tmp/ccNHYrZS.s 			page 2
 
 
   42      20202573 
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
   78              		.cfi_def_cfa_offset 96
   10:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
   79              		.loc 1 10 5 is_stmt 1 view .LVU2
-ARM GAS  /tmp/ccU8KOoq.s 			page 3
+ARM GAS  /tmp/ccNHYrZS.s 			page 3
 
 
   11:Core/Src/mimic_gpio.c ****     uint16_t pin;
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  115 002a 74E0     		b	.L1
  116              	.L14:
   21:Core/Src/mimic_gpio.c ****         return;
-ARM GAS  /tmp/ccU8KOoq.s 			page 4
+ARM GAS  /tmp/ccNHYrZS.s 			page 4
 
 
  117              		.loc 1 21 9 view .LVU17
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  164              		.loc 1 31 14 view .LVU33
  165 005c 03F00306 		and	r6, r3, #3
  166              	.LVL13:
-ARM GAS  /tmp/ccU8KOoq.s 			page 5
+ARM GAS  /tmp/ccNHYrZS.s 			page 5
 
 
   32:Core/Src/mimic_gpio.c ****     const char *mode_str[] = {"INPUT", "OUTPUT", "ALT_FUNC", "ANALOG"};
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  209              		.loc 1 43 35 view .LVU52
  210 00a0 EB40     		lsrs	r3, r3, r5
  211              		.loc 1 43 14 view .LVU53
-ARM GAS  /tmp/ccU8KOoq.s 			page 6
+ARM GAS  /tmp/ccNHYrZS.s 			page 6
 
 
  212 00a2 03F00305 		and	r5, r3, #3
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  256 00fc 12AB     		add	r3, sp, #72
  257 00fe 03EB8503 		add	r3, r3, r5, lsl #2
  258 0102 53F8401C 		ldr	r1, [r3, #-64]
-ARM GAS  /tmp/ccU8KOoq.s 			page 7
+ARM GAS  /tmp/ccNHYrZS.s 			page 7
 
 
  259 0106 0C48     		ldr	r0, .L16+24
@@ -418,7 +418,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  307 001b 00       		.align	2
  308              	.LC31:
  309 001c 4F4B3A20 		.ascii	"OK: %s configured as OUTPUT\015\012\000"
-ARM GAS  /tmp/ccU8KOoq.s 			page 8
+ARM GAS  /tmp/ccNHYrZS.s 			page 8
 
 
  309      25732063 
@@ -478,7 +478,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  345 0010 0DF12A02 		add	r2, sp, #42
  346 0014 0BA9     		add	r1, sp, #44
  347 0016 1846     		mov	r0, r3
-ARM GAS  /tmp/ccU8KOoq.s 			page 9
+ARM GAS  /tmp/ccNHYrZS.s 			page 9
 
 
  348              	.LVL29:
@@ -538,7 +538,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  391 004a 1A63     		str	r2, [r3, #48]
  392              		.loc 1 82 29 is_stmt 1 view .LVU95
  393              		.loc 1 82 29 is_stmt 0 discriminator 1 view .LVU96
-ARM GAS  /tmp/ccU8KOoq.s 			page 10
+ARM GAS  /tmp/ccNHYrZS.s 			page 10
 
 
  394 004c 1B6B     		ldr	r3, [r3, #48]
@@ -598,7 +598,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  437 007e 0093     		str	r3, [sp]
   78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
  438              		.loc 1 78 24 is_stmt 1 view .LVU111
-ARM GAS  /tmp/ccU8KOoq.s 			page 11
+ARM GAS  /tmp/ccNHYrZS.s 			page 11
 
 
   78:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
@@ -658,7 +658,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  481              	.LCFI7:
  482              		.cfi_restore_state
   79:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
-ARM GAS  /tmp/ccU8KOoq.s 			page 12
+ARM GAS  /tmp/ccNHYrZS.s 			page 12
 
 
  483              		.loc 1 79 29 is_stmt 1 discriminator 1 view .LVU126
@@ -718,7 +718,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  522              		.loc 1 80 29 is_stmt 1 view .LVU141
   80:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
  523              		.loc 1 80 29 is_stmt 0 discriminator 1 view .LVU142
-ARM GAS  /tmp/ccU8KOoq.s 			page 13
+ARM GAS  /tmp/ccNHYrZS.s 			page 13
 
 
  524 00da 029B     		ldr	r3, [sp, #8]
@@ -778,7 +778,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  569 0000 55736167 		.ascii	"Usage: PIN_SET_IN <PIN> [UP|DOWN|NONE]\015\012\000"
  569      653A2050 
  569      494E5F53 
-ARM GAS  /tmp/ccU8KOoq.s 			page 14
+ARM GAS  /tmp/ccNHYrZS.s 			page 14
 
 
  569      45545F49 
@@ -838,7 +838,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  608 0004 90F82031 		ldrb	r3, [r0, #288]	@ zero_extendqisi2
  609              		.loc 1 102 8 view .LVU159
  610 0008 3BB3     		cbz	r3, .L52
-ARM GAS  /tmp/ccU8KOoq.s 			page 15
+ARM GAS  /tmp/ccNHYrZS.s 			page 15
 
 
  611 000a 0446     		mov	r4, r0
@@ -898,7 +898,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  648              		.loc 1 119 10 is_stmt 1 view .LVU174
  649              		.loc 1 119 13 is_stmt 0 view .LVU175
  650 003a 404B     		ldr	r3, .L58+16
-ARM GAS  /tmp/ccU8KOoq.s 			page 16
+ARM GAS  /tmp/ccNHYrZS.s 			page 16
 
 
  651 003c 9D42     		cmp	r5, r3
@@ -958,7 +958,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  698 006c 0023     		movs	r3, #0
  699 006e 0093     		str	r3, [sp]
  115:Core/Src/mimic_gpio.c ****     else if (port == GPIOB) __HAL_RCC_GPIOB_CLK_ENABLE();
-ARM GAS  /tmp/ccU8KOoq.s 			page 17
+ARM GAS  /tmp/ccNHYrZS.s 			page 17
 
 
  700              		.loc 1 115 24 view .LVU192
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  742 009e FFF7FEFF 		bl	strcmp
  743              	.LVL48:
  744              		.loc 1 125 17 discriminator 1 view .LVU210
-ARM GAS  /tmp/ccU8KOoq.s 			page 18
+ARM GAS  /tmp/ccNHYrZS.s 			page 18
 
 
  745 00a2 0028     		cmp	r0, #0
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  785 00d0 1A63     		str	r2, [r3, #48]
  117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
  786              		.loc 1 117 29 is_stmt 1 view .LVU225
-ARM GAS  /tmp/ccU8KOoq.s 			page 19
+ARM GAS  /tmp/ccNHYrZS.s 			page 19
 
 
  117:Core/Src/mimic_gpio.c ****     else if (port == GPIOD) __HAL_RCC_GPIOD_CLK_ENABLE();
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  127:Core/Src/mimic_gpio.c ****     
  128:Core/Src/mimic_gpio.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
  826              		.loc 1 128 5 is_stmt 1 view .LVU240
-ARM GAS  /tmp/ccU8KOoq.s 			page 20
+ARM GAS  /tmp/ccNHYrZS.s 			page 20
 
 
  827              		.loc 1 128 22 is_stmt 0 view .LVU241
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  872 012a 00BF     		.align	2
  873              	.L58:
  874 012c 00000240 		.word	1073872896
-ARM GAS  /tmp/ccU8KOoq.s 			page 21
+ARM GAS  /tmp/ccNHYrZS.s 			page 21
 
 
  875 0130 00040240 		.word	1073873920
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  142:Core/Src/mimic_gpio.c ****     GPIO_TypeDef *port;
  918              		.loc 1 142 5 is_stmt 1 view .LVU254
  143:Core/Src/mimic_gpio.c ****     uint16_t pin;
-ARM GAS  /tmp/ccU8KOoq.s 			page 22
+ARM GAS  /tmp/ccNHYrZS.s 			page 22
 
 
  919              		.loc 1 143 5 view .LVU255
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  957 0034 10BD     		pop	{r4, pc}
  958              	.LVL60:
  959              	.L66:
-ARM GAS  /tmp/ccU8KOoq.s 			page 23
+ARM GAS  /tmp/ccNHYrZS.s 			page 23
 
 
  960              	.LCFI15:
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  160:Core/Src/mimic_gpio.c **** 
  161:Core/Src/mimic_gpio.c **** /**
  162:Core/Src/mimic_gpio.c ****   * @brief  PIN_LOW <PIN> - Set pin low
-ARM GAS  /tmp/ccU8KOoq.s 			page 24
+ARM GAS  /tmp/ccNHYrZS.s 			page 24
 
 
  163:Core/Src/mimic_gpio.c ****   */
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  1039 001e 0022     		movs	r2, #0
  1040 0020 BDF80210 		ldrh	r1, [sp, #2]
  1041 0024 0198     		ldr	r0, [sp, #4]
-ARM GAS  /tmp/ccU8KOoq.s 			page 25
+ARM GAS  /tmp/ccNHYrZS.s 			page 25
 
 
  1042 0026 FFF7FEFF 		bl	HAL_GPIO_WritePin
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  1089      653A2050 
  1089      494E5F52 
  1089      45414420 
-ARM GAS  /tmp/ccU8KOoq.s 			page 26
+ARM GAS  /tmp/ccNHYrZS.s 			page 26
 
 
  1089      3C50494E 
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  1126 000e 1C46     		mov	r4, r3
  1127              		.loc 1 199 10 view .LVU301
  1128 0010 0DF10202 		add	r2, sp, #2
-ARM GAS  /tmp/ccU8KOoq.s 			page 27
+ARM GAS  /tmp/ccNHYrZS.s 			page 27
 
 
  1129 0014 01A9     		add	r1, sp, #4
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  196:Core/Src/mimic_gpio.c ****     }
  1173              		.loc 1 196 9 is_stmt 1 view .LVU313
  1174 003e F9E7     		b	.L80
-ARM GAS  /tmp/ccU8KOoq.s 			page 28
+ARM GAS  /tmp/ccNHYrZS.s 			page 28
 
 
  1175              	.L89:
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  212:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_TOGGLE(Mimic_Command_t *cmd)
  213:Core/Src/mimic_gpio.c **** {
  1216              		.loc 1 213 1 is_stmt 1 view -0
-ARM GAS  /tmp/ccU8KOoq.s 			page 29
+ARM GAS  /tmp/ccNHYrZS.s 			page 29
 
 
  1217              		.cfi_startproc
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  230:Core/Src/mimic_gpio.c ****     uint8_t state = HAL_GPIO_ReadPin(port, pin);
  1255              		.loc 1 230 5 view .LVU330
  1256              		.loc 1 230 21 is_stmt 0 view .LVU331
-ARM GAS  /tmp/ccU8KOoq.s 			page 30
+ARM GAS  /tmp/ccNHYrZS.s 			page 30
 
 
  1257 0028 BDF80210 		ldrh	r1, [sp, #2]
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  1303              		.loc 1 231 5 is_stmt 0 discriminator 2 view .LVU342
  1304 0054 044A     		ldr	r2, .L102+16
  1305 0056 EEE7     		b	.L96
-ARM GAS  /tmp/ccU8KOoq.s 			page 31
+ARM GAS  /tmp/ccNHYrZS.s 			page 31
 
 
  1306              	.L103:
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  234:Core/Src/mimic_gpio.c **** /**
  235:Core/Src/mimic_gpio.c ****   * @brief  PIN_MODE <PIN> <MODE> - Set pin mode
  236:Core/Src/mimic_gpio.c ****   */
-ARM GAS  /tmp/ccU8KOoq.s 			page 32
+ARM GAS  /tmp/ccNHYrZS.s 			page 32
 
 
  237:Core/Src/mimic_gpio.c **** void Mimic_CMD_PIN_MODE(Mimic_Command_t *cmd)
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  253:Core/Src/mimic_gpio.c ****     
  254:Core/Src/mimic_gpio.c ****     /* Enable GPIO clock */
  255:Core/Src/mimic_gpio.c ****     if (port == GPIOA) __HAL_RCC_GPIOA_CLK_ENABLE();
-ARM GAS  /tmp/ccU8KOoq.s 			page 33
+ARM GAS  /tmp/ccNHYrZS.s 			page 33
 
 
  1387              		.loc 1 255 5 is_stmt 1 view .LVU355
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  1437              	.LBE14:
  244:Core/Src/mimic_gpio.c ****         return;
  1438              		.loc 1 244 9 is_stmt 1 view .LVU375
-ARM GAS  /tmp/ccU8KOoq.s 			page 34
+ARM GAS  /tmp/ccNHYrZS.s 			page 34
 
 
  1439 005c 3E48     		ldr	r0, .L125+24
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  261:Core/Src/mimic_gpio.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
  1479              		.loc 1 261 5 view .LVU390
  1480              		.loc 1 261 22 is_stmt 0 view .LVU391
-ARM GAS  /tmp/ccU8KOoq.s 			page 35
+ARM GAS  /tmp/ccNHYrZS.s 			page 35
 
 
  1481 0086 0023     		movs	r3, #0
@@ -2098,7 +2098,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  279:Core/Src/mimic_gpio.c ****     {
  280:Core/Src/mimic_gpio.c ****         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
  281:Core/Src/mimic_gpio.c ****     }
-ARM GAS  /tmp/ccU8KOoq.s 			page 36
+ARM GAS  /tmp/ccNHYrZS.s 			page 36
 
 
  282:Core/Src/mimic_gpio.c ****     else
@@ -2158,7 +2158,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
  1557              		.loc 1 256 29 is_stmt 1 view .LVU414
  256:Core/Src/mimic_gpio.c ****     else if (port == GPIOC) __HAL_RCC_GPIOC_CLK_ENABLE();
-ARM GAS  /tmp/ccU8KOoq.s 			page 37
+ARM GAS  /tmp/ccNHYrZS.s 			page 37
 
 
  1558              		.loc 1 256 29 is_stmt 0 discriminator 1 view .LVU415
@@ -2218,7 +2218,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
  1598              		.loc 1 258 29 is_stmt 1 view .LVU430
  258:Core/Src/mimic_gpio.c ****     else if (port == GPIOE) __HAL_RCC_GPIOE_CLK_ENABLE();
-ARM GAS  /tmp/ccU8KOoq.s 			page 38
+ARM GAS  /tmp/ccNHYrZS.s 			page 38
 
 
  1599              		.loc 1 258 29 is_stmt 0 discriminator 1 view .LVU431
@@ -2278,7 +2278,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  1639              		.loc 1 284 9 is_stmt 1 view .LVU445
  1640 0138 0E48     		ldr	r0, .L125+52
  1641 013a FFF7FEFF 		bl	Mimic_SendResponse
-ARM GAS  /tmp/ccU8KOoq.s 			page 39
+ARM GAS  /tmp/ccNHYrZS.s 			page 39
 
 
  1642              	.LVL113:
@@ -2338,7 +2338,7 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  1686      5F50554C 
  1686      4C00
  1687 0046 0000     		.align	2
-ARM GAS  /tmp/ccU8KOoq.s 			page 40
+ARM GAS  /tmp/ccNHYrZS.s 			page 40
 
 
  1688              	.LC6:
@@ -2391,45 +2391,45 @@ ARM GAS  /tmp/ccU8KOoq.s 			page 1
  1728              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
  1729              		.file 6 "Core/Inc/mimic.h"
  1730              		.file 7 "/usr/arm-none-eabi/include/string.h"
-ARM GAS  /tmp/ccU8KOoq.s 			page 41
+ARM GAS  /tmp/ccNHYrZS.s 			page 41
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 mimic_gpio.c
-     /tmp/ccU8KOoq.s:21     .rodata.Mimic_CMD_PIN_STATUS.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:53     .text.Mimic_CMD_PIN_STATUS:00000000 $t
-     /tmp/ccU8KOoq.s:59     .text.Mimic_CMD_PIN_STATUS:00000000 Mimic_CMD_PIN_STATUS
-     /tmp/ccU8KOoq.s:289    .text.Mimic_CMD_PIN_STATUS:00000120 $d
-     /tmp/ccU8KOoq.s:304    .rodata.Mimic_CMD_PIN_SET_OUT.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:311    .text.Mimic_CMD_PIN_SET_OUT:00000000 $t
-     /tmp/ccU8KOoq.s:317    .text.Mimic_CMD_PIN_SET_OUT:00000000 Mimic_CMD_PIN_SET_OUT
-     /tmp/ccU8KOoq.s:554    .text.Mimic_CMD_PIN_SET_OUT:000000f8 $d
-     /tmp/ccU8KOoq.s:567    .rodata.Mimic_CMD_PIN_SET_IN.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:580    .text.Mimic_CMD_PIN_SET_IN:00000000 $t
-     /tmp/ccU8KOoq.s:586    .text.Mimic_CMD_PIN_SET_IN:00000000 Mimic_CMD_PIN_SET_IN
-     /tmp/ccU8KOoq.s:874    .text.Mimic_CMD_PIN_SET_IN:0000012c $d
-     /tmp/ccU8KOoq.s:889    .rodata.Mimic_CMD_PIN_HIGH.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:896    .text.Mimic_CMD_PIN_HIGH:00000000 $t
-     /tmp/ccU8KOoq.s:902    .text.Mimic_CMD_PIN_HIGH:00000000 Mimic_CMD_PIN_HIGH
-     /tmp/ccU8KOoq.s:981    .text.Mimic_CMD_PIN_HIGH:00000048 $d
-     /tmp/ccU8KOoq.s:988    .rodata.Mimic_CMD_PIN_LOW.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:995    .text.Mimic_CMD_PIN_LOW:00000000 $t
-     /tmp/ccU8KOoq.s:1001   .text.Mimic_CMD_PIN_LOW:00000000 Mimic_CMD_PIN_LOW
-     /tmp/ccU8KOoq.s:1080   .text.Mimic_CMD_PIN_LOW:00000048 $d
-     /tmp/ccU8KOoq.s:1087   .rodata.Mimic_CMD_PIN_READ.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:1094   .text.Mimic_CMD_PIN_READ:00000000 $t
-     /tmp/ccU8KOoq.s:1100   .text.Mimic_CMD_PIN_READ:00000000 Mimic_CMD_PIN_READ
-     /tmp/ccU8KOoq.s:1191   .text.Mimic_CMD_PIN_READ:00000050 $d
-     /tmp/ccU8KOoq.s:1200   .rodata.Mimic_CMD_PIN_TOGGLE.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:1207   .text.Mimic_CMD_PIN_TOGGLE:00000000 $t
-     /tmp/ccU8KOoq.s:1213   .text.Mimic_CMD_PIN_TOGGLE:00000000 Mimic_CMD_PIN_TOGGLE
-     /tmp/ccU8KOoq.s:1309   .text.Mimic_CMD_PIN_TOGGLE:00000058 $d
-     /tmp/ccU8KOoq.s:1318   .rodata.Mimic_CMD_PIN_MODE.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:1340   .text.Mimic_CMD_PIN_MODE:00000000 $t
-     /tmp/ccU8KOoq.s:1346   .text.Mimic_CMD_PIN_MODE:00000000 Mimic_CMD_PIN_MODE
-     /tmp/ccU8KOoq.s:1648   .text.Mimic_CMD_PIN_MODE:00000140 $d
-     /tmp/ccU8KOoq.s:1666   .rodata.str1.4:00000000 $d
-     /tmp/ccU8KOoq.s:1703   .rodata:00000000 $d
+     /tmp/ccNHYrZS.s:21     .rodata.Mimic_CMD_PIN_STATUS.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:53     .text.Mimic_CMD_PIN_STATUS:00000000 $t
+     /tmp/ccNHYrZS.s:59     .text.Mimic_CMD_PIN_STATUS:00000000 Mimic_CMD_PIN_STATUS
+     /tmp/ccNHYrZS.s:289    .text.Mimic_CMD_PIN_STATUS:00000120 $d
+     /tmp/ccNHYrZS.s:304    .rodata.Mimic_CMD_PIN_SET_OUT.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:311    .text.Mimic_CMD_PIN_SET_OUT:00000000 $t
+     /tmp/ccNHYrZS.s:317    .text.Mimic_CMD_PIN_SET_OUT:00000000 Mimic_CMD_PIN_SET_OUT
+     /tmp/ccNHYrZS.s:554    .text.Mimic_CMD_PIN_SET_OUT:000000f8 $d
+     /tmp/ccNHYrZS.s:567    .rodata.Mimic_CMD_PIN_SET_IN.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:580    .text.Mimic_CMD_PIN_SET_IN:00000000 $t
+     /tmp/ccNHYrZS.s:586    .text.Mimic_CMD_PIN_SET_IN:00000000 Mimic_CMD_PIN_SET_IN
+     /tmp/ccNHYrZS.s:874    .text.Mimic_CMD_PIN_SET_IN:0000012c $d
+     /tmp/ccNHYrZS.s:889    .rodata.Mimic_CMD_PIN_HIGH.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:896    .text.Mimic_CMD_PIN_HIGH:00000000 $t
+     /tmp/ccNHYrZS.s:902    .text.Mimic_CMD_PIN_HIGH:00000000 Mimic_CMD_PIN_HIGH
+     /tmp/ccNHYrZS.s:981    .text.Mimic_CMD_PIN_HIGH:00000048 $d
+     /tmp/ccNHYrZS.s:988    .rodata.Mimic_CMD_PIN_LOW.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:995    .text.Mimic_CMD_PIN_LOW:00000000 $t
+     /tmp/ccNHYrZS.s:1001   .text.Mimic_CMD_PIN_LOW:00000000 Mimic_CMD_PIN_LOW
+     /tmp/ccNHYrZS.s:1080   .text.Mimic_CMD_PIN_LOW:00000048 $d
+     /tmp/ccNHYrZS.s:1087   .rodata.Mimic_CMD_PIN_READ.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:1094   .text.Mimic_CMD_PIN_READ:00000000 $t
+     /tmp/ccNHYrZS.s:1100   .text.Mimic_CMD_PIN_READ:00000000 Mimic_CMD_PIN_READ
+     /tmp/ccNHYrZS.s:1191   .text.Mimic_CMD_PIN_READ:00000050 $d
+     /tmp/ccNHYrZS.s:1200   .rodata.Mimic_CMD_PIN_TOGGLE.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:1207   .text.Mimic_CMD_PIN_TOGGLE:00000000 $t
+     /tmp/ccNHYrZS.s:1213   .text.Mimic_CMD_PIN_TOGGLE:00000000 Mimic_CMD_PIN_TOGGLE
+     /tmp/ccNHYrZS.s:1309   .text.Mimic_CMD_PIN_TOGGLE:00000058 $d
+     /tmp/ccNHYrZS.s:1318   .rodata.Mimic_CMD_PIN_MODE.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:1340   .text.Mimic_CMD_PIN_MODE:00000000 $t
+     /tmp/ccNHYrZS.s:1346   .text.Mimic_CMD_PIN_MODE:00000000 Mimic_CMD_PIN_MODE
+     /tmp/ccNHYrZS.s:1648   .text.Mimic_CMD_PIN_MODE:00000140 $d
+     /tmp/ccNHYrZS.s:1666   .rodata.str1.4:00000000 $d
+     /tmp/ccNHYrZS.s:1703   .rodata:00000000 $d
 
 UNDEFINED SYMBOLS
 Mimic_ParsePin

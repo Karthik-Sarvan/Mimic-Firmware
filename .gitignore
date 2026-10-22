@@ -9,6 +9,15 @@
 /target/
 /bin/
 
+*.d
+*.o
+*.lst
+*.elf
+*.hex
+*.bin
+*.map
+*.d
+
 # Logs
 *.log
 
